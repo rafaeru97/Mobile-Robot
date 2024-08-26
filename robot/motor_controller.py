@@ -115,3 +115,55 @@ class MotorController:
         self.pwm_a.stop()
         self.pwm_b.stop()
         GPIO.cleanup()
+
+    def move_distance(self, left_encoder, right_encoder, distance, speed=50, direction='forward', timeout=30):
+        """
+        Przesunięcie robota o określoną odległość za pomocą enkoderów.
+
+        :param left_encoder: Obiekt klasy Encoder dla lewego silnika
+        :param right_encoder: Obiekt klasy Encoder dla prawego silnika
+        :param distance: Odległość do przebycia w metrach
+        :param speed: Prędkość ruchu (0-100%)
+        :param direction: Kierunek ruchu ('forward' lub 'backward')
+        :param timeout: Maksymalny czas ruchu w sekundach
+        """
+        print(f"Starting movement for {distance} meters {direction}.")
+        start_time = time.time()
+
+        # Zresetowanie pozycji enkoderów
+        left_encoder.reset_position()
+        right_encoder.reset_position()
+
+        # Ustawienie kierunku ruchu
+        if direction == 'forward':
+            self.forward(speed)
+        elif direction == 'backward':
+            self.backward(speed)
+        else:
+            raise ValueError("Invalid direction. Use 'forward' or 'backward'.")
+
+        try:
+            while True:
+                # Obliczenie średniej odległości z obu enkoderów
+                left_distance = left_encoder.get_distance()
+                right_distance = right_encoder.get_distance()
+                average_distance = (left_distance + right_distance) / 2.0
+
+                print(
+                    f"Left distance: {left_distance:.2f} m, Right distance: {right_distance:.2f} m, Average: {average_distance:.2f} m")
+
+                # Sprawdzenie, czy osiągnięto docelową odległość
+                if average_distance >= distance:
+                    print(f"Target distance of {distance} meters reached.")
+                    break
+
+                # Sprawdzenie, czy upłynął maksymalny czas
+                elapsed_time = time.time() - start_time
+                if elapsed_time > timeout:
+                    print("Timeout reached before target distance was achieved.")
+                    break
+
+                time.sleep(0.02)  # Krótkie opóźnienie między odczytami
+
+        finally:
+            self.stop()

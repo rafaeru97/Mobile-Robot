@@ -33,12 +33,12 @@ def main(stdscr):
             elif key == curses.KEY_LEFT and not is_busy:
                 stdscr.addstr(0, 0, 'Rotating Left')
                 is_busy = True
-                motor_controller.rotate_to_angle(gyro, target_angle=90, direction='left', speed=50)
+                motor_controller.rotate_to_angle(gyro, target_angle=9, direction='left', speed=50)
                 is_busy = False
             elif key == curses.KEY_RIGHT and not is_busy:
                 stdscr.addstr(0, 0, 'Rotating Right')
                 is_busy = True
-                motor_controller.rotate_to_angle(gyro, target_angle=90, direction='right', speed=50)
+                motor_controller.rotate_to_angle(gyro, target_angle=9, direction='right', speed=50)
                 is_busy = False
             elif key == ord('q'):
                 stdscr.addstr(0, 0, 'Quitting')

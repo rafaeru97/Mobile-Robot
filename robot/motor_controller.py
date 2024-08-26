@@ -85,9 +85,9 @@ class MotorController:
         try:
             while True:
                 current_angle = gyro.get_angle_z()
-                print(f"Current Angle: {current_angle:.2f} degrees ({target_angle:.2f})")
+                print(f"Current Angle: {current_angle:.2f} degrees ({target_angle:.2f}) chce osiagnac {abs(current_angle - target_angle)}")
 
-                if abs(current_angle - target_angle) >= tolerance:
+                if abs(current_angle - target_angle) <= tolerance:
                     print(f"Target angle {target_angle} degrees reached.")
                     break
 

@@ -1,5 +1,6 @@
 from robot import MotorController, Encoder, Gyro, DistanceSensor, Mapper, calculate_new_position, angle_to_radians
 import time
+import RPi.GPIO as GPIO
 
 def main():
     # Tworzenie obiektów enkoderów
@@ -12,6 +13,8 @@ def main():
             print(f"Right Encoder Distance: {right_encoder.get_distance():.2f} meters")
             time.sleep(1)
 
+    except KeyboardInterrupt:
+        GPIO.cleanup()
 
 if __name__ == '__main__':
     main()

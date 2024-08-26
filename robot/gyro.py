@@ -5,10 +5,6 @@ import math
 class Gyro:
     # Adresy rejestrów MPU-6050
     PWR_MGMT_1 = 0x6B
-    GYRO_XOUT_H = 0x43
-    GYRO_XOUT_L = 0x44
-    GYRO_YOUT_H = 0x45
-    GYRO_YOUT_L = 0x46
     GYRO_ZOUT_H = 0x47
     GYRO_ZOUT_L = 0x48
 
@@ -17,9 +13,8 @@ class Gyro:
         self.address = address
         self.initialize()
         self.last_time = time.time()
-        self.angle_x = 0.0
-        self.angle_y = 0.0
         self.angle_z = 0.0
+        self.time_step = 0.01  # Czas kroków w sekundach (0.01s = 10ms)
 
     def initialize(self):
         # Włącz MPU-6050 (domyślnie w trybie uśpienia po włączeniu zasilania)
@@ -28,10 +23,8 @@ class Gyro:
 
     def read_raw_gyro_data(self):
         # Odczytaj surowe dane z żyroskopu
-        gx = self._read_word_2c(self.GYRO_XOUT_H)
-        gy = self._read_word_2c(self.GYRO_YOUT_H)
         gz = self._read_word_2c(self.GYRO_ZOUT_H)
-        return gx, gy, gz
+        return gz
 
     def _read_word_2c(self, addr):
         # Odczytaj 16-bitowe słowo z dwóch rejestrów
@@ -43,12 +36,10 @@ class Gyro:
             val -= 0x10000
         return val
 
-    def update_angles(self):
-        gx, gy, gz = self.read_raw_gyro_data()
+    def update_angle(self):
+        gz = self.read_raw_gyro_data()
         # Przeliczenie wartości z odczytów z rejestrów na stopnie/s
         sensitivity = 131.0  # Sensitivity dla zakresu ±250°/s
-        gx_deg_s = gx / sensitivity
-        gy_deg_s = gy / sensitivity
         gz_deg_s = gz / sensitivity
 
         # Obliczenie czasu od ostatniego pomiaru
@@ -57,10 +48,8 @@ class Gyro:
         self.last_time = current_time
 
         # Integracja, aby uzyskać kąt
-        self.angle_x += gx_deg_s * dt
-        self.angle_y += gy_deg_s * dt
         self.angle_z += gz_deg_s * dt
 
-    def get_angles(self):
-        self.update_angles()
-        return self.angle_x, self.angle_y, self.angle_z
+    def get_angle_z(self):
+        self.update_angle()
+        return self.angle_z

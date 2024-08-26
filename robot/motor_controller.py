@@ -110,8 +110,8 @@ class MotorController:
 
         try:
             while True:
-                left_distance = left_encoder.get_distance()
-                right_distance = right_encoder.get_distance()
+                left_distance = abs(left_encoder.get_distance())
+                right_distance = abs(right_encoder.get_distance())
 
                 # Korekcja prędkości na podstawie różnicy odległości
                 if left_distance > right_distance:
@@ -150,8 +150,8 @@ class MotorController:
 
         try:
             while True:
-                left_distance = left_encoder.get_distance()
-                right_distance = right_encoder.get_distance()
+                left_distance = abs(left_encoder.get_distance())
+                right_distance = abs(right_encoder.get_distance())
 
                 # Korekcja prędkości na podstawie różnicy odległości
                 if left_distance > right_distance:

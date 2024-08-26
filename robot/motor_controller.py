@@ -103,8 +103,6 @@ class MotorController:
                 left_speed = base_speed - correction
                 right_speed = base_speed + correction
 
-                print(f"L Dist: {left_distance} | R Dist: {right_distance} | Err: {error} | Corr: {correction}")
-
                 # Ensure speed is within 0 to 100 range
                 left_speed = max(0, min(100, left_speed))
                 right_speed = max(0, min(100, right_speed))

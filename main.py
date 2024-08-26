@@ -7,6 +7,7 @@ def main(stdscr):
     motor_controller = MotorController()
     left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
     right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
+    gyro = Gyro()
 
     # Ustawienia terminala
     curses.curs_set(0)
@@ -24,11 +25,11 @@ def main(stdscr):
                 stdscr.addstr(0, 0, 'Moving Backward')
                 motor_controller.backward_with_encoders(left_encoder, right_encoder, target_distance=0.1, base_speed=50)  # Przesuń na krótką odległość
             elif key == curses.KEY_LEFT:
-                stdscr.addstr(0, 0, 'Turning Left')
-                # Dodaj kod do skręcania w lewo (może być realizowane przez różne prędkości silników)
+                stdscr.addstr(0, 0, 'Rotating Left')
+                motor_controller.rotate(gyro, target_angle=90, direction='left', speed=50)
             elif key == curses.KEY_RIGHT:
-                stdscr.addstr(0, 0, 'Turning Right')
-                # Dodaj kod do skręcania w prawo (może być realizowane przez różne prędkości silników)
+                stdscr.addstr(0, 0, 'Rotating Right')
+                motor_controller.rotate(gyro, target_angle=90, direction='right', speed=50)
             elif key == ord('q'):
                 break  # Wyjście z pętli i zakończenie programu
 

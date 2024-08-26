@@ -178,7 +178,7 @@ class MotorController:
             raise ValueError("Direction must be 'left' or 'right'")
 
         start_time = time.time()
-        initial_angle = gyro.get_angle()
+        initial_angle = gyro.get_angle_z()
 
         try:
             while True:

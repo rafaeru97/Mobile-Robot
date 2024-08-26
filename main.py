@@ -2,11 +2,34 @@ from robot import MotorController, Encoder, Gyro, DistanceSensor, Mapper, calcul
 import time
 
 def main():
-    gyro = Gyro()
-    while True:
-        angle_z = gyro.get_angle_z()
-        print(f"Angle Z: {angle_z:.2f} degrees")
-        time.sleep(0.01)  # Co 0.01 sekundy
+    controller = MotorController()
+
+    try:
+        print("Moving forward")
+        controller.forward(75)  # 75% prędkości
+        time.sleep(2)
+
+        print("Turning left")
+        controller.turn_left(75)
+        time.sleep(2)
+
+        print("Turning right")
+        controller.turn_right(75)
+        time.sleep(2)
+
+        print("Moving backward")
+        controller.backward(75)
+        time.sleep(2)
+
+        print("Stopping")
+        controller.stop()
+        time.sleep(1)
+
+    except KeyboardInterrupt:
+        pass
+
+    finally:
+        controller.cleanup()
 
 
 if __name__ == '__main__':

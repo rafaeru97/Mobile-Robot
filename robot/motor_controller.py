@@ -93,6 +93,8 @@ class MotorController:
             while True:
                 current_angle = gyro.get_angle_z() % 360
 
+                print(f"Current angle: {current_angle} | Target angle: {target_angle}")
+
                 if (abs(current_angle) >= target_angle):
                     print(f"Target angle {target_angle} degrees reached.")
                     break
@@ -103,7 +105,7 @@ class MotorController:
                     print("Timeout reached before target angle was achieved.")
                     break
 
-                time.sleep(0.1)  # Krótkie opóźnienie między odczytami
+                time.sleep(0.02)  # Krótkie opóźnienie między odczytami
 
         finally:
             self.stop()

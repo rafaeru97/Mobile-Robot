@@ -67,27 +67,35 @@ class MotorController:
         self.pwm_a.ChangeDutyCycle(0)
         self.pwm_b.ChangeDutyCycle(0)
 
-    def rotate_to_angle(self, gyro, target_angle, speed=50, tolerance=1.0, timeout=30):
+    def rotate_to_angle(self, gyro, target_angle, speed=50, direction='left', timeout=30):
         """
         Obrót robota o określony kąt za pomocą żyroskopu z debugowaniem.
 
         :param gyro: Obiekt klasy Gyro
         :param target_angle: Kąt docelowy w stopniach
         :param speed: Prędkość obrotu (0-100%)
-        :param tolerance: Tolerancja kąta w stopniach
+        :param direction: Kierunek obrotu ('left' lub 'right')
         :param timeout: Maksymalny czas obrotu w sekundach
         """
         print("Starting rotation...")
         start_time = time.time()
         gyro.reset_angle()
-        self.turn_left(speed)  # Użyj `turn_left` lub `turn_right` w zależności od kierunku obrotu
+
+        # Ustaw kierunek obrotu
+        if direction == 'left':
+            self.turn_left(speed)
+        elif direction == 'right':
+            self.turn_right(speed)
+        else:
+            raise ValueError("Invalid direction. Use 'left' or 'right'.")
 
         try:
             while True:
                 current_angle = gyro.get_angle_z()
-                print(f"Current Angle: {current_angle:.2f} degrees ({target_angle:.2f}) chce osiagnac {abs(current_angle - target_angle)}")
+                print(f"Current Angle: {current_angle:.2f} degrees ({target_angle:.2f} target)")
 
-                if (target_angle - current_angle) <= tolerance:
+                # Sprawdź, czy osiągnięto kąt docelowy
+                if abs(current_angle - target_angle) <= 0.5:  # Mała wartość zamiast tolerancji
                     print(f"Target angle {target_angle} degrees reached.")
                     break
 

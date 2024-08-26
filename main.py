@@ -4,7 +4,7 @@ import time
 def main():
     gyro = Gyro()
     while True:
-        angle_z = gyro_z.get_angle_z()
+        angle_z = gyro.get_angle_z()
         print(f"Angle Z: {angle_z:.2f} degrees")
         time.sleep(0.01)  # Co 0.01 sekundy
 

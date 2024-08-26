@@ -118,7 +118,7 @@ class MotorController:
             self.stop()
 
     def forward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=50, timeout=30):
-        self.forward(base_speed)
+        self.forward()
 
         start_time = time.time()
         left_encoder.reset_position()
@@ -161,7 +161,7 @@ class MotorController:
             self.stop()
 
     def backward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=50, timeout=30):
-        self.backward(base_speed)
+        self.backward()
 
         start_time = time.time()
         left_encoder.reset_position()

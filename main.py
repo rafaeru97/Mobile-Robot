@@ -1,6 +1,5 @@
 from robot import MotorController, Encoder, Gyro, DistanceSensor, Mapper, calculate_new_position, angle_to_radians
 import time
-import RPi.GPIO as GPIO
 
 def main():
     # Inicjalizacja kontrolera silników i enkoderów

@@ -7,15 +7,15 @@ class PID:
         self.ki = ki
         self.kd = kd
         self.dt = dt
-
         self.previous_error = 0
         self.integral = 0
 
     def compute(self, error):
         self.integral += error * self.dt
         derivative = (error - self.previous_error) / self.dt
+        output = self.kp * error + self.ki * self.integral + self.kd * derivative
         self.previous_error = error
-        return self.kp * error + self.ki * self.integral + self.kd * derivative
+        return output
 
 class MotorController:
     def __init__(self, en_a=13, in1=20, in2=21, en_b=12, in3=6, in4=5):
@@ -42,7 +42,7 @@ class MotorController:
         self.pwm_b.start(0)
 
         # PID Controller for speed correction
-        self.pid = PID(kp=20.0, ki=0.1, kd=0.01)  # Tune these values
+        self.pid = PID(kp=30.0, ki=0.1, kd=0.01)  # Tune these values
 
     def forward(self):
         """Ruszanie do przodu z określoną prędkością"""

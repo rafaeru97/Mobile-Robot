@@ -178,7 +178,6 @@ class MotorController:
         :param direction: Kierunek obrotu ('left' lub 'right')
         :param timeout: Maksymalny czas obrotu w sekundach
         """
-        print("Starting rotation...")
         start_time = time.time()
         gyro.reset_angle()
 

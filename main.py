@@ -22,27 +22,31 @@ def main(stdscr):
 
             if key == curses.KEY_UP and not is_busy:
                 stdscr.clear()
-                stdscr.addstr(0, 0, 'Moving Forward')
+                stdscr.addstr(0, 0, 'Moving Forward\n')
                 is_busy = True
                 motor_controller.forward_with_encoders(left_encoder, right_encoder, 0.1)
+                time.sleep(0.1)
                 is_busy = False
             elif key == curses.KEY_DOWN and not is_busy:
                 stdscr.clear()
-                stdscr.addstr(0, 0, 'Moving Backward')
+                stdscr.addstr(0, 0, 'Moving Backward\n')
                 is_busy = True
                 motor_controller.backward_with_encoders(left_encoder, right_encoder, 0.1)
+                time.sleep(0.1)
                 is_busy = False
             elif key == curses.KEY_LEFT and not is_busy:
                 stdscr.clear()
-                stdscr.addstr(0, 0, 'Rotating Left')
+                stdscr.addstr(0, 0, 'Rotating Left\n')
                 is_busy = True
                 motor_controller.rotate_to_angle(gyro, target_angle=9, direction='left', speed=50)
+                time.sleep(0.1)
                 is_busy = False
             elif key == curses.KEY_RIGHT and not is_busy:
                 stdscr.clear()
-                stdscr.addstr(0, 0, 'Rotating Right')
+                stdscr.addstr(0, 0, 'Rotating Right\n')
                 is_busy = True
                 motor_controller.rotate_to_angle(gyro, target_angle=9, direction='right', speed=50)
+                time.sleep(0.1)
                 is_busy = False
             elif key == ord('q'):
                 stdscr.clear()

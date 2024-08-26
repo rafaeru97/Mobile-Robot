@@ -53,6 +53,7 @@ def main(stdscr):
             stdscr.refresh()
 
     except KeyboardInterrupt:
+        stdscr.clear()
         stdscr.addstr(1, 0, 'Interrupted by user.')
         stdscr.refresh()
         time.sleep(1)  # Daj chwilę na zobaczenie komunikatu

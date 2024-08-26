@@ -25,23 +25,19 @@ class MotorController:
         self.pwm_a.start(0)
         self.pwm_b.start(0)
 
-    def forward(self, speed):
+    def forward(self):
         """Ruszanie do przodu z określoną prędkością"""
         GPIO.output(self.IN1, GPIO.HIGH)
         GPIO.output(self.IN2, GPIO.LOW)
         GPIO.output(self.IN3, GPIO.HIGH)
         GPIO.output(self.IN4, GPIO.LOW)
-        self.pwm_a.ChangeDutyCycle(speed)
-        self.pwm_b.ChangeDutyCycle(speed)
 
-    def backward(self, speed):
+    def backward(self):
         """Ruszanie w tył z określoną prędkością"""
         GPIO.output(self.IN1, GPIO.LOW)
         GPIO.output(self.IN2, GPIO.HIGH)
         GPIO.output(self.IN3, GPIO.LOW)
         GPIO.output(self.IN4, GPIO.HIGH)
-        self.pwm_a.ChangeDutyCycle(speed)
-        self.pwm_b.ChangeDutyCycle(speed)
 
     def turn_left(self, speed):
         """Obracanie w lewo (lewy silnik w tył, prawy do przodu)"""
@@ -106,6 +102,8 @@ class MotorController:
         """
         Ruszanie do przodu z kontrolą prędkości za pomocą enkoderów.
         """
+        self.forward()
+
         start_time = time.time()
         left_encoder.reset_position()
         right_encoder.reset_position()
@@ -126,8 +124,6 @@ class MotorController:
                     self.pwm_a.ChangeDutyCycle(base_speed)
                     self.pwm_b.ChangeDutyCycle(base_speed)
 
-                print(f"L Dist: {left_distance} | R Dist: {right_distance} | Sum Dist: {(left_distance + right_distance) / 2}")
-
                 if (left_distance + right_distance) / 2 >= target_distance:
                     print(f"Target distance {target_distance} meters reached.")
                     break
@@ -146,6 +142,8 @@ class MotorController:
         """
         Ruszanie do tyłu z kontrolą prędkości za pomocą enkoderów.
         """
+        self.backward()
+
         start_time = time.time()
         left_encoder.reset_position()
         right_encoder.reset_position()

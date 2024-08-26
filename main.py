@@ -26,15 +26,18 @@ def main(stdscr):
                 motor_controller.backward_with_encoders(left_encoder, right_encoder, target_distance=0.01, base_speed=50)  # Przesuń na krótką odległość
             elif key == curses.KEY_LEFT:
                 stdscr.addstr(0, 0, 'Rotating Left')
-                motor_controller.rotate(gyro, target_angle=90, direction='left', speed=50)
+                motor_controller.rotate(gyro, target_angle=9, direction='left', speed=50)
             elif key == curses.KEY_RIGHT:
                 stdscr.addstr(0, 0, 'Rotating Right')
-                motor_controller.rotate(gyro, target_angle=90, direction='right', speed=50)
+                motor_controller.rotate(gyro, target_angle=9, direction='right', speed=50)
             elif key == ord('q'):
                 break  # Wyjście z pętli i zakończenie programu
 
+            # Czyszczenie ekranu i rysowanie nowych danych
             stdscr.refresh()
-            time.sleep(0.1)  # Krótkie opóźnienie dla zmniejszenia obciążenia CPU
+
+        motor_controller.stop()
+        motor_controller.cleanup()
 
     except KeyboardInterrupt:
         pass

@@ -146,9 +146,6 @@ class MotorController:
                 left_speed = base_speed - correction
                 right_speed = base_speed + correction
 
-                print(f"left_speed: {left_speed}")
-                print(f"right_speed: {right_speed}")
-
                 # Ensure speed is within 0 to 100 range
                 left_speed = max(0, min(100, left_speed))
                 right_speed = max(0, min(100, right_speed))
@@ -204,6 +201,9 @@ class MotorController:
                 else:
                     left_speed = speed + correction
                     right_speed = speed - correction
+
+                print(f"left_speed: {left_speed}")
+                print(f"right_speed: {right_speed}")
 
                 # Ensure speed is within 0 to 100 range
                 left_speed = max(0, min(100, left_speed))

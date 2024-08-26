@@ -38,7 +38,7 @@ class Encoder:
         return self.position
 
     def get_distance(self):
-        return self.get_position() / self.pulses_per_meter
+        return (self.get_position() / self.pulses_per_meter) * 2
 
     def reset_position(self):
         self.position = 0

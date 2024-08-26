@@ -1,6 +1,22 @@
 import RPi.GPIO as GPIO
 import time
 
+class PID:
+    def __init__(self, kp, ki, kd, dt=0.02):
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.dt = dt
+
+        self.previous_error = 0
+        self.integral = 0
+
+    def compute(self, error):
+        self.integral += error * self.dt
+        derivative = (error - self.previous_error) / self.dt
+        self.previous_error = error
+        return self.kp * error + self.ki * self.integral + self.kd * derivative
+
 class MotorController:
     def __init__(self, en_a=13, in1=20, in2=21, en_b=12, in3=6, in4=5):
         # Inicjalizacja pinów GPIO
@@ -24,6 +40,9 @@ class MotorController:
         self.pwm_b = GPIO.PWM(self.ENB, 1000)  # PWM dla silnika B (1000 Hz)
         self.pwm_a.start(0)
         self.pwm_b.start(0)
+
+        # PID Controller for speed correction
+        self.pid = PID(kp=1.0, ki=0.1, kd=0.01)  # Tune these values
 
     def forward(self):
         """Ruszanie do przodu z określoną prędkością"""
@@ -99,10 +118,7 @@ class MotorController:
             self.stop()
 
     def forward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=50, timeout=30):
-        """
-        Ruszanie do przodu z kontrolą prędkości za pomocą enkoderów.
-        """
-        self.forward()
+        self.forward(base_speed)
 
         start_time = time.time()
         left_encoder.reset_position()
@@ -110,19 +126,25 @@ class MotorController:
 
         try:
             while True:
-                left_distance = abs(left_encoder.get_distance())
-                right_distance = abs(right_encoder.get_distance())
+                left_distance = left_encoder.get_distance()
+                right_distance = right_encoder.get_distance()
 
-                # Korekcja prędkości na podstawie różnicy odległości
-                if left_distance > right_distance:
-                    self.pwm_a.ChangeDutyCycle(base_speed - 5)  # Zmniejsz prędkość lewego silnika
-                    self.pwm_b.ChangeDutyCycle(base_speed)
-                elif right_distance > left_distance:
-                    self.pwm_a.ChangeDutyCycle(base_speed)
-                    self.pwm_b.ChangeDutyCycle(base_speed - 5)  # Zmniejsz prędkość prawego silnika
-                else:
-                    self.pwm_a.ChangeDutyCycle(base_speed)
-                    self.pwm_b.ChangeDutyCycle(base_speed)
+                # Calculate error
+                error = left_distance - right_distance
+
+                # Compute PID output
+                correction = self.pid.compute(error)
+
+                # Adjust speed based on correction
+                left_speed = base_speed - correction
+                right_speed = base_speed + correction
+
+                # Ensure speed is within 0 to 100 range
+                left_speed = max(0, min(100, left_speed))
+                right_speed = max(0, min(100, right_speed))
+
+                self.pwm_a.ChangeDutyCycle(left_speed)
+                self.pwm_b.ChangeDutyCycle(right_speed)
 
                 if (left_distance + right_distance) / 2 >= target_distance:
                     print(f"Target distance {target_distance} meters reached.")
@@ -139,10 +161,7 @@ class MotorController:
             self.stop()
 
     def backward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=50, timeout=30):
-        """
-        Ruszanie do tyłu z kontrolą prędkości za pomocą enkoderów.
-        """
-        self.backward()
+        self.backward(base_speed)
 
         start_time = time.time()
         left_encoder.reset_position()
@@ -150,21 +169,27 @@ class MotorController:
 
         try:
             while True:
-                left_distance = abs(left_encoder.get_distance())
-                right_distance = abs(right_encoder.get_distance())
+                left_distance = left_encoder.get_distance()
+                right_distance = right_encoder.get_distance()
 
-                # Korekcja prędkości na podstawie różnicy odległości
-                if left_distance > right_distance:
-                    self.pwm_a.ChangeDutyCycle(base_speed - 5)  # Zmniejsz prędkość lewego silnika
-                    self.pwm_b.ChangeDutyCycle(base_speed)
-                elif right_distance > left_distance:
-                    self.pwm_a.ChangeDutyCycle(base_speed)
-                    self.pwm_b.ChangeDutyCycle(base_speed - 5)  # Zmniejsz prędkość prawego silnika
-                else:
-                    self.pwm_a.ChangeDutyCycle(base_speed)
-                    self.pwm_b.ChangeDutyCycle(base_speed)
+                # Calculate error
+                error = left_distance - right_distance
 
-                # Upewnij się, że cofanie jest mierzone w przeciwną stronę
+                # Compute PID output
+                correction = self.pid.compute(error)
+
+                # Adjust speed based on correction
+                left_speed = base_speed - correction
+                right_speed = base_speed + correction
+
+                # Ensure speed is within 0 to 100 range
+                left_speed = max(0, min(100, left_speed))
+                right_speed = max(0, min(100, right_speed))
+
+                self.pwm_a.ChangeDutyCycle(left_speed)
+                self.pwm_b.ChangeDutyCycle(right_speed)
+
+                # Ensure the distance is measured in reverse
                 if (left_distance + right_distance) / 2 >= target_distance:
                     print(f"Target distance {target_distance} meters reached.")
                     break

@@ -8,3 +8,4 @@ def calculate_new_position(current_position, distance, angle):
 
 def angle_to_radians(angle):
     return angle * (math.pi / 180)
+

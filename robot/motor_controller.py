@@ -168,60 +168,43 @@ class MotorController:
         finally:
             self.stop()
 
-    def rotate(self, gyro, target_angle, direction='left', speed=50, timeout=30):
-        """Obracanie robota o zadany kąt w określonym kierunku"""
-        if direction == 'left':
-            self.turn_left(speed)  # Zaczynamy obrót w lewo
-        elif direction == 'right':
-            self.turn_right(speed)  # Zaczynamy obrót w prawo
-        else:
-            raise ValueError("Direction must be 'left' or 'right'")
+    def rotate_to_angle(self, gyro, target_angle, speed=50, direction='left', timeout=30):
+        """
+        Obrót robota o określony kąt za pomocą żyroskopu z debugowaniem.
 
+        :param gyro: Obiekt klasy Gyro
+        :param target_angle: Kąt docelowy w stopniach
+        :param speed: Prędkość obrotu (0-100%)
+        :param direction: Kierunek obrotu ('left' lub 'right')
+        :param timeout: Maksymalny czas obrotu w sekundach
+        """
+        print("Starting rotation...")
         start_time = time.time()
-        initial_angle = abs(gyro.get_angle_z())
+        gyro.reset_angle()
+
+        # Ustaw kierunek obrotu
+        if direction == 'left':
+            self.turn_left(speed)
+        elif direction == 'right':
+            self.turn_right(speed)
+        else:
+            raise ValueError("Invalid direction. Use 'left' or 'right'.")
 
         try:
             while True:
                 current_angle = abs(gyro.get_angle_z())
-                angle_turned = current_angle - initial_angle
 
-                # Calculate the error
-                if direction == 'left':
-                    angle_error = target_angle - angle_turned
-                else:
-                    angle_error = angle_turned - target_angle
-
-                # Compute PID output
-                correction = self.pid.compute(angle_error)
-
-                # Adjust speed based on correction
-                if direction == 'left':
-                    left_speed = speed - correction
-                    right_speed = speed + correction
-                else:
-                    left_speed = speed + correction
-                    right_speed = speed - correction
-
-                print(f"left_speed: {left_speed}")
-                print(f"right_speed: {right_speed}")
-
-                # Ensure speed is within 0 to 100 range
-                left_speed = max(0, min(100, abs(left_speed)))
-                right_speed = max(0, min(100, abs(right_speed)))
-
-                self.pwm_a.ChangeDutyCycle(left_speed)
-                self.pwm_b.ChangeDutyCycle(right_speed)
-
-                if abs(angle_error) <= 0.5:  # Tolerancja na osiągnięcie kąta
+                if (current_angle >= target_angle):
                     print(f"Target angle {target_angle} degrees reached.")
                     break
 
+                # Sprawdź, czy upłynął maksymalny czas
                 elapsed_time = time.time() - start_time
                 if elapsed_time > timeout:
                     print("Timeout reached before target angle was achieved.")
                     break
 
-                time.sleep(0.005)
+                time.sleep(0.1)  # Krótkie opóźnienie między odczytami
 
         finally:
             self.stop()

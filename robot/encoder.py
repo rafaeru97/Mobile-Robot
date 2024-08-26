@@ -7,11 +7,14 @@ class Encoder:
         self.pin_a = pin_a
         self.pin_b = pin_b
         self.position = 0
-        self.wheel_diameter = wheel_diameter  # W metrach
+        self.wheel_diameter = wheel_diameter  # Średnica koła w metrach
         self.ticks_per_revolution = ticks_per_revolution
-        self.pulses_per_meter = self.ticks_per_revolution / (self.wheel_diameter * 3.14159)
+        self.gear_ratio = 120  # Przekładnia
 
-        # Ustawienie pinów przed ich użyciem
+        # Obliczenie liczby impulsów na metr (uwzględniając przekładnię)
+        self.pulses_per_meter = (self.ticks_per_revolution * self.gear_ratio) / (self.wheel_diameter * 3.14159)
+
+        # Konfiguracja pinów GPIO
         GPIO.setup(self.pin_a, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(self.pin_b, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 

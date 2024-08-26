@@ -4,8 +4,8 @@ import RPi.GPIO as GPIO
 
 def main():
     # Tworzenie obiektów enkoderów
-    left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.1, ticks_per_revolution=360)
-    right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.1, ticks_per_revolution=360)
+    left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.1, ticks_per_revolution=960)
+    right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.1, ticks_per_revolution=960)
 
     try:
         while True:

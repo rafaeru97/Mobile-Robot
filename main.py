@@ -2,6 +2,11 @@ from robot import MotorController, Encoder, Gyro
 import time
 import curses
 
+def showMessage(stdscr, message):
+    stdscr.clear()
+    stdscr.addstr(0, 0, message)
+    stdscr.refresh()
+
 def main(stdscr):
     # Inicjalizacja kontrolera silników, enkoderów i żyroskopu
     motor_controller = MotorController()
@@ -21,40 +26,27 @@ def main(stdscr):
             key = stdscr.getch()
 
             if key == curses.KEY_UP and not is_busy:
-                stdscr.clear()
-                stdscr.addstr(0, 0, 'Moving Forward\n')
+                showMessage(stdscr, 'Moving Forward\n')
                 is_busy = True
                 motor_controller.forward_with_encoders(left_encoder, right_encoder, 0.1)
-                time.sleep(0.1)
-                is_busy = False
             elif key == curses.KEY_DOWN and not is_busy:
-                stdscr.clear()
-                stdscr.addstr(0, 0, 'Moving Backward\n')
+                showMessage(stdscr, 'Moving Backward\n')
                 is_busy = True
                 motor_controller.backward_with_encoders(left_encoder, right_encoder, 0.1)
-                time.sleep(0.1)
-                is_busy = False
             elif key == curses.KEY_LEFT and not is_busy:
-                stdscr.clear()
-                stdscr.addstr(0, 0, 'Rotating Left\n')
+                showMessage(stdscr, 'Rotating Left\n')
                 is_busy = True
                 motor_controller.rotate_to_angle(gyro, target_angle=9, direction='left', speed=50)
-                time.sleep(0.1)
-                is_busy = False
             elif key == curses.KEY_RIGHT and not is_busy:
-                stdscr.clear()
-                stdscr.addstr(0, 0, 'Rotating Right\n')
+                showMessage(stdscr, 'Rotating Right\n')
                 is_busy = True
                 motor_controller.rotate_to_angle(gyro, target_angle=9, direction='right', speed=50)
-                time.sleep(0.1)
-                is_busy = False
             elif key == ord('q'):
-                stdscr.clear()
-                stdscr.addstr(0, 0, 'Quitting')
+                showMessage(stdscr, 'Quitting')
                 break
 
-            # Czyszczenie ekranu i rysowanie nowych danych
-            stdscr.refresh()
+            is_busy = False
+            time.sleep(0.1)
 
     except KeyboardInterrupt:
         stdscr.clear()

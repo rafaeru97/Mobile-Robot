@@ -1,3 +1,5 @@
+import RPi.GPIO as GPIO
+
 class MotorController:
     def __init__(self, en_a=13, in1=20, in2=21, en_b=12, in3=6, in4=5):
         # Inicjalizacja pinów GPIO

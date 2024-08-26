@@ -182,7 +182,7 @@ class MotorController:
 
         try:
             while True:
-                current_angle = gyro.get_angle()
+                current_angle = gyro.get_angle_z()
                 angle_turned = current_angle - initial_angle
 
                 # Calculate the error

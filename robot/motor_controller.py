@@ -219,7 +219,7 @@ class MotorController:
                     print("Timeout reached before target angle was achieved.")
                     break
 
-                time.sleep(0.02)
+                time.sleep(0.005)
 
         finally:
             self.stop()

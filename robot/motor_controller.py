@@ -11,10 +11,12 @@ class PID:
         self.integral = 0
 
     def compute(self, error):
-        self.integral += error * self.dt
-        derivative = (error - self.previous_error) / self.dt
-        output = self.kp * error + self.ki * self.integral + self.kd * derivative
-        self.previous_error = error
+        # Prosty filtr do błędu
+        self.error_filter = 0.1 * error + 0.9 * self.previous_error
+        self.integral += self.error_filter * self.dt
+        derivative = (self.error_filter - self.previous_error) / self.dt
+        output = self.kp * self.error_filter + self.ki * self.integral + self.kd * derivative
+        self.previous_error = self.error_filter
         return output
 
 class MotorController:

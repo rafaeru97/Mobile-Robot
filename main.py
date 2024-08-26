@@ -1,16 +1,32 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from robot import MotorController, Encoder, Gyro, DistanceSensor, Mapper, calculate_new_position, angle_to_radians
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def main():
+    motor_controller = MotorController(pin1=17, pin2=18, pwm_pin=22)
+    encoder = Encoder(pin_a=23, pin_b=24)
+    gyro = Gyro()
+    distance_sensor = DistanceSensor(trigger_pin=27, echo_pin=22)
+    mapper = Mapper(map_size=(100, 100))
+
+    while True:
+        # Example loop to move robot, read sensors and update map
+        motor_controller.set_speed(50)
+        motor_controller.set_direction('forward')
+
+        # Simulate a movement for example purposes
+        encoder.read()
+        gyro.read_rotation()
+        distance = distance_sensor.get_distance()
+
+        # Example position and angle updates
+        position = encoder.get_position()
+        angle = gyro.read_rotation()
+        new_position = calculate_new_position(position, distance, angle_to_radians(angle))
+        mapper.update_position(new_position[0], new_position[1])
+        mapper.update_map(distance, angle)
+
+        # Visualization or saving the map could be added here
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    main()

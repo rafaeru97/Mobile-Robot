@@ -35,7 +35,10 @@ class Gyro:
             gz = self.read_raw_gyro_data()
             offset_sum += gz
             time.sleep(0.01)  # Czekaj krótko na każdy pomiar
-        return offset_sum / num_samples
+
+        calib_value = offset_sum / num_samples
+        print(f"\nCalibrated value: {calib_value}")
+        return calib_value
 
     def read_raw_gyro_data(self):
         # Odczytaj surowe dane z żyroskopu

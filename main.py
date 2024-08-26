@@ -13,7 +13,7 @@ def main():
         time.sleep(2)  # Przerwa przed kolejnym ruchem
 
         # Ruch do tyłu na odległość 2 metrów
-        # motor_controller.backward_with_encoders(left_encoder, right_encoder, target_distance=2.0, base_speed=50)
+        motor_controller.backward_with_encoders(left_encoder, right_encoder, target_distance=2.0, base_speed=50)
 
     except KeyboardInterrupt:
         motor_controller.cleanup()

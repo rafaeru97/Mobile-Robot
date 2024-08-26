@@ -3,6 +3,8 @@ import RPi.GPIO as GPIO
 
 class Encoder:
     def __init__(self, pin_a, pin_b, wheel_diameter, ticks_per_revolution):
+        GPIO.setmode(GPIO.BCM)  # Dodaj to na początku
+
         self.pin_a = pin_a
         self.pin_b = pin_b
         self.position = 0
@@ -11,7 +13,6 @@ class Encoder:
         self.ticks_per_revolution = ticks_per_revolution
         self.pulses_per_meter = self.ticks_per_revolution / (self.wheel_diameter * 3.14159)
 
-        GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin_a, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(self.pin_b, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 

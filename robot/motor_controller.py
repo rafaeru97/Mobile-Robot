@@ -99,7 +99,7 @@ class MotorController:
                 print(f"Difference: {difference:.2f} degrees")
 
                 # Sprawdź, czy różnica jest mniejsza niż 1 stopień
-                if (direction == 'left' and difference <= 1) or (direction == 'right' and difference >= 359):
+                if (abs(current_angle) >= target_angle):
                     print(f"Target angle {target_angle} degrees reached.")
                     break
 

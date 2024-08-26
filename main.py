@@ -2,34 +2,19 @@ from robot import MotorController, Encoder, Gyro, DistanceSensor, Mapper, calcul
 import time
 
 def main():
-    controller = MotorController()
+    motor_controller = MotorController()
+    gyro = Gyro()
 
     try:
-        print("Moving forward")
-        controller.forward(75)  # 75% prędkości
-        time.sleep(2)
-
-        print("Turning left")
-        controller.turn_left(75)
-        time.sleep(2)
-
-        print("Turning right")
-        controller.turn_right(75)
-        time.sleep(2)
-
-        print("Moving backward")
-        controller.backward(75)
-        time.sleep(2)
-
-        print("Stopping")
-        controller.stop()
-        time.sleep(1)
+        print("Obracanie robota o 90 stopni")
+        motor_controller.rotate_to_angle(gyro, 90, speed=50, tolerance=1.0)
+        print("Obrót zakończony")
 
     except KeyboardInterrupt:
         pass
 
     finally:
-        controller.cleanup()
+        motor_controller.cleanup()
 
 
 if __name__ == '__main__':

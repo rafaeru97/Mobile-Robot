@@ -1,4 +1,6 @@
 import RPi.GPIO as GPIO
+import time
+
 
 class MotorController:
     def __init__(self, en_a=13, in1=20, in2=21, en_b=12, in3=6, in4=5):
@@ -64,6 +66,28 @@ class MotorController:
         """Zatrzymywanie obu silników"""
         self.pwm_a.ChangeDutyCycle(0)
         self.pwm_b.ChangeDutyCycle(0)
+
+    def rotate_to_angle(self, gyro, target_angle, speed=50, tolerance=1.0):
+        """
+        Obrót robota o określony kąt za pomocą żyroskopu.
+
+        :param gyro: Obiekt klasy Gyro
+        :param target_angle: Kąt docelowy w stopniach
+        :param speed: Prędkość obrotu (0-100%)
+        :param tolerance: Tolerancja kąta w stopniach
+        """
+        gyro.reset_angle()
+        self.turn_left(speed)  # Użyj `turn_left` lub `turn_right` w zależności od kierunku obrotu
+
+        try:
+            while True:
+                current_angle = gyro.get_angle_z()
+                if abs(current_angle - target_angle) <= tolerance:
+                    break
+                time.sleep(0.1)  # Krótkie opóźnienie między odczytami
+
+        finally:
+            self.stop()
 
     def cleanup(self):
         """Oczyszczanie GPIO i zatrzymywanie PWM"""

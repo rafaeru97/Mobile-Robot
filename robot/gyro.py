@@ -1,6 +1,5 @@
 import smbus
 import time
-import math
 
 class Gyro:
     # Adresy rejestrów MPU-6050
@@ -70,3 +69,7 @@ class Gyro:
     def get_angle_z(self):
         self.update_angle()
         return self.angle_z
+
+    def reset_angle(self):
+        self.angle_z = 0.0
+        self.last_time = time.time()

@@ -36,11 +36,11 @@ def main(stdscr):
             elif key == curses.KEY_LEFT and not is_busy:
                 showMessage(stdscr, 'Rotating Left\n')
                 is_busy = True
-                motor_controller.rotate_to_angle(gyro, target_angle=45, direction='left', speed=25)
+                motor_controller.rotate_to_angle(gyro, target_angle=45, direction='left', speed=60)
             elif key == curses.KEY_RIGHT and not is_busy:
                 showMessage(stdscr, 'Rotating Right\n')
                 is_busy = True
-                motor_controller.rotate_to_angle(gyro, target_angle=45, direction='right', speed=25)
+                motor_controller.rotate_to_angle(gyro, target_angle=45, direction='right', speed=60)
             elif key == ord('q'):
                 showMessage(stdscr, 'Quitting')
                 break

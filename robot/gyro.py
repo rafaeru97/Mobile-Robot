@@ -12,14 +12,14 @@ class Gyro:
     GYRO_ZOUT_H = 0x47
     GYRO_ZOUT_L = 0x48
 
-    def __init__(self, bus_number=1, address=0x68):
+    def __init__(self, bus_number=1, address=0x68, calib_value=None):
         self.bus = smbus.SMBus(bus_number)
         self.address = address
         self.initialize()
         self.last_time = time.time()
         self.angle_z = 0.0
         self.time_step = 0.01  # Czas kroków w sekundach (10ms)
-        self.gyro_z_offset = self.calibrate_gyro()
+        self.gyro_z_offset = self.calibrate_gyro(calib_value)
 
     def initialize(self):
         # Włącz MPU-6050 i ustaw opcje konfiguracji
@@ -27,19 +27,24 @@ class Gyro:
         self.bus.write_byte_data(self.address, self.GYRO_CONFIG, 0x00)  # Ustawienia żyroskopu
         time.sleep(0.1)  # Krótkie opóźnienie na rozruch
 
-    def calibrate_gyro(self):
-        print("Calibrating gyro...")
-        num_samples = 1000
-        offset_sum = 0.0
-        for _ in range(num_samples):
-            gz = self.read_raw_gyro_data()
-            offset_sum += gz
-            time.sleep(0.01)  # Czekaj krótko na każdy pomiar
+    def calibrate_gyro(self, value):
+        if not value:
+            print("Calibrating gyro...")
+            num_samples = 1000
+            offset_sum = 0.0
+            for _ in range(num_samples):
+                gz = self.read_raw_gyro_data()
+                offset_sum += gz
+                time.sleep(0.01)  # Czekaj krótko na każdy pomiar
 
-        calib_value = offset_sum / num_samples
-        print(f"\nCalibrated value: {calib_value}")
-        time.sleep(1)
-        return calib_value
+            calib_value = offset_sum / num_samples
+            print(f"\nCalibrated value: {calib_value}")
+            time.sleep(1)
+            return calib_value
+        else:
+            print(f"\nGyro manual value: {value}")
+            time.sleep(1)
+            return value
 
     def read_raw_gyro_data(self):
         # Odczytaj surowe dane z żyroskopu

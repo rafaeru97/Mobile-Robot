@@ -1,7 +1,6 @@
 import RPi.GPIO as GPIO
 import time
 
-
 class MotorController:
     def __init__(self, en_a=13, in1=20, in2=21, en_b=12, in3=6, in4=5):
         # Inicjalizacja pinów GPIO
@@ -70,12 +69,6 @@ class MotorController:
     def rotate_to_angle(self, gyro, target_angle, speed=50, direction='left', timeout=30):
         """
         Obrót robota o określony kąt za pomocą żyroskopu z debugowaniem.
-
-        :param gyro: Obiekt klasy Gyro
-        :param target_angle: Kąt docelowy w stopniach
-        :param speed: Prędkość obrotu (0-100%)
-        :param direction: Kierunek obrotu ('left' lub 'right')
-        :param timeout: Maksymalny czas obrotu w sekundach
         """
         print("Starting rotation...")
         start_time = time.time()
@@ -95,17 +88,93 @@ class MotorController:
 
                 print(f"Current angle: {current_angle} | Target angle: {target_angle}")
 
-                if (abs(current_angle) >= target_angle):
+                if abs(current_angle) >= target_angle:
                     print(f"Target angle {target_angle} degrees reached.")
                     break
 
-                # Sprawdź, czy upłynął maksymalny czas
                 elapsed_time = time.time() - start_time
                 if elapsed_time > timeout:
                     print("Timeout reached before target angle was achieved.")
                     break
 
-                time.sleep(0.02)  # Krótkie opóźnienie między odczytami
+                time.sleep(0.02)
+
+        finally:
+            self.stop()
+
+    def forward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=50, timeout=30):
+        """
+        Ruszanie do przodu z kontrolą prędkości za pomocą enkoderów.
+        """
+        start_time = time.time()
+        left_encoder.reset_position()
+        right_encoder.reset_position()
+
+        try:
+            while True:
+                left_distance = left_encoder.get_distance()
+                right_distance = right_encoder.get_distance()
+
+                # Korekcja prędkości na podstawie różnicy odległości
+                if left_distance > right_distance:
+                    self.pwm_a.ChangeDutyCycle(base_speed - 5)  # Zmniejsz prędkość lewego silnika
+                    self.pwm_b.ChangeDutyCycle(base_speed)
+                elif right_distance > left_distance:
+                    self.pwm_a.ChangeDutyCycle(base_speed)
+                    self.pwm_b.ChangeDutyCycle(base_speed - 5)  # Zmniejsz prędkość prawego silnika
+                else:
+                    self.pwm_a.ChangeDutyCycle(base_speed)
+                    self.pwm_b.ChangeDutyCycle(base_speed)
+
+                if (left_distance + right_distance) / 2 >= target_distance:
+                    print(f"Target distance {target_distance} meters reached.")
+                    break
+
+                elapsed_time = time.time() - start_time
+                if elapsed_time > timeout:
+                    print("Timeout reached before target distance was achieved.")
+                    break
+
+                time.sleep(0.02)
+
+        finally:
+            self.stop()
+
+    def backward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=50, timeout=30):
+        """
+        Ruszanie do tyłu z kontrolą prędkości za pomocą enkoderów.
+        """
+        start_time = time.time()
+        left_encoder.reset_position()
+        right_encoder.reset_position()
+
+        try:
+            while True:
+                left_distance = left_encoder.get_distance()
+                right_distance = right_encoder.get_distance()
+
+                # Korekcja prędkości na podstawie różnicy odległości
+                if left_distance > right_distance:
+                    self.pwm_a.ChangeDutyCycle(base_speed - 5)  # Zmniejsz prędkość lewego silnika
+                    self.pwm_b.ChangeDutyCycle(base_speed)
+                elif right_distance > left_distance:
+                    self.pwm_a.ChangeDutyCycle(base_speed)
+                    self.pwm_b.ChangeDutyCycle(base_speed - 5)  # Zmniejsz prędkość prawego silnika
+                else:
+                    self.pwm_a.ChangeDutyCycle(base_speed)
+                    self.pwm_b.ChangeDutyCycle(base_speed)
+
+                # Upewnij się, że cofanie jest mierzone w przeciwną stronę
+                if (left_distance + right_distance) / 2 >= target_distance:
+                    print(f"Target distance {target_distance} meters reached.")
+                    break
+
+                elapsed_time = time.time() - start_time
+                if elapsed_time > timeout:
+                    print("Timeout reached before target distance was achieved.")
+                    break
+
+                time.sleep(0.02)
 
         finally:
             self.stop()
@@ -115,55 +184,3 @@ class MotorController:
         self.pwm_a.stop()
         self.pwm_b.stop()
         GPIO.cleanup()
-
-    def move_distance(self, left_encoder, right_encoder, distance, speed=50, direction='forward', timeout=30):
-        """
-        Przesunięcie robota o określoną odległość za pomocą enkoderów.
-
-        :param left_encoder: Obiekt klasy Encoder dla lewego silnika
-        :param right_encoder: Obiekt klasy Encoder dla prawego silnika
-        :param distance: Odległość do przebycia w metrach
-        :param speed: Prędkość ruchu (0-100%)
-        :param direction: Kierunek ruchu ('forward' lub 'backward')
-        :param timeout: Maksymalny czas ruchu w sekundach
-        """
-        print(f"Starting movement for {distance} meters {direction}.")
-        start_time = time.time()
-
-        # Zresetowanie pozycji enkoderów
-        left_encoder.reset_position()
-        right_encoder.reset_position()
-
-        # Ustawienie kierunku ruchu
-        if direction == 'forward':
-            self.forward(speed)
-        elif direction == 'backward':
-            self.backward(speed)
-        else:
-            raise ValueError("Invalid direction. Use 'forward' or 'backward'.")
-
-        try:
-            while True:
-                # Obliczenie średniej odległości z obu enkoderów
-                left_distance = left_encoder.get_distance()
-                right_distance = right_encoder.get_distance()
-                average_distance = (left_distance + right_distance) / 2.0
-
-                print(
-                    f"Left distance: {left_distance:.2f} m, Right distance: {right_distance:.2f} m, Average: {average_distance:.2f} m")
-
-                # Sprawdzenie, czy osiągnięto docelową odległość
-                if average_distance >= distance:
-                    print(f"Target distance of {distance} meters reached.")
-                    break
-
-                # Sprawdzenie, czy upłynął maksymalny czas
-                elapsed_time = time.time() - start_time
-                if elapsed_time > timeout:
-                    print("Timeout reached before target distance was achieved.")
-                    break
-
-                time.sleep(0.02)  # Krótkie opóźnienie między odczytami
-
-        finally:
-            self.stop()

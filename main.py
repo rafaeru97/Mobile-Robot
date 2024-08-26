@@ -12,9 +12,6 @@ def main():
             print(f"Right Encoder Distance: {right_encoder.get_distance():.2f} meters")
             time.sleep(1)
 
-    except KeyboardInterrupt:
-        GPIO.cleanup()
-
 
 if __name__ == '__main__':
     main()

@@ -20,10 +20,10 @@ def main(stdscr):
 
             if key == curses.KEY_UP:
                 stdscr.addstr(0, 0, 'Moving Forward')
-                motor_controller.forward_with_encoders(left_encoder, right_encoder, target_distance=0.1, base_speed=50)  # Przesuń na krótką odległość
+                motor_controller.forward_with_encoders(left_encoder, right_encoder, target_distance=0.01, base_speed=50)  # Przesuń na krótką odległość
             elif key == curses.KEY_DOWN:
                 stdscr.addstr(0, 0, 'Moving Backward')
-                motor_controller.backward_with_encoders(left_encoder, right_encoder, target_distance=0.1, base_speed=50)  # Przesuń na krótką odległość
+                motor_controller.backward_with_encoders(left_encoder, right_encoder, target_distance=0.01, base_speed=50)  # Przesuń na krótką odległość
             elif key == curses.KEY_LEFT:
                 stdscr.addstr(0, 0, 'Rotating Left')
                 motor_controller.rotate(gyro, target_angle=90, direction='left', speed=50)

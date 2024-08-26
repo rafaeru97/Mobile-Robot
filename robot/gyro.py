@@ -16,6 +16,10 @@ class Gyro:
         self.bus = smbus.SMBus(bus_number)
         self.address = address
         self.initialize()
+        self.last_time = time.time()
+        self.angle_x = 0.0
+        self.angle_y = 0.0
+        self.angle_z = 0.0
 
     def initialize(self):
         # Włącz MPU-6050 (domyślnie w trybie uśpienia po włączeniu zasilania)
@@ -39,20 +43,24 @@ class Gyro:
             val -= 0x10000
         return val
 
-    def read_rotation(self):
+    def update_angles(self):
         gx, gy, gz = self.read_raw_gyro_data()
         # Przeliczenie wartości z odczytów z rejestrów na stopnie/s
-        # MPU-6050 ma różne zakresy czułości, w tym przypadku używamy 250 deg/s
         sensitivity = 131.0  # Sensitivity dla zakresu ±250°/s
         gx_deg_s = gx / sensitivity
         gy_deg_s = gy / sensitivity
         gz_deg_s = gz / sensitivity
-        return gx_deg_s, gy_deg_s, gz_deg_s
 
-    def read_rotation_radians(self):
-        gx_deg_s, gy_deg_s, gz_deg_s = self.read_rotation()
-        # Przeliczenie z stopni/s na radiany/s
-        gx_rad_s = math.radians(gx_deg_s)
-        gy_rad_s = math.radians(gy_deg_s)
-        gz_rad_s = math.radians(gz_deg_s)
-        return gx_rad_s, gy_rad_s, gz_rad_s
+        # Obliczenie czasu od ostatniego pomiaru
+        current_time = time.time()
+        dt = current_time - self.last_time
+        self.last_time = current_time
+
+        # Integracja, aby uzyskać kąt
+        self.angle_x += gx_deg_s * dt
+        self.angle_y += gy_deg_s * dt
+        self.angle_z += gz_deg_s * dt
+
+    def get_angles(self):
+        self.update_angles()
+        return self.angle_x, self.angle_y, self.angle_z

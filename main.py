@@ -4,9 +4,9 @@ import time
 def main():
     gyro = Gyro()
     while True:
-        gx, gy, gz = gyro.read_rotation()
-        print(f"Gyro X: {gx:.2f} °/s, Gyro Y: {gy:.2f} °/s, Gyro Z: {gz:.2f} °/s")
-        time.sleep(0.5)
+        angle_x, angle_y, angle_z = gyro.get_angles()
+        print(f"Angle X: {angle_x:.2f} degrees, Angle Y: {angle_y:.2f} degrees, Angle Z: {angle_z:.2f} degrees")
+        time.sleep(0.1)  # Co 0.1 sekundy
 
 
 if __name__ == '__main__':

@@ -206,8 +206,8 @@ class MotorController:
                 print(f"right_speed: {right_speed}")
 
                 # Ensure speed is within 0 to 100 range
-                left_speed = max(0, min(100, left_speed))
-                right_speed = max(0, min(100, right_speed))
+                left_speed = max(0, min(100, abs(left_speed)))
+                right_speed = max(0, min(100, abs(right_speed)))
 
                 self.pwm_a.ChangeDutyCycle(left_speed)
                 self.pwm_b.ChangeDutyCycle(right_speed)

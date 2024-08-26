@@ -7,7 +7,7 @@ def main():
 
     try:
         print("Obracanie robota o 90 stopni")
-        motor_controller.rotate_to_angle(gyro, 90, speed=50, tolerance=1.0)
+        motor_controller.rotate_to_angle(gyro, 90, speed=50)
         print("Obrót zakończony")
 
     except KeyboardInterrupt:

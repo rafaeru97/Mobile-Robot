@@ -42,7 +42,7 @@ class MotorController:
         self.pwm_b.start(0)
 
         # PID Controller for speed correction
-        self.pid = PID(kp=1.0, ki=0, kd=0)  # Tune these values
+        self.pid = PID(kp=2.0, ki=0, kd=0)  # Tune these values
 
     def forward(self):
         """Ruszanie do przodu z określoną prędkością"""

@@ -5,8 +5,8 @@ import RPi.GPIO as GPIO
 def main():
     # Inicjalizacja kontrolera silników i enkoderów
     motor_controller = MotorController()
-    left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.1, ticks_per_revolution=960)
-    right_encoder = Encoder(pin_a=1, pin_b=16, wheel_diameter=0.1, ticks_per_revolution=960)
+    left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
+    right_encoder = Encoder(pin_a=1, pin_b=16, wheel_diameter=0.08, ticks_per_revolution=960)
 
     try:
         # Ruch do przodu na odległość 2 metrów

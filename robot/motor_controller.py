@@ -42,7 +42,7 @@ class MotorController:
         self.pwm_b.start(0)
 
         # PID Controller for speed correction
-        self.pid = PID(kp=2.0, ki=0, kd=0)  # Tune these values
+        self.pid = PID(kp=1.0, ki=0.1, kd=0.01)  # Tune these values
 
     def forward(self):
         """Ruszanie do przodu z określoną prędkością"""
@@ -81,35 +81,47 @@ class MotorController:
         self.pwm_a.ChangeDutyCycle(0)
         self.pwm_b.ChangeDutyCycle(0)
 
-    def rotate_to_angle(self, gyro, target_angle, speed=50, direction='left', timeout=30):
-        """
-        Obrót robota o określony kąt za pomocą żyroskopu z debugowaniem.
-        """
-        print("Starting rotation...")
-        start_time = time.time()
-        gyro.reset_angle()
+    def forward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=50, timeout=30):
+        self.forward()
 
-        # Ustaw kierunek obrotu
-        if direction == 'left':
-            self.turn_left(speed)
-        elif direction == 'right':
-            self.turn_right(speed)
-        else:
-            raise ValueError("Invalid direction. Use 'left' or 'right'.")
+        start_time = time.time()
+        left_encoder.reset_position()
+        right_encoder.reset_position()
 
         try:
             while True:
-                current_angle = gyro.get_angle_z()
+                left_distance = abs(left_encoder.get_distance())
+                right_distance = abs(right_encoder.get_distance())
 
-                print(f"Current angle: {current_angle} | Target angle: {target_angle}")
+                # Calculate error
+                error = left_distance - right_distance
 
-                if abs(current_angle) >= target_angle:
-                    print(f"Target angle {target_angle} degrees reached.")
+                # Compute PID output
+                correction = self.pid(error)
+
+                # Adjust speed based on correction
+                left_speed = base_speed - correction
+                right_speed = base_speed + correction
+
+                print(f"L Dist: {left_distance} | R Dist: {right_distance} | Err: {error} | Corr: {correction}")
+
+                # Ensure speed is within 0 to 100 range
+                left_speed = max(0, min(100, left_speed))
+                right_speed = max(0, min(100, right_speed))
+
+                # Apply speeds
+                self.pwm_a.ChangeDutyCycle(left_speed)
+                self.pwm_b.ChangeDutyCycle(right_speed)
+
+                # Check if target distance is reached
+                if (left_distance + right_distance) / 2 >= target_distance:
+                    print(f"Target distance {target_distance} meters reached.")
                     break
 
+                # Check timeout
                 elapsed_time = time.time() - start_time
                 if elapsed_time > timeout:
-                    print("Timeout reached before target angle was achieved.")
+                    print("Timeout reached before target distance was achieved.")
                     break
 
                 time.sleep(0.02)

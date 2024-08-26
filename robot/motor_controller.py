@@ -91,7 +91,7 @@ class MotorController:
 
         try:
             while True:
-                current_angle = gyro.get_angle_z() % 360
+                current_angle = gyro.get_angle_z()
 
                 print(f"Current angle: {current_angle} | Target angle: {target_angle}")
 

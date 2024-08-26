@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+import math
 
 class Encoder:
     def __init__(self, pin_a, pin_b, wheel_diameter, ticks_per_revolution):
@@ -11,7 +12,7 @@ class Encoder:
         self.ticks_per_revolution = ticks_per_revolution
 
         # Obliczenie liczby impulsów na metr (uwzględniając przekładnię)
-        self.pulses_per_meter = self.ticks_per_revolution / (self.wheel_diameter * 3.14159)
+        self.pulses_per_meter = self.ticks_per_revolution / (self.wheel_diameter * math.pi)
 
         # Konfiguracja pinów GPIO
         GPIO.setup(self.pin_a, GPIO.IN, pull_up_down=GPIO.PUD_UP)

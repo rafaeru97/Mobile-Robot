@@ -95,7 +95,7 @@ class MotorController:
                 print(f"Current Angle: {current_angle:.2f} degrees ({target_angle:.2f} target)")
 
                 # Oblicz różnicę kątów w najkrótszej drodze
-                difference = (target_angle - current_angle + 360)
+                difference = (target_angle - current_angle)
                 print(f"Difference: {difference:.2f} degrees")
 
                 # Sprawdź, czy różnica jest mniejsza niż 1 stopień

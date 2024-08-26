@@ -5,6 +5,11 @@ import math
 class Gyro:
     # Adresy rejestrów MPU-6050
     PWR_MGMT_1 = 0x6B
+    GYRO_CONFIG = 0x1B
+    GYRO_XOUT_H = 0x43
+    GYRO_XOUT_L = 0x44
+    GYRO_YOUT_H = 0x45
+    GYRO_YOUT_L = 0x46
     GYRO_ZOUT_H = 0x47
     GYRO_ZOUT_L = 0x48
 
@@ -14,12 +19,13 @@ class Gyro:
         self.initialize()
         self.last_time = time.time()
         self.angle_z = 0.0
-        self.time_step = 0.01  # Czas kroków w sekundach (0.01s = 10ms)
+        self.time_step = 0.01  # Czas kroków w sekundach (10ms)
         self.gyro_z_offset = self.calibrate_gyro()
 
     def initialize(self):
-        # Włącz MPU-6050 (domyślnie w trybie uśpienia po włączeniu zasilania)
+        # Włącz MPU-6050 i ustaw opcje konfiguracji
         self.bus.write_byte_data(self.address, self.PWR_MGMT_1, 0x00)  # Przebudzenie MPU-6050
+        self.bus.write_byte_data(self.address, self.GYRO_CONFIG, 0x00)  # Ustawienia żyroskopu
         time.sleep(0.1)  # Krótkie opóźnienie na rozruch
 
     def calibrate_gyro(self):

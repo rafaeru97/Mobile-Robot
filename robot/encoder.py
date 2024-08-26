@@ -3,7 +3,7 @@ import RPi.GPIO as GPIO
 
 class Encoder:
     def __init__(self, pin_a, pin_b, wheel_diameter, ticks_per_revolution):
-        GPIO.setmode(GPIO.BCM)  # Dodaj to na początku
+        GPIO.setmode(GPIO.BCM)
 
         self.pin_a = pin_a
         self.pin_b = pin_b

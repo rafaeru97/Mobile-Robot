@@ -91,11 +91,14 @@ class MotorController:
 
         try:
             while True:
-                current_angle = gyro.get_angle_z()
+                current_angle = gyro.get_angle_z() % 360  # Upewnij się, że kąt jest w zakresie 0-360
                 print(f"Current Angle: {current_angle:.2f} degrees ({target_angle:.2f} target)")
 
-                # Sprawdź, czy osiągnięto kąt docelowy
-                if abs(current_angle - target_angle) <= 0.5:  # Mała wartość zamiast tolerancji
+                # Oblicz różnicę kątów w najkrótszej drodze
+                difference = (target_angle - current_angle + 360) % 360
+
+                # Sprawdź, czy różnica jest mniejsza niż 1 stopień
+                if (direction == 'left' and difference <= 1) or (direction == 'right' and difference >= 359):
                     print(f"Target angle {target_angle} degrees reached.")
                     break
 

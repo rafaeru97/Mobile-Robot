@@ -126,7 +126,7 @@ class MotorController:
                     self.pwm_a.ChangeDutyCycle(base_speed)
                     self.pwm_b.ChangeDutyCycle(base_speed)
 
-                print(f"Distance: {(left_distance + right_distance) / 2}")
+                print(f"L Dist: {left_distance} | R Dist: {right_distance} | Sum Dist: {(left_distance + right_distance) / 2}")
 
                 if (left_distance + right_distance) / 2 >= target_distance:
                     print(f"Target distance {target_distance} meters reached.")

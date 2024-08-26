@@ -1,20 +1,21 @@
 import RPi.GPIO as GPIO
 
-
 class Encoder:
     def __init__(self, pin_a, pin_b, wheel_diameter, ticks_per_revolution):
-        GPIO.setmode(GPIO.BCM)
+        GPIO.setmode(GPIO.BCM)  # Ustawienie trybu numeracji GPIO
 
         self.pin_a = pin_a
         self.pin_b = pin_b
         self.position = 0
-        self.last_state = GPIO.input(self.pin_a)
         self.wheel_diameter = wheel_diameter  # W metrach
         self.ticks_per_revolution = ticks_per_revolution
         self.pulses_per_meter = self.ticks_per_revolution / (self.wheel_diameter * 3.14159)
 
+        # Ustawienie pinów przed ich użyciem
         GPIO.setup(self.pin_a, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(self.pin_b, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+        self.last_state = GPIO.input(self.pin_a)  # Odczyt stanu pinu po konfiguracji
 
         GPIO.add_event_detect(self.pin_a, GPIO.BOTH, callback=self.update_position)
 

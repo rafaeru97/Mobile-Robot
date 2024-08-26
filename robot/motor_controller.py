@@ -7,17 +7,15 @@ class PID:
         self.ki = ki
         self.kd = kd
         self.dt = dt
+
         self.previous_error = 0
         self.integral = 0
 
     def compute(self, error):
-        # Prosty filtr do błędu
-        self.error_filter = 0.1 * error + 0.9 * self.previous_error
-        self.integral += self.error_filter * self.dt
-        derivative = (self.error_filter - self.previous_error) / self.dt
-        output = self.kp * self.error_filter + self.ki * self.integral + self.kd * derivative
-        self.previous_error = self.error_filter
-        return output
+        self.integral += error * self.dt
+        derivative = (error - self.previous_error) / self.dt
+        self.previous_error = error
+        return self.kp * error + self.ki * self.integral + self.kd * derivative
 
 class MotorController:
     def __init__(self, en_a=13, in1=20, in2=21, en_b=12, in3=6, in4=5):
@@ -82,54 +80,6 @@ class MotorController:
         """Zatrzymywanie obu silników"""
         self.pwm_a.ChangeDutyCycle(0)
         self.pwm_b.ChangeDutyCycle(0)
-
-    def forward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=50, timeout=30):
-        self.forward()
-
-        start_time = time.time()
-        left_encoder.reset_position()
-        right_encoder.reset_position()
-
-        try:
-            while True:
-                left_distance = abs(left_encoder.get_distance())
-                right_distance = abs(right_encoder.get_distance())
-
-                # Calculate error
-                error = left_distance - right_distance
-
-                # Compute PID output
-                correction = self.pid(error)
-
-                # Adjust speed based on correction
-                left_speed = base_speed - correction
-                right_speed = base_speed + correction
-
-                print(f"L Dist: {left_distance} | R Dist: {right_distance} | Err: {error} | Corr: {correction}")
-
-                # Ensure speed is within 0 to 100 range
-                left_speed = max(0, min(100, left_speed))
-                right_speed = max(0, min(100, right_speed))
-
-                # Apply speeds
-                self.pwm_a.ChangeDutyCycle(left_speed)
-                self.pwm_b.ChangeDutyCycle(right_speed)
-
-                # Check if target distance is reached
-                if (left_distance + right_distance) / 2 >= target_distance:
-                    print(f"Target distance {target_distance} meters reached.")
-                    break
-
-                # Check timeout
-                elapsed_time = time.time() - start_time
-                if elapsed_time > timeout:
-                    print("Timeout reached before target distance was achieved.")
-                    break
-
-                time.sleep(0.02)
-
-        finally:
-            self.stop()
 
     def forward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=50, timeout=30):
         self.forward()
@@ -213,6 +163,61 @@ class MotorController:
                 elapsed_time = time.time() - start_time
                 if elapsed_time > timeout:
                     print("Timeout reached before target distance was achieved.")
+                    break
+
+                time.sleep(0.02)
+
+        finally:
+            self.stop()
+
+    def rotate(self, gyro, target_angle, direction='left', speed=50, timeout=30):
+        """Obracanie robota o zadany kąt w określonym kierunku"""
+        if direction == 'left':
+            self.turn_left(speed)  # Zaczynamy obrót w lewo
+        elif direction == 'right':
+            self.turn_right(speed)  # Zaczynamy obrót w prawo
+        else:
+            raise ValueError("Direction must be 'left' or 'right'")
+
+        start_time = time.time()
+        initial_angle = gyro.get_angle()
+
+        try:
+            while True:
+                current_angle = gyro.get_angle()
+                angle_turned = current_angle - initial_angle
+
+                # Calculate the error
+                if direction == 'left':
+                    angle_error = target_angle - angle_turned
+                else:
+                    angle_error = angle_turned - target_angle
+
+                # Compute PID output
+                correction = self.pid.compute(angle_error)
+
+                # Adjust speed based on correction
+                if direction == 'left':
+                    left_speed = speed - correction
+                    right_speed = speed + correction
+                else:
+                    left_speed = speed + correction
+                    right_speed = speed - correction
+
+                # Ensure speed is within 0 to 100 range
+                left_speed = max(0, min(100, left_speed))
+                right_speed = max(0, min(100, right_speed))
+
+                self.pwm_a.ChangeDutyCycle(left_speed)
+                self.pwm_b.ChangeDutyCycle(right_speed)
+
+                if abs(angle_error) <= 0.5:  # Tolerancja na osiągnięcie kąta
+                    print(f"Target angle {target_angle} degrees reached.")
+                    break
+
+                elapsed_time = time.time() - start_time
+                if elapsed_time > timeout:
+                    print("Timeout reached before target angle was achieved.")
                     break
 
                 time.sleep(0.02)

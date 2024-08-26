@@ -3,41 +3,40 @@ import time
 import curses
 
 def main(stdscr):
-    # Inicjalizacja kontrolera silników i enkoderów
+    # Inicjalizacja kontrolera silników, enkoderów i żyroskopu
     motor_controller = MotorController()
     left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
     right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
-    gyro = Gyro()
+    gyro = Gyro()  # Inicjalizuj swój żyroskop
 
-    # Ustawienia terminala
-    curses.curs_set(0)
-    stdscr.nodelay(1)  # Tryb nieblokujący
-    stdscr.clear()
+    # Włącz tryb nie-blokujący w curses
+    stdscr.nodelay(1)
+    stdscr.timeout(100)
 
-    try:
-        while True:
-            key = stdscr.getch()
+    while True:
+        key = stdscr.getch()
 
-            if key == curses.KEY_UP:
-                stdscr.addstr(0, 0, 'Moving Forward')
-                motor_controller.forward_with_encoders(left_encoder, right_encoder, target_distance=0.01, base_speed=50)  # Przesuń na krótką odległość
-            elif key == curses.KEY_DOWN:
-                stdscr.addstr(0, 0, 'Moving Backward')
-                motor_controller.backward_with_encoders(left_encoder, right_encoder, target_distance=0.01, base_speed=50)  # Przesuń na krótką odległość
-            elif key == curses.KEY_LEFT:
-                stdscr.addstr(0, 0, 'Rotating Left')
-                motor_controller.rotate(gyro, target_angle=9, direction='left', speed=50)
-            elif key == curses.KEY_RIGHT:
-                stdscr.addstr(0, 0, 'Rotating Right')
-                motor_controller.rotate(gyro, target_angle=9, direction='right', speed=50)
-            elif key == ord('q'):
-                break  # Wyjście z pętli i zakończenie programu
+        if key == curses.KEY_UP:
+            stdscr.addstr(0, 0, 'Moving Forward')
+            motor_controller.forward_with_encoders(left_encoder, right_encoder, 0.1)
+        elif key == curses.KEY_DOWN:
+            stdscr.addstr(0, 0, 'Moving Backward')
+            motor_controller.backward_with_encoders(left_encoder, right_encoder, 0.1)
+        elif key == curses.KEY_LEFT:
+            stdscr.addstr(0, 0, 'Rotating Left')
+            motor_controller.rotate(gyro, target_angle=90, direction='left', speed=50)
+        elif key == curses.KEY_RIGHT:
+            stdscr.addstr(0, 0, 'Rotating Right')
+            motor_controller.rotate(gyro, target_angle=90, direction='right', speed=50)
+        elif key == ord('q'):
+            stdscr.addstr(0, 0, 'Quitting')
+            break
 
-            # Czyszczenie ekranu i rysowanie nowych danych
-            stdscr.refresh()
+        # Czyszczenie ekranu i rysowanie nowych danych
+        stdscr.refresh()
 
-        motor_controller.stop()
-        motor_controller.cleanup()
+    motor_controller.stop()
+    motor_controller.cleanup()
 
     except KeyboardInterrupt:
         pass

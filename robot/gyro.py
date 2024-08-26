@@ -38,6 +38,7 @@ class Gyro:
 
         calib_value = offset_sum / num_samples
         print(f"\nCalibrated value: {calib_value}")
+        time.sleep(1)
         return calib_value
 
     def read_raw_gyro_data(self):

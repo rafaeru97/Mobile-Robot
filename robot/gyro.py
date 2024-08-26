@@ -15,11 +15,22 @@ class Gyro:
         self.last_time = time.time()
         self.angle_z = 0.0
         self.time_step = 0.01  # Czas kroków w sekundach (0.01s = 10ms)
+        self.gyro_z_offset = self.calibrate_gyro()
 
     def initialize(self):
         # Włącz MPU-6050 (domyślnie w trybie uśpienia po włączeniu zasilania)
         self.bus.write_byte_data(self.address, self.PWR_MGMT_1, 0x00)  # Przebudzenie MPU-6050
         time.sleep(0.1)  # Krótkie opóźnienie na rozruch
+
+    def calibrate_gyro(self):
+        print("Calibrating gyro...")
+        num_samples = 1000
+        offset_sum = 0.0
+        for _ in range(num_samples):
+            gz = self.read_raw_gyro_data()
+            offset_sum += gz
+            time.sleep(0.01)  # Czekaj krótko na każdy pomiar
+        return offset_sum / num_samples
 
     def read_raw_gyro_data(self):
         # Odczytaj surowe dane z żyroskopu
@@ -37,7 +48,7 @@ class Gyro:
         return val
 
     def update_angle(self):
-        gz = self.read_raw_gyro_data()
+        gz = self.read_raw_gyro_data() - self.gyro_z_offset
         # Przeliczenie wartości z odczytów z rejestrów na stopnie/s
         sensitivity = 131.0  # Sensitivity dla zakresu ±250°/s
         gz_deg_s = gz / sensitivity

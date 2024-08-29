@@ -3,9 +3,10 @@ import time
 
 
 class DistanceSensor:
-    def __init__(self, trigger_pin, echo_pin):
+    def __init__(self, trigger_pin, echo_pin, timeout=1):
         self.trigger_pin = trigger_pin
         self.echo_pin = echo_pin
+        self.timeout = timeout  # Timeout in seconds
 
         # Setup GPIO mode
         GPIO.setmode(GPIO.BCM)
@@ -15,7 +16,6 @@ class DistanceSensor:
         GPIO.setup(self.echo_pin, GPIO.IN)
 
     def get_distance(self):
-        print("get_distance call")
         # Ensure that the trigger pin is set low
         GPIO.output(self.trigger_pin, False)
         time.sleep(0.1)
@@ -26,12 +26,18 @@ class DistanceSensor:
         GPIO.output(self.trigger_pin, False)
 
         # Wait for the echo pin to go high and record the start time
+        start_time = time.time()
         while GPIO.input(self.echo_pin) == 0:
             pulse_start = time.time()
+            if pulse_start - start_time > self.timeout:
+                return None  # Return None if timeout occurs
 
         # Wait for the echo pin to go low and record the end time
+        start_time = time.time()
         while GPIO.input(self.echo_pin) == 1:
             pulse_end = time.time()
+            if pulse_end - start_time > self.timeout:
+                return None  # Return None if timeout occurs
 
         # Calculate the pulse duration
         pulse_duration = pulse_end - pulse_start

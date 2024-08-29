@@ -13,7 +13,7 @@ def main(stdscr):
     left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
     right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
     gyro = Gyro(calib_value=-250)  # Inicjalizuj swój żyroskop
-    sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
+    sensor = DistanceSensor(trigger_pin=24, echo_pin=23)
 
     # Flaga do zarządzania operacjami
     is_busy = False

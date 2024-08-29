@@ -43,7 +43,7 @@ def main(stdscr):
                 is_busy = True
                 motor_controller.rotate_to_angle(gyro, target_angle=45, direction='right', speed=60)
             elif key == ord('d') and not is_busy:
-                showMessage(stdscr, 'Rotating Right\n')
+                showMessage(stdscr, 'Reading distance\n')
                 is_busy = True
                 distance = sensor.get_distance()
                 print(f"Distance sensor: {distance} cm")

@@ -47,6 +47,10 @@ def main(stdscr):
                 is_busy = True
                 distance = sensor.get_distance()
                 print(f"Distance sensor: {distance} cm")
+            elif key == ord('m') and not is_busy:
+                showMessage(stdscr, 'Map saved as: map.png\n')
+                is_busy = True
+                motor_controller.mapper.save_map_as_png("map.png")
             elif key == ord('q'):
                 showMessage(stdscr, 'Quitting')
                 break

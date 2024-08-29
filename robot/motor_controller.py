@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+from mapper import Mapper
 
 class PID:
     def __init__(self, kp, ki, kd, dt=0.02):
@@ -43,6 +44,7 @@ class MotorController:
 
         # PID Controller for speed correction
         self.pid = PID(kp=500.0, ki=0.05, kd=0.1)  # Tune these values
+        self.mapper = Mapper()
 
     def forward(self):
         """Ruszanie do przodu z określoną prędkością"""
@@ -111,11 +113,13 @@ class MotorController:
                 self.pwm_b.ChangeDutyCycle(right_speed)
 
                 if (left_distance + right_distance) / 2 >= target_distance:
+                    self.mapper.update_position(target_distance)
                     print(f"Target distance {target_distance} meters reached.")
                     break
 
                 elapsed_time = time.time() - start_time
                 if elapsed_time > timeout:
+                    self.mapper.update_position((left_distance + right_distance) / 2)
                     print("Timeout reached before target distance was achieved.")
                     break
 
@@ -155,11 +159,13 @@ class MotorController:
 
                 # Ensure the distance is measured in reverse
                 if (left_distance + right_distance) / 2 >= target_distance:
+                    self.mapper.update_position(-target_distance)
                     print(f"Target distance {target_distance} meters reached.")
                     break
 
                 elapsed_time = time.time() - start_time
                 if elapsed_time > timeout:
+                    self.mapper.update_position(-(left_distance + right_distance) / 2)
                     print("Timeout reached before target distance was achieved.")
                     break
 
@@ -194,16 +200,18 @@ class MotorController:
                 current_angle = abs(gyro.get_angle_z())
 
                 if (current_angle >= target_angle):
+                    self.mapper.update_orientation(target_angle)
                     print(f"Target angle {target_angle} degrees reached.")
                     break
 
                 # Sprawdź, czy upłynął maksymalny czas
                 elapsed_time = time.time() - start_time
                 if elapsed_time > timeout:
+                    self.mapper.update_orientation(current_angle)
                     print("Timeout reached before target angle was achieved.")
                     break
 
-                time.sleep(0.1)  # Krótkie opóźnienie między odczytami
+                time.sleep(0.02)  # Krótkie opóźnienie między odczytami
 
         finally:
             self.stop()

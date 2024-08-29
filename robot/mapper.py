@@ -17,7 +17,7 @@ class Mapper:
         delta_y = distance * np.sin(self.orientation) / self.resolution
 
         # Zaktualizuj pozycję
-        self.position += np.array([delta_x, delta_y])
+        self.position += np.array([delta_x, delta_y], dtype=float)
 
         # Zaokrąglij pozycję do najbliższej jednostki
         self.position = np.round(self.position).astype(int)

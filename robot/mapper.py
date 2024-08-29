@@ -6,7 +6,7 @@ class Mapper:
         self.map_size = map_size
         self.resolution = resolution
         self.map = np.zeros(map_size, dtype=int)
-        self.position = np.array([map_size[0] // 2, map_size[1] // 2])  # Start in the center
+        self.position = np.array([map_size[0] // 2, map_size[1] // 2], dtype=float)  # Zmieniono dtype na float
         self.orientation = 0  # Robot's heading angle in radians
 
     def update_position(self, distance):

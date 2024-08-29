@@ -15,6 +15,7 @@ class DistanceSensor:
         GPIO.setup(self.echo_pin, GPIO.IN)
 
     def get_distance(self):
+        print("get_distance call")
         # Ensure that the trigger pin is set low
         GPIO.output(self.trigger_pin, False)
         time.sleep(0.1)

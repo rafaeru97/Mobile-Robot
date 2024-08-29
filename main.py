@@ -1,4 +1,4 @@
-from robot import MotorController, Encoder, Gyro
+from robot import MotorController, Encoder, Gyro, DistanceSensor
 import time
 import curses
 
@@ -13,6 +13,7 @@ def main(stdscr):
     left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
     right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
     gyro = Gyro(calib_value=-250)  # Inicjalizuj swój żyroskop
+    sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
 
     # Flaga do zarządzania operacjami
     is_busy = False
@@ -41,6 +42,11 @@ def main(stdscr):
                 showMessage(stdscr, 'Rotating Right\n')
                 is_busy = True
                 motor_controller.rotate_to_angle(gyro, target_angle=45, direction='right', speed=60)
+            elif key == ord('d') and not is_busy:
+                showMessage(stdscr, 'Rotating Right\n')
+                is_busy = True
+                distance = sensor.get_distance()
+                print(f"Distance sensor: {distance} cm")
             elif key == ord('q'):
                 showMessage(stdscr, 'Quitting')
                 break

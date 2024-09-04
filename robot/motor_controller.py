@@ -28,7 +28,6 @@ class MotorController:
         self.IN3 = in3
         self.IN4 = in4
 
-        GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.ENA, GPIO.OUT)
         GPIO.setup(self.ENB, GPIO.OUT)
         GPIO.setup(self.IN1, GPIO.OUT)

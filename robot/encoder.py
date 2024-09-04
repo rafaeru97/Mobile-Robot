@@ -3,8 +3,6 @@ import math
 
 class Encoder:
     def __init__(self, pin_a, pin_b, wheel_diameter, ticks_per_revolution):
-        GPIO.setmode(GPIO.BCM)  # Ustawienie trybu numeracji GPIO
-
         self.pin_a = pin_a
         self.pin_b = pin_b
         self.position = 0

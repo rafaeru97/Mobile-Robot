@@ -8,9 +8,6 @@ class DistanceSensor:
         self.echo_pin = echo_pin
         self.timeout = timeout  # Timeout in seconds
 
-        # Setup GPIO mode
-        GPIO.setmode(GPIO.BCM)
-
         # Setup trigger pin as output and echo pin as input
         GPIO.setup(self.trigger_pin, GPIO.OUT)
         GPIO.setup(self.echo_pin, GPIO.IN)

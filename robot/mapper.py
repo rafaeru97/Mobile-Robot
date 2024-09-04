@@ -51,7 +51,7 @@ class Mapper:
         self.map.fill(0)
 
         # Zamień metry na jednostki mapy (krateczki)
-        pos_x, pos_y = self.position.astype(float)
+        pos_x, pos_y = self.position.astype(int)
 
         # Upewnij się, że pozycja nie wykracza poza granice mapy
         if 0 <= pos_x < self.map_size[0] and 0 <= pos_y < self.map_size[1]:

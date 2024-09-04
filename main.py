@@ -60,7 +60,7 @@ def main(stdscr):
                 break
 
             is_busy = False
-            showMessage(stdscr, gyro.get_angle_z())
+            print(f"gyro.get_angle_z(): {gyro.get_angle_z()}")
             time.sleep(0.1)
 
     except KeyboardInterrupt:

@@ -26,7 +26,7 @@ class Mapper:
         self.position += np.array([delta_x, delta_y], dtype=float)
 
         # Zaokrąglij pozycję do najbliższej jednostki
-        self.position = np.round(self.position).astype(int)
+        self.position = np.round(self.position).astype(float)
 
         # Upewnij się, że pozycja nie wykracza poza granice mapy
         self.position = np.clip(self.position, [0, 0], np.array(self.map_size) - 1)
@@ -51,7 +51,7 @@ class Mapper:
         self.map.fill(0)
 
         # Zamień metry na jednostki mapy (krateczki)
-        pos_x, pos_y = self.position.astype(int)
+        pos_x, pos_y = self.position.astype(float)
 
         # Upewnij się, że pozycja nie wykracza poza granice mapy
         if 0 <= pos_x < self.map_size[0] and 0 <= pos_y < self.map_size[1]:

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Mapper:
-    def __init__(self, map_size=(100, 100), resolution=0.1):
+    def __init__(self, map_size=(100, 100), resolution=0.01):
         self.map_size = map_size
         self.resolution = resolution  # Rozdzielczość w metrach
         self.map = np.zeros(map_size, dtype=int)  # Inicjalizacja mapy jako puste

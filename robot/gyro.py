@@ -29,9 +29,6 @@ class Gyro:
         self.gyro_z_offset = self.calibrate_gyro(calib_value)
         self.sensitivity = 131.0  # Domyślna wartość
 
-        # Kalibracja akcelerometru
-        self.accel_error_x, self.accel_error_y = self.calibrate_accelerometer()
-
     def initialize(self):
         # Włącz MPU-6050 i ustaw opcje konfiguracji
         self.bus.write_byte_data(self.address, self.PWR_MGMT_1, 0x00)  # Przebudzenie MPU-6050
@@ -66,26 +63,8 @@ class Gyro:
             time.sleep(1)
             return value
 
-    def calibrate_accelerometer(self):
-        # Kalibracja akcelerometru
-        print("Kalibruję akcelerometr...")
-        num_samples = 200
-        accel_error_x_sum = 0.0
-        accel_error_y_sum = 0.0
-
-        for _ in range(num_samples):
-            acc_x, acc_y, acc_z = self.read_accelerometer_data()
-            accel_error_x_sum += math.atan2(acc_y, math.sqrt(acc_x**2 + acc_z**2)) * (180 / math.pi)
-            accel_error_y_sum += math.atan2(-acc_x, math.sqrt(acc_y**2 + acc_z**2)) * (180 / math.pi)
-            time.sleep(0.01)
-
-        accel_error_x = accel_error_x_sum / num_samples
-        accel_error_y = accel_error_y_sum / num_samples
-        print(f"\nBłędy kalibracji akcelerometru: X={accel_error_x}, Y={accel_error_y}")
-        return accel_error_x, accel_error_y
-
     def read_raw_gyro_data(self):
-        # Odczytaj surowe dane z żyroskopu
+        # Odczytaj surowe dane z żyroskopu dla osi Z
         gz = self._read_word_2c(self.GYRO_ZOUT_H)
         return gz
 
@@ -127,8 +106,8 @@ class Gyro:
         acc_x /= 16384.0  # Normalizacja dla ±2g
         acc_y /= 16384.0
         acc_z /= 16384.0
-        acc_angle_x = math.atan2(acc_y, math.sqrt(acc_x**2 + acc_z**2)) * (180 / math.pi)
-        return acc_angle_x
+        acc_angle_z = math.atan2(acc_y, acc_x) * (180 / math.pi)  # Kąt wokół osi Z
+        return acc_angle_z
 
     def get_angle_z(self):
         self.update_angle()

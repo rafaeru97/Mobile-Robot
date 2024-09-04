@@ -128,19 +128,16 @@ class Gyro:
         gz = self.read_raw_gyro_data() - self.gyro_z_offset
         gz_deg_s = gz / self.sensitivity
 
-        # Obliczenie czasu od ostatniego pomiaru
         current_time = time.time()
         dt = current_time - self.last_time
         self.last_time = current_time
 
-        # Kąt z żyroskopu
         gyro_angle_z = self.angle_z + gz_deg_s * dt
 
         # Filtr komplementarny
         acc_angle_z = self.calculate_acc_angle()
         self.angle_z = self.alpha * gyro_angle_z + (1.0 - self.alpha) * acc_angle_z
 
-        # Logowanie danych do pliku
         self.log(f"gyro_angle_z: {gyro_angle_z}, acc_angle_z: {acc_angle_z}, angle_z: {self.angle_z}")
 
     def calculate_acc_angle(self):

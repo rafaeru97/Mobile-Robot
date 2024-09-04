@@ -20,7 +20,7 @@ class Encoder:
 
         GPIO.add_event_detect(self.pin_a, GPIO.BOTH, callback=self.update_position)
 
-    def update_position(self):
+    def update_position(self, channel):
         GPIO.setmode(GPIO.BCM)
         state_a = GPIO.input(self.pin_a)
         state_b = GPIO.input(self.pin_b)

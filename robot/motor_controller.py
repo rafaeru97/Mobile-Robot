@@ -200,7 +200,7 @@ class MotorController:
 
                 if (current_angle >= target_angle):
                     self.mapper.update_orientation(target_angle)
-                    print(f"Target angle {target_angle} degrees reached.")
+                    print(f"Target angle {target_angle} degrees reached [CA: {current_angle}].")
                     break
 
                 # Sprawdź, czy upłynął maksymalny czas

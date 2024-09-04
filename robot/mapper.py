@@ -1,13 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 class Mapper:
     def __init__(self, map_size=(100, 100), resolution=0.1):
-        # map_size jest w liczbie kratek
         self.map_size = map_size
         self.resolution = resolution  # Rozdzielczość w metrach
         self.map = np.zeros(map_size, dtype=int)  # Inicjalizacja mapy jako puste
+        self.path_map = np.zeros(map_size, dtype=int)  # Mapa śledzenia drogi
         self.position = np.array([map_size[0] // 2, map_size[1] // 2], dtype=float)  # Początkowa pozycja robota
         self.orientation = 0  # Kąt orientacji robota w radianach
 
@@ -33,6 +32,10 @@ class Mapper:
 
         print(f"Updated position: {self.position}")
 
+        # Aktualizuj mapę śledzenia drogi
+        pos_x, pos_y = self.position.astype(int)
+        self.path_map[pos_x, pos_y] = 1  # Oznacz trasę na mapie
+
     def update_orientation(self, angle):
         print("update_orientation called")
         print(f"Current orientation: {self.orientation}")
@@ -47,14 +50,12 @@ class Mapper:
         print("update_map called")
         print(f"Current position: {self.position}")
 
-        # Wyczyść mapę (opcjonalnie, jeśli chcesz, żeby tylko pozycja robota była widoczna)
-        self.map.fill(0)
-
         # Zamień metry na jednostki mapy (krateczki)
         pos_x, pos_y = self.position.astype(int)
 
         # Upewnij się, że pozycja nie wykracza poza granice mapy
         if 0 <= pos_x < self.map_size[0] and 0 <= pos_y < self.map_size[1]:
+            self.map.fill(0)  # Wyczyść mapę robota
             self.map[pos_x, pos_y] = 1  # Zaznacz pozycję robota na mapie
             print(f"pos_x: {pos_x}, pos_y: {pos_y}")
         else:
@@ -67,14 +68,16 @@ class Mapper:
         self.update_map()
         print(f"Saving map to {filename}")
         with open(filename, 'w') as f:
-            for row in self.map:
-                line = ''.join(['R' if cell else '.' for cell in row])  # Zmieniamy 1 na 'R' (pozycja robota) i 0 na '.'
+            for i in range(self.map_size[0]):
+                line = ''.join(['R' if self.map[i, j] else 'o' if self.path_map[i, j] else '.' for j in range(self.map_size[1])])
                 f.write(line + '\n')
         print(f"Map saved as {filename}")
 
     def save_map_as_png(self, filename='map.png'):
+        self.update_map()
         print(f"Saving map to {filename}")
-        plt.imshow(self.map, cmap='Greys')
+        combined_map = np.maximum(self.map * 255, self.path_map * 128)  # Ścieżka jako szary kolor, robot jako biały
+        plt.imshow(combined_map, cmap='Greys')
         plt.axis('off')  # Ukryj osie
         plt.savefig(filename, bbox_inches='tight', pad_inches=0)
         plt.close()

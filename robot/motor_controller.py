@@ -225,6 +225,7 @@ class MotorController:
 
                 # Obliczaj prędkość obrotu na podstawie PID
                 control = pid.compute(current_angle, dt)
+                print(f"control: {control}")
                 if direction == 'left':
                     self.turn_left(control)
                 elif direction == 'right':

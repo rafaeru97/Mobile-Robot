@@ -18,7 +18,7 @@ class Gyro:
         self.initialize()
         self.last_time = time.time()
         self.angle_z = 0.0
-        self.time_step = 0.01  # Czas kroków w sekundach (10ms)
+        self.alpha = 0.98
         self.gyro_z_offset = self.calibrate_gyro(calib_value)
 
     def initialize(self):
@@ -71,6 +71,12 @@ class Gyro:
         current_time = time.time()
         dt = current_time - self.last_time
         self.last_time = current_time
+
+        # Kąt z żyroskopu
+        gyro_angle_z = self.angle_z + gz_deg_s * dt
+
+        # Filtr komplementarny
+        self.angle_z = self.alpha * gyro_angle_z + (1.0 - self.alpha) * self.angle_z
 
         # Integracja, aby uzyskać kąt
         self.angle_z += gz_deg_s * dt

@@ -67,6 +67,14 @@ class Mapper:
     def get_map(self):
         return self.map
 
+    def save_map_as_txt(self, filename='map.txt'):
+        print(f"Saving map to {filename}")
+        with open(filename, 'w') as f:
+            for row in self.map:
+                line = ''.join(['#' if cell else '.' for cell in row])  # Zmieniamy 1 na '#' i 0 na '.'
+                f.write(line + '\n')
+        print(f"Map saved as {filename}")
+
     def save_map_as_png(self, filename='map.png'):
         print(f"Saving map to {filename}")
         plt.imshow(self.map, cmap='Greys')

@@ -2,6 +2,9 @@ from robot import MotorController, Encoder, Gyro, DistanceSensor
 import time
 import curses
 
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BCM)
+
 def showMessage(stdscr, message):
     stdscr.clear()
     stdscr.addstr(0, 0, message)

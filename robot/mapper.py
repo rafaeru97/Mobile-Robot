@@ -59,4 +59,18 @@ class Mapper:
 
         # Sprawdź, czy pozycja przeszkody mieści się w granicach mapy
         if 0 <= obstacle_x < self.map_size[0] and 0 <= obstacle_y < self.map_size[1]:
-            self.map[obstacle_x, obstacle_y
+            self.map[obstacle_x, obstacle_y] = 1  # Zaznacz przeszkodę na mapie
+            print(f"Obstacle marked on map at position: X={obstacle_x}, Y={obstacle_y}")
+        else:
+            print("Obstacle position out of bounds, not marked on map.")
+
+    def get_map(self):
+        return self.map
+
+    def save_map_as_png(self, filename='map.png'):
+        print(f"Saving map to {filename}")
+        plt.imshow(self.map, cmap='Greys')
+        plt.axis('off')  # Ukryj osie
+        plt.savefig(filename, bbox_inches='tight', pad_inches=0)
+        plt.close()
+        print(f"Map saved as {filename}")

@@ -74,9 +74,9 @@ class Gyro:
         accel_error_y_sum = 0.0
 
         for _ in range(num_samples):
-            acc_x, acc_y, _ = self.read_accelerometer_data()
-            accel_error_x_sum += math.atan2(acc_y, math.sqrt(acc_x**2)) * (180 / math.pi)
-            accel_error_y_sum += math.atan2(-acc_x, math.sqrt(acc_y**2)) * (180 / math.pi)
+            acc_x, acc_y, acc_z = self.read_accelerometer_data()
+            accel_error_x_sum += math.atan2(acc_y, math.sqrt(acc_x**2 + acc_z**2)) * (180 / math.pi)
+            accel_error_y_sum += math.atan2(-acc_x, math.sqrt(acc_y**2 + acc_z**2)) * (180 / math.pi)
             time.sleep(0.01)
 
         accel_error_x = accel_error_x_sum / num_samples
@@ -123,12 +123,11 @@ class Gyro:
         self.angle_z = self.alpha * gyro_angle_z + (1.0 - self.alpha) * self.calculate_acc_angle()
 
     def calculate_acc_angle(self):
-        acc_x, acc_y, _ = self.read_accelerometer_data()
+        acc_x, acc_y, acc_z = self.read_accelerometer_data()
         acc_x /= 16384.0  # Normalizacja dla ±2g
         acc_y /= 16384.0
         acc_z /= 16384.0
         acc_angle_x = math.atan2(acc_y, math.sqrt(acc_x**2 + acc_z**2)) * (180 / math.pi)
-        acc_angle_y = math.atan2(-acc_x, math.sqrt(acc_y**2 + acc_z**2)) * (180 / math.pi)
         return acc_angle_x
 
     def get_angle_z(self):

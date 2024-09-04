@@ -153,7 +153,7 @@ class Gyro:
 
     def get_angle_z(self):
         self.update_angle()
-        return self.gyro_angle_z
+        return self.angle_z
 
     def reset_angle(self):
         self.angle_z = 0.0

@@ -235,7 +235,7 @@ class MotorController:
                 elif direction == 'right':
                     self.turn_right(control)
 
-                if current_angle >= target_angle * 2 - 10:
+                if current_angle >= target_angle * 2 - 16:
                     self.mapper.update_orientation(target_angle)
                     print(f"Target angle {target_angle} degrees reached [{current_angle}].")
                     break

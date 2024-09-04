@@ -204,9 +204,9 @@ class MotorController:
         gyro.reset_angle()
 
         # Ustawienia PID
-        kp = 1.0  # Współczynnik proporcjonalny
-        ki = 0.0  # Współczynnik całkujący
-        kd = 0.1  # Współczynnik różniczkujący
+        kp = 2.0  # Współczynnik proporcjonalny
+        ki = 0.1  # Współczynnik całkujący
+        kd = 0.01  # Współczynnik różniczkujący
         pid = RotatePID(kp, ki, kd, target_angle)
 
         # Ustaw kierunek obrotu
@@ -227,7 +227,7 @@ class MotorController:
 
                 # Obliczaj prędkość obrotu na podstawie PID
                 control = pid.compute(current_angle, dt)
-                control = max(40, min(100, control))
+                control = max(45, min(100, control))
                 print(f"control: {control}")
 
                 if direction == 'left':

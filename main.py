@@ -55,12 +55,14 @@ def main(stdscr):
                 is_busy = True
                 motor_controller.mapper.save_map_as_txt()
                 motor_controller.mapper.save_map_as_png()
+            elif key == ord('a') and not is_busy:
+                print(f"gyro.get_angle_z(): {gyro.get_angle_z()}")
+                is_busy = True
             elif key == ord('q'):
                 showMessage(stdscr, 'Quitting')
                 break
 
             is_busy = False
-            print(f"gyro.get_angle_z(): {gyro.get_angle_z()}")
             time.sleep(0.1)
 
     except KeyboardInterrupt:

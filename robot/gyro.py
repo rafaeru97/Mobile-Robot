@@ -28,12 +28,21 @@ class Gyro:
         self.alpha = 0.95  # Filtr komplementarny
         self.gyro_z_offset = self.calibrate_gyro(calib_value)
         self.sensitivity = 131.0  # Domyślna wartość
+        self.log_file = open("gyro_debug_log.txt", "w")  # Plik logu
+
+        # Kalibracja akcelerometru
+        self.accel_error_x, self.accel_error_y = self.calibrate_accelerometer()
 
     def initialize(self):
         # Włącz MPU-6050 i ustaw opcje konfiguracji
         self.bus.write_byte_data(self.address, self.PWR_MGMT_1, 0x00)  # Przebudzenie MPU-6050
         self.bus.write_byte_data(self.address, self.GYRO_CONFIG, 0x00)  # Ustawienia żyroskopu
         time.sleep(0.1)  # Krótkie opóźnienie na rozruch
+
+    def log(self, message):
+        # Logowanie wiadomości do pliku
+        self.log_file.write(message + "\n")
+        self.log_file.flush()
 
     def calibrate_gyro(self, value):
         gyro_config = self.bus.read_byte_data(self.address, self.GYRO_CONFIG)
@@ -46,7 +55,7 @@ class Gyro:
             self.sensitivity = 16.4
 
         if not value:
-            print("Kalibruję żyroskop...")
+            self.log("Kalibruję żyroskop...")
             num_samples = 1000
             offset_sum = 0.0
             for _ in range(num_samples):
@@ -55,13 +64,31 @@ class Gyro:
                 time.sleep(0.01)  # Czekaj krótko na każdy pomiar
 
             calib_value = offset_sum / num_samples
-            print(f"\nWartość kalibracji: {calib_value}")
+            self.log(f"Wartość kalibracji: {calib_value}")
             time.sleep(1)
             return calib_value
         else:
-            print(f"\nRęczna wartość żyroskopu: {value}")
+            self.log(f"Ręczna wartość żyroskopu: {value}")
             time.sleep(1)
             return value
+
+    def calibrate_accelerometer(self):
+        # Kalibracja akcelerometru
+        self.log("Kalibruję akcelerometr...")
+        num_samples = 200
+        accel_error_x_sum = 0.0
+        accel_error_y_sum = 0.0
+
+        for _ in range(num_samples):
+            acc_x, acc_y, acc_z = self.read_accelerometer_data()
+            accel_error_x_sum += math.atan2(acc_y, math.sqrt(acc_x**2 + acc_z**2)) * (180 / math.pi)
+            accel_error_y_sum += math.atan2(-acc_x, math.sqrt(acc_y**2 + acc_z**2)) * (180 / math.pi)
+            time.sleep(0.01)
+
+        accel_error_x = accel_error_x_sum / num_samples
+        accel_error_y = accel_error_y_sum / num_samples
+        self.log(f"Błędy kalibracji akcelerometru: X={accel_error_x}, Y={accel_error_y}")
+        return accel_error_x, accel_error_y
 
     def read_raw_gyro_data(self):
         # Odczytaj surowe dane z żyroskopu dla osi Z
@@ -101,6 +128,9 @@ class Gyro:
         acc_angle_z = self.calculate_acc_angle()
         self.angle_z = self.alpha * gyro_angle_z + (1.0 - self.alpha) * acc_angle_z
 
+        # Logowanie danych do pliku
+        self.log(f"gyro_angle_z: {gyro_angle_z}, acc_angle_z: {acc_angle_z}, angle_z: {self.angle_z}")
+
     def calculate_acc_angle(self):
         acc_x, acc_y, acc_z = self.read_accelerometer_data()
         acc_x /= 16384.0  # Normalizacja dla ±2g
@@ -116,3 +146,20 @@ class Gyro:
     def reset_angle(self):
         self.angle_z = 0.0
         self.last_time = time.time()
+
+    def close(self):
+        # Zamknięcie pliku logu
+        self.log_file.close()
+
+# Przykład użycia klasy
+if __name__ == "__main__":
+    gyro = Gyro()
+    try:
+        while True:
+            angle_z = gyro.get_angle_z()
+            print(f"Current angle Z: {angle_z}")
+            time.sleep(1)  # Odczekaj chwilę przed kolejnym pomiarem
+    except KeyboardInterrupt:
+        pass
+    finally:
+        gyro.close()

@@ -185,7 +185,7 @@ class MotorController:
                     print("Timeout reached before target distance was achieved.")
                     break
 
-                time.sleep(0.02)
+                time.sleep(0.1)
 
         finally:
             self.stop()

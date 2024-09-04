@@ -20,6 +20,7 @@ class Gyro:
         self.angle_z = 0.0
         self.alpha = 0.98
         self.gyro_z_offset = self.calibrate_gyro(calib_value)
+        self.sensitivity = 131.0  # Default
 
     def initialize(self):
         # Włącz MPU-6050 i ustaw opcje konfiguracji
@@ -28,6 +29,15 @@ class Gyro:
         time.sleep(0.1)  # Krótkie opóźnienie na rozruch
 
     def calibrate_gyro(self, value):
+        gyro_config = self.bus.read_byte_data(self.address, self.GYRO_CONFIG)
+
+        if gyro_config == 0x08:  # ±500°/s
+            self.sensitivity = 65.5
+        elif gyro_config == 0x10:  # ±1000°/s
+            self.sensitivity = 32.8
+        elif gyro_config == 0x18:  # ±2000°/s
+            self.sensitivity = 16.4
+
         if not value:
             print("Calibrating gyro...")
             num_samples = 1000
@@ -64,8 +74,7 @@ class Gyro:
     def update_angle(self):
         gz = self.read_raw_gyro_data() - self.gyro_z_offset
         # Przeliczenie wartości z odczytów z rejestrów na stopnie/s
-        sensitivity = 131.0  # Sensitivity dla zakresu ±250°/s
-        gz_deg_s = gz / sensitivity
+        gz_deg_s = gz / self.sensitivity
 
         # Obliczenie czasu od ostatniego pomiaru
         current_time = time.time()
@@ -83,7 +92,7 @@ class Gyro:
 
     def get_angle_z(self):
         self.update_angle()
-        return self.angle_z / 2
+        return self.angle_z
 
     def reset_angle(self):
         self.angle_z = 0.0

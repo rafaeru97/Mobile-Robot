@@ -23,19 +23,21 @@ class Gyro:
     def __init__(self, bus_number=1, address=0x68, calib_value=None):
         self.bus = smbus.SMBus(bus_number)
         self.address = address
-        self.initialize()
         self.last_time = time.time()
         self.angle_z = 0.0
         self.alpha = 0.95  # Filtr komplementarny
-        self.gyro_z_offset = self.calibrate_gyro(calib_value)
         self.sensitivity = 131.0  # Domyślna wartość
         self.log_file = None  # Zainicjalizowane na None
 
+        # Inicjalizacja
+        self.initialize()
+        self.open_log_file()
+
+        # Kalibracja żyroskopu
+        self.gyro_z_offset = self.calibrate_gyro(calib_value)
+
         # Kalibracja akcelerometru
         self.accel_error_x, self.accel_error_y = self.calibrate_accelerometer()
-
-        # Otwórz plik logu
-        self.open_log_file()
 
     def initialize(self):
         # Włącz MPU-6050 i ustaw opcje konfiguracji
@@ -162,17 +164,3 @@ class Gyro:
         if self.log_file:
             self.log_file.write("Zamknięcie pliku logu.\n")
             self.log_file.close()
-
-
-# Przykład użycia klasy
-if __name__ == "__main__":
-    gyro = Gyro()
-    try:
-        while True:
-            angle_z = gyro.get_angle_z()
-            print(f"Current angle Z: {angle_z}")
-            time.sleep(1)  # Odczekaj chwilę przed kolejnym pomiarem
-    except KeyboardInterrupt:
-        pass
-    finally:
-        gyro.close()

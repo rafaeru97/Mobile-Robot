@@ -235,7 +235,7 @@ class MotorController:
                 elif direction == 'right':
                     self.turn_right(control)
 
-                if abs(current_angle - target_angle) < 1:  # Tolerancja 1 stopień
+                if abs(current_angle - target_angle) < 0.2:  # Tolerancja 1 stopień
                     self.mapper.update_orientation(target_angle)
                     print(f"Target angle {target_angle} degrees reached [{current_angle}].")
                     break

@@ -7,8 +7,8 @@ class Mapper:
         # map_size jest w liczbie kratek
         self.map_size = map_size
         self.resolution = resolution  # Rozdzielczość w metrach
-        self.map = np.zeros(map_size, dtype=int)
-        self.position = np.array([map_size[0] // 2, map_size[1] // 2], dtype=float)  # Początkowa pozycja na środku mapy
+        self.map = np.zeros(map_size, dtype=int)  # Inicjalizacja mapy jako puste
+        self.position = np.array([map_size[0] // 2, map_size[1] // 2], dtype=float)  # Początkowa pozycja robota
         self.orientation = 0  # Kąt orientacji robota w radianach
 
     def update_position(self, distance):
@@ -23,8 +23,7 @@ class Mapper:
         print(f"Delta X: {delta_x}, Delta Y: {delta_y}")
 
         # Zaktualizuj pozycję
-        self.position = self.position.astype(np.float64)  # Zapewnij, że pozycja jest typu float64
-        self.position += np.array([delta_x, delta_y], dtype=np.float64)
+        self.position += np.array([delta_x, delta_y], dtype=float)
 
         # Zaokrąglij pozycję do najbliższej jednostki
         self.position = np.round(self.position).astype(int)
@@ -44,25 +43,21 @@ class Mapper:
 
         print(f"Updated orientation: {self.orientation}")
 
-    def update_map(self, distance, angle_offset=0):
+    def update_map(self):
         print("update_map called")
         print(f"Current position: {self.position}")
-        print(f"Distance: {distance}, Angle offset: {angle_offset}")
 
-        angle = self.orientation + angle_offset
+        # Wyczyść mapę (opcjonalnie, jeśli chcesz, żeby tylko pozycja robota była widoczna)
+        self.map.fill(0)
 
         # Zamień metry na jednostki mapy (krateczki)
-        obstacle_x = int(self.position[0] + (distance * np.cos(angle)) / self.resolution)
-        obstacle_y = int(self.position[1] + (distance * np.sin(angle)) / self.resolution)
+        pos_x, pos_y = self.position.astype(int)
 
-        print(f"Obstacle position: X={obstacle_x}, Y={obstacle_y}")
-
-        # Sprawdź, czy pozycja przeszkody mieści się w granicach mapy
-        if 0 <= obstacle_x < self.map_size[0] and 0 <= obstacle_y < self.map_size[1]:
-            self.map[obstacle_x, obstacle_y] = 1  # Zaznacz przeszkodę na mapie
-            print(f"Obstacle marked on map at position: X={obstacle_x}, Y={obstacle_y}")
+        # Upewnij się, że pozycja nie wykracza poza granice mapy
+        if 0 <= pos_x < self.map_size[0] and 0 <= pos_y < self.map_size[1]:
+            self.map[pos_x, pos_y] = 1  # Zaznacz pozycję robota na mapie
         else:
-            print("Obstacle position out of bounds, not marked on map.")
+            print("Robot position out of bounds, not marked on map.")
 
     def get_map(self):
         return self.map
@@ -71,7 +66,7 @@ class Mapper:
         print(f"Saving map to {filename}")
         with open(filename, 'w') as f:
             for row in self.map:
-                line = ''.join(['#' if cell else '.' for cell in row])  # Zmieniamy 1 na '#' i 0 na '.'
+                line = ''.join(['R' if cell else '.' for cell in row])  # Zmieniamy 1 na 'R' (pozycja robota) i 0 na '.'
                 f.write(line + '\n')
         print(f"Map saved as {filename}")
 

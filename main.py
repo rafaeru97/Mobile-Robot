@@ -40,11 +40,11 @@ def main(stdscr):
             elif key == curses.KEY_LEFT and not is_busy:
                 showMessage(stdscr, 'Rotating Left\n')
                 is_busy = True
-                motor_controller.rotate_to_angle(gyro, target_angle=45, direction='left', speed=60)
+                motor_controller.rotate_to_angle(gyro, target_angle=45, direction='left')
             elif key == curses.KEY_RIGHT and not is_busy:
                 showMessage(stdscr, 'Rotating Right\n')
                 is_busy = True
-                motor_controller.rotate_to_angle(gyro, target_angle=45, direction='right', speed=60)
+                motor_controller.rotate_to_angle(gyro, target_angle=45, direction='right')
             elif key == ord('d') and not is_busy:
                 showMessage(stdscr, 'Reading distance\n')
                 is_busy = True

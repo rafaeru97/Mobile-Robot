@@ -15,7 +15,7 @@ def main(stdscr):
     motor_controller = MotorController()
     left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
     right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
-    gyro = Gyro(calib_value=-253)  # Inicjalizuj swój żyroskop
+    gyro = Gyro()  # Inicjalizuj swój żyroskop
     sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
 
     # Flaga do zarządzania operacjami

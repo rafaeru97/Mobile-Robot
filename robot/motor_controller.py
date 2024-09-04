@@ -173,41 +173,50 @@ class MotorController:
         finally:
             self.stop()
 
-    def rotate_to_angle(self, gyro, target_angle, speed=50, direction='left', timeout=30):
+    def rotate_to_angle(self, gyro, target_angle, direction='left', timeout=30):
         """
-        Obrót robota o określony kąt za pomocą żyroskopu z debugowaniem.
+        Obrót robota o określony kąt za pomocą żyroskopu z regulacją PID.
 
         :param gyro: Obiekt klasy Gyro
         :param target_angle: Kąt docelowy w stopniach
-        :param speed: Prędkość obrotu (0-100%)
         :param direction: Kierunek obrotu ('left' lub 'right')
         :param timeout: Maksymalny czas obrotu w sekundach
         """
         start_time = time.time()
         gyro.reset_angle()
 
-        # Ustaw kierunek obrotu
+        # Ustawienia PID
+        kp = 1.0  # Współczynnik proporcjonalny
+        ki = 0.0  # Współczynnik całkujący
+        kd = 0.1  # Współczynnik różniczkujący
+        pid = PID(kp, ki, kd, target_angle)
+
         if direction == 'left':
-            self.turn_left(speed)
+            self.turn_left(0)  # Ustawienie prędkości na 0 na początku
         elif direction == 'right':
-            self.turn_right(speed)
+            self.turn_right(0)  # Ustawienie prędkości na 0 na początku
         else:
             raise ValueError("Invalid direction. Use 'left' or 'right'.")
 
         try:
             while True:
-                current_angle = abs(gyro.get_angle_z())
-
-                if (current_angle >= target_angle):
-                    self.mapper.update_orientation(target_angle)
-                    print(f"Target angle {target_angle} degrees reached [CA: {current_angle}].")
+                current_angle = gyro.get_angle_z()
+                dt = time.time() - start_time
+                if dt > timeout:
+                    print("Timeout reached before target angle was achieved.")
                     break
 
-                # Sprawdź, czy upłynął maksymalny czas
-                elapsed_time = time.time() - start_time
-                if elapsed_time > timeout:
-                    self.mapper.update_orientation(current_angle)
-                    print("Timeout reached before target angle was achieved.")
+                # Obliczaj prędkość obrotu na podstawie PID
+                control = pid.compute(current_angle, dt)
+                if direction == 'left':
+                    self.turn_left(control)
+                elif direction == 'right':
+                    self.turn_right(control)
+
+                # Sprawdź, czy osiągnięto kąt docelowy
+                if abs(current_angle - target_angle) < 1:  # Tolerancja 1 stopień
+                    self.mapper.update_orientation(target_angle)
+                    print(f"Target angle {target_angle} degrees reached [CA: {current_angle}].")
                     break
 
                 time.sleep(0.02)  # Krótkie opóźnienie między odczytami

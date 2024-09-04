@@ -220,6 +220,7 @@ class MotorController:
         try:
             while True:
                 current_angle = abs(gyro.get_angle_z())
+                print(f"current angle: {current_angle}")
                 dt = time.time() - start_time
                 if dt > timeout:
                     print("Timeout reached before target angle was achieved.")

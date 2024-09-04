@@ -25,7 +25,7 @@ class Gyro:
         self.initialize()
         self.last_time = time.time()
         self.angle_z = 0.0
-        self.alpha = 0.98  # Filtr komplementarny
+        self.alpha = 0.95  # Filtr komplementarny
         self.gyro_z_offset = self.calibrate_gyro(calib_value)
         self.sensitivity = 131.0  # Domyślna wartość
 
@@ -108,7 +108,6 @@ class Gyro:
 
     def update_angle(self):
         gz = self.read_raw_gyro_data() - self.gyro_z_offset
-        # Przeliczenie wartości z odczytów z rejestrów na stopnie/s
         gz_deg_s = gz / self.sensitivity
 
         # Obliczenie czasu od ostatniego pomiaru
@@ -120,7 +119,8 @@ class Gyro:
         gyro_angle_z = self.angle_z + gz_deg_s * dt
 
         # Filtr komplementarny
-        self.angle_z = self.alpha * gyro_angle_z + (1.0 - self.alpha) * self.calculate_acc_angle()
+        acc_angle_z = self.calculate_acc_angle()
+        self.angle_z = self.alpha * gyro_angle_z + (1.0 - self.alpha) * acc_angle_z
 
     def calculate_acc_angle(self):
         acc_x, acc_y, acc_z = self.read_accelerometer_data()

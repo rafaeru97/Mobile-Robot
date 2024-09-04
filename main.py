@@ -54,6 +54,7 @@ def main(stdscr):
                 showMessage(stdscr, 'Map saved as: map.png\n')
                 is_busy = True
                 motor_controller.mapper.save_map_as_txt()
+                motor_controller.mapper.save_map_as_png()
             elif key == ord('q'):
                 showMessage(stdscr, 'Quitting')
                 break

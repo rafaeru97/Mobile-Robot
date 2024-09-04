@@ -12,6 +12,7 @@ class Mapper:
         self.orientation = 0  # Robot's heading angle in radians
 
     def update_position(self, distance):
+        print("update_position")
         # Zamień metry na jednostki mapy (krateczki)
         delta_x = distance * np.cos(self.orientation) / self.resolution
         delta_y = distance * np.sin(self.orientation) / self.resolution
@@ -26,9 +27,11 @@ class Mapper:
         self.position = np.clip(self.position, [0, 0], np.array(self.map_size) - 1)
 
     def update_orientation(self, angle):
+        print("update_orientation")
         self.orientation = (self.orientation + angle) % (2 * np.pi)
 
     def update_map(self, distance, angle_offset=0):
+        print("update map")
         angle = self.orientation + angle_offset
         # Zamień metry na jednostki mapy (krateczki)
         obstacle_x = int(self.position[0] + (distance * np.cos(angle)) / self.resolution)

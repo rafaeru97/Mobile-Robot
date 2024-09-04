@@ -2,6 +2,7 @@ import smbus
 import time
 import math
 
+
 class Gyro:
     # Adresy rejestrów MPU-6050
     PWR_MGMT_1 = 0x6B
@@ -28,10 +29,13 @@ class Gyro:
         self.alpha = 0.95  # Filtr komplementarny
         self.gyro_z_offset = self.calibrate_gyro(calib_value)
         self.sensitivity = 131.0  # Domyślna wartość
-        self.log_file = open("gyro_debug_log.txt", "w")  # Plik logu
+        self.log_file = None  # Zainicjalizowane na None
 
         # Kalibracja akcelerometru
         self.accel_error_x, self.accel_error_y = self.calibrate_accelerometer()
+
+        # Otwórz plik logu
+        self.open_log_file()
 
     def initialize(self):
         # Włącz MPU-6050 i ustaw opcje konfiguracji
@@ -39,10 +43,16 @@ class Gyro:
         self.bus.write_byte_data(self.address, self.GYRO_CONFIG, 0x00)  # Ustawienia żyroskopu
         time.sleep(0.1)  # Krótkie opóźnienie na rozruch
 
+    def open_log_file(self):
+        # Otwórz plik logu
+        self.log_file = open("gyro_debug_log.txt", "w")
+        self.log("Plik logu otwarty.")
+
     def log(self, message):
-        # Logowanie wiadomości do pliku
-        self.log_file.write(message + "\n")
-        self.log_file.flush()
+        if self.log_file:
+            # Logowanie wiadomości do pliku
+            self.log_file.write(message + "\n")
+            self.log_file.flush()
 
     def calibrate_gyro(self, value):
         gyro_config = self.bus.read_byte_data(self.address, self.GYRO_CONFIG)
@@ -81,8 +91,8 @@ class Gyro:
 
         for _ in range(num_samples):
             acc_x, acc_y, acc_z = self.read_accelerometer_data()
-            accel_error_x_sum += math.atan2(acc_y, math.sqrt(acc_x**2 + acc_z**2)) * (180 / math.pi)
-            accel_error_y_sum += math.atan2(-acc_x, math.sqrt(acc_y**2 + acc_z**2)) * (180 / math.pi)
+            accel_error_x_sum += math.atan2(acc_y, math.sqrt(acc_x ** 2 + acc_z ** 2)) * (180 / math.pi)
+            accel_error_y_sum += math.atan2(-acc_x, math.sqrt(acc_y ** 2 + acc_z ** 2)) * (180 / math.pi)
             time.sleep(0.01)
 
         accel_error_x = accel_error_x_sum / num_samples
@@ -149,7 +159,10 @@ class Gyro:
 
     def close(self):
         # Zamknięcie pliku logu
-        self.log_file.close()
+        if self.log_file:
+            self.log_file.write("Zamknięcie pliku logu.\n")
+            self.log_file.close()
+
 
 # Przykład użycia klasy
 if __name__ == "__main__":

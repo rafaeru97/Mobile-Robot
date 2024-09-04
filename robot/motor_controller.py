@@ -18,23 +18,6 @@ class PID:
         self.previous_error = error
         return self.kp * error + self.ki * self.integral + self.kd * derivative
 
-class RotatePID:
-    def __init__(self, kp, ki, kd, setpoint):
-        self.kp = kp
-        self.ki = ki
-        self.kd = kd
-        self.setpoint = setpoint
-        self.prev_error = 0
-        self.integral = 0
-
-    def compute(self, current_value, dt):
-        error = self.setpoint - current_value
-        self.integral += error * dt
-        derivative = (error - self.prev_error) / dt
-        output = self.kp * error + self.ki * self.integral + self.kd * derivative
-        self.prev_error = error
-        return output
-
 class MotorController:
     def __init__(self, en_a=13, in1=20, in2=21, en_b=12, in3=6, in4=5):
         # Inicjalizacja pinów GPIO
@@ -190,53 +173,41 @@ class MotorController:
         finally:
             self.stop()
 
-    def rotate_to_angle(self, gyro, target_angle, direction='left', timeout=30):
+    def rotate_to_angle(self, gyro, target_angle, speed=50, direction='left', timeout=30):
         """
-        Obrót robota o określony kąt za pomocą żyroskopu z regulacją PID.
+        Obrót robota o określony kąt za pomocą żyroskopu z debugowaniem.
 
         :param gyro: Obiekt klasy Gyro
         :param target_angle: Kąt docelowy w stopniach
+        :param speed: Prędkość obrotu (0-100%)
         :param direction: Kierunek obrotu ('left' lub 'right')
         :param timeout: Maksymalny czas obrotu w sekundach
         """
         start_time = time.time()
         gyro.reset_angle()
 
-        # Ustawienia PID
-        kp = 1.0  # Współczynnik proporcjonalny
-        ki = 0.0  # Współczynnik całkujący
-        kd = 0.1  # Współczynnik różniczkujący
-        pid = RotatePID(kp, ki, kd, target_angle)
-
+        # Ustaw kierunek obrotu
         if direction == 'left':
-            self.turn_left(0)  # Ustawienie prędkości na 0 na początku
+            self.turn_left(speed)
         elif direction == 'right':
-            self.turn_right(0)  # Ustawienie prędkości na 0 na początku
+            self.turn_right(speed)
         else:
             raise ValueError("Invalid direction. Use 'left' or 'right'.")
 
         try:
             while True:
-                current_angle = gyro.get_angle_z()
-                dt = time.time() - start_time
-                if dt > timeout:
-                    print("Timeout reached before target angle was achieved.")
-                    break
+                current_angle = abs(gyro.get_angle_z())
 
-                # Obliczaj prędkość obrotu na podstawie PID
-                control = pid.compute(current_angle, dt)
-                control = max(40, min(100, control))
-                print(f"control: {control}")
-
-                if direction == 'left':
-                    self.turn_left(control)
-                elif direction == 'right':
-                    self.turn_right(control)
-
-                # Sprawdź, czy osiągnięto kąt docelowy
                 if abs(current_angle - target_angle) < 1:  # Tolerancja 1 stopień
                     self.mapper.update_orientation(target_angle)
-                    print(f"Target angle {target_angle} degrees reached [CA: {current_angle}].")
+                    print(f"Target angle {target_angle} degrees reached [{current_angle}].")
+                    break
+
+                # Sprawdź, czy upłynął maksymalny czas
+                elapsed_time = time.time() - start_time
+                if elapsed_time > timeout:
+                    self.mapper.update_orientation(current_angle)
+                    print("Timeout reached before target angle was achieved.")
                     break
 
                 time.sleep(0.02)  # Krótkie opóźnienie między odczytami

@@ -56,6 +56,7 @@ class Mapper:
         # Upewnij się, że pozycja nie wykracza poza granice mapy
         if 0 <= pos_x < self.map_size[0] and 0 <= pos_y < self.map_size[1]:
             self.map[pos_x, pos_y] = 1  # Zaznacz pozycję robota na mapie
+            print(f"pos_x: {pos_x}, pos_y: {pos_y}")
         else:
             print("Robot position out of bounds, not marked on map.")
 
@@ -63,6 +64,7 @@ class Mapper:
         return self.map
 
     def save_map_as_txt(self, filename='map.txt'):
+        self.update_map()
         print(f"Saving map to {filename}")
         with open(filename, 'w') as f:
             for row in self.map:

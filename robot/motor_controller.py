@@ -240,7 +240,6 @@ class MotorController:
         :param timeout: Maksymalny czas obrotu w sekundach
         """
         start_time = time.time()
-        gyro.reset_angle()
 
         # Ustawienia PID
         kp = 1.0  # Współczynnik proporcjonalny
@@ -258,7 +257,7 @@ class MotorController:
 
         try:
             while True:
-                current_angle = abs(gyro.get_angle_z())
+                current_angle = gyro.get_angle_z() % 360  # Upewnij się, że wartość jest w zakresie 0-360
                 dt = time.time() - start_time
                 if dt > timeout:
                     print("Timeout reached before target angle was achieved.")
@@ -274,7 +273,7 @@ class MotorController:
                 elif direction == 'right':
                     self.turn_right(control)
 
-                if current_angle >= target_angle:
+                if abs(current_angle - target_angle) < 1:  # Tolerancja dla precyzyjnego osiągnięcia kąta
                     self.mapper.update_orientation(target_angle)
                     print(f"Target angle {target_angle} degrees reached [{current_angle}].")
                     break

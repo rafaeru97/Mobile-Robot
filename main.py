@@ -58,7 +58,7 @@ def main(stdscr):
                 rotate = min(100, max(30, rotate + 5))
             elif key == curses.KEY_RIGHT:
                 speed = 0
-                rotate = -min(100, max(30, rotate + 5))
+                rotate = max(-100, min(-30, rotate - 5))
             elif key == ord('m'):
                 motor_controller.mapper.save_map_as_txt()
                 motor_controller.mapper.save_map_as_png()

@@ -67,6 +67,11 @@ class MotorController:
         self.rightEncoder = None
         self.totalDistance = 0
 
+        self.status = "Initializing..."
+
+    def getStatus(self):
+        return self.status
+
     def setEncoders(self, leftEncoder, rightEncoder):
         self.leftEncoder = leftEncoder
         self.rightEncoder = rightEncoder
@@ -79,6 +84,7 @@ class MotorController:
         GPIO.output(self.IN2, GPIO.LOW)
         GPIO.output(self.IN3, GPIO.HIGH)
         GPIO.output(self.IN4, GPIO.LOW)
+        self.status = "Forward"
 
     def backward(self):
         """Ruszanie w tył z określoną prędkością"""
@@ -86,6 +92,7 @@ class MotorController:
         GPIO.output(self.IN2, GPIO.HIGH)
         GPIO.output(self.IN3, GPIO.LOW)
         GPIO.output(self.IN4, GPIO.HIGH)
+        self.status = "Backward"
 
     def turn_left(self, speed):
         """Obracanie w lewo (lewy silnik w tył, prawy do przodu)"""
@@ -95,6 +102,7 @@ class MotorController:
         GPIO.output(self.IN4, GPIO.LOW)
         self.pwm_a.ChangeDutyCycle(speed)
         self.pwm_b.ChangeDutyCycle(speed)
+        self.status = "Turn Left"
 
     def turn_right(self, speed):
         """Obracanie w prawo (lewy silnik do przodu, prawy w tył)"""
@@ -104,11 +112,13 @@ class MotorController:
         GPIO.output(self.IN4, GPIO.HIGH)
         self.pwm_a.ChangeDutyCycle(speed)
         self.pwm_b.ChangeDutyCycle(speed)
+        self.status = "Turn Right"
 
     def stop(self):
         """Zatrzymywanie obu silników"""
         self.pwm_a.ChangeDutyCycle(0)
         self.pwm_b.ChangeDutyCycle(0)
+        self.status = "Stop"
 
     def drive(self, speed):
         if speed >= 0:

@@ -1,16 +1,9 @@
 from robot import MotorController, Encoder, Gyro, DistanceSensor
 import time
 import curses
-import threading
 
 import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
-
-def drive_thread(motor_controller, speed_event):
-    while True:
-        speed = speed_event.wait()
-        motor_controller.drive(speed)
-        speed_event.clear()
 
 def showMessage(stdscr, message):
     stdscr.clear()
@@ -30,9 +23,6 @@ def main(stdscr):
     stdscr.timeout(100)
 
     speed = 0
-    speed_event = threading.Event()
-
-    threading.Thread(target=drive_thread, args=(motor_controller, speed_event), daemon=True).start()
 
     try:
         while True:
@@ -72,8 +62,7 @@ def main(stdscr):
                 showMessage(stdscr, 'Quitting')
                 break
 
-            speed_event.set()
-            speed_event.wait()
+            motor_controller.drive(speed)
 
             time.sleep(0.1)
 

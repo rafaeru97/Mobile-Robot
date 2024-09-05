@@ -82,6 +82,9 @@ class MotorController:
         self.leftEncoder.reset_position()
         self.rightEncoder.reset_position()
 
+    def getEncoderDistance(self):
+        return (self.leftEncoder.get_distance() + self.rightEncoder.get_distance()) / 2
+
     def forward(self):
         """Ruszanie do przodu z określoną prędkością"""
         GPIO.output(self.IN1, GPIO.HIGH)

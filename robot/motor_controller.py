@@ -130,7 +130,10 @@ class MotorController:
         self.status = "Stop"
 
     def drive(self, speed):
-        if speed >= 0:
+        if speed == 0:
+            return
+
+        if speed > 0:
             self.forward()
         else:
             self.backward()

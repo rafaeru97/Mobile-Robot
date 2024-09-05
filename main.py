@@ -63,6 +63,10 @@ def main(stdscr):
                 motor_controller.mapper.save_map_as_txt()
                 motor_controller.mapper.save_map_as_png()
             elif key == ord('q'):
+                speed = 0
+                rotate = 0
+                motor_controller.stop()
+            elif key == ord('q'):
                 break
 
             if rotate > 0:

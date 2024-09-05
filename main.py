@@ -21,7 +21,7 @@ def print_gui(stdscr, speed, distance, orientation, rotate, status):
     stdscr.addstr(height // 2, 2, f"Distance:     {distance:.2f} cm")
     stdscr.addstr(height // 2 + 1, 2, f"Orientation:  {orientation:.2f} degrees")
     stdscr.addstr(height // 2 + 2, 2, f"Rotary:  {rotate:.2f} units")
-    stdscr.addstr(height // 2 + 3, 2, f"Motor Controller Status:  {status:.2f} units")
+    stdscr.addstr(height // 2 + 3, 2, f"Motor Controller Status:  {status}")
 
     # Instrukcje
     stdscr.addstr(height - 1, 2, "Press Ctrl+C to exit.")

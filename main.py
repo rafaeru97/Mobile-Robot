@@ -33,11 +33,11 @@ def main(stdscr):
             key = stdscr.getch()
 
             if key == curses.KEY_UP and not is_busy:
-                showMessage(stdscr, 'Moving Forward\n')
                 speed = min(100, speed + 5)
+                showMessage(stdscr, f'Moving Forward (Speed: {str(speed)})\n')
             elif key == curses.KEY_DOWN and not is_busy:
-                showMessage(stdscr, 'Moving Backward\n')
                 speed = max(-100, speed - 5)
+                showMessage(stdscr, f'Moving Backward (Speed: {str(speed)})\n')
             elif key == curses.KEY_LEFT and not is_busy:
                 showMessage(stdscr, 'Rotating Left\n')
                 is_busy = True

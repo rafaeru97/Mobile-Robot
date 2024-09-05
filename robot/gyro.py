@@ -151,13 +151,20 @@ class Gyro:
         acc_x, acc_y, acc_z = self.read_accelerometer_data()
 
         # Normalizacja danych akcelerometru (jeśli to potrzebne)
-        accel_total = math.sqrt(acc_x**2 + acc_y**2 + acc_z**2)
+        accel_total = math.sqrt(acc_x ** 2 + acc_y ** 2 + acc_z ** 2)
+
+        # Aby uniknąć dzielenia przez zero
+        if accel_total == 0:
+            accel_total = 1
+
         acc_x_norm = acc_x / accel_total
         acc_y_norm = acc_y / accel_total
         acc_z_norm = acc_z / accel_total
 
-        # Oblicz kąt nachylenia w osi Z za pomocą funkcji atan2
-        accel_angle_z = math.degrees(math.atan2(acc_y_norm, acc_z_norm))
+        # Oblicz kąt nachylenia za pomocą funkcji atan2
+        accel_angle_z = math.degrees(math.atan2(acc_x_norm, acc_z_norm))  # Zmiana osi
+
+        return accel_angle_z
 
         return accel_angle_z
 

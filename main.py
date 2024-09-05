@@ -1,4 +1,5 @@
 from robot import MotorController, Encoder, Gyro, DistanceSensor
+import time
 import pygame
 import RPi.GPIO as GPIO
 
@@ -59,52 +60,34 @@ def main():
                     speed = 0
                     rotate = max(-30, rotate - 5)
                 elif event.key == pygame.K_d:
-                    try:
-                        distance = sensor.get_distance()
-                        print(f"Distance sensor: {distance} cm")
-                    except Exception as e:
-                        print(f"Error reading distance sensor: {e}")
+                    distance = sensor.get_distance()
+                    print(f"Distance sensor: {distance} cm")
                 elif event.key == pygame.K_m:
-                    try:
-                        print('Map saved as: map.png')
-                        motor_controller.mapper.save_map_as_txt()
-                        motor_controller.mapper.save_map_as_png()
-                    except Exception as e:
-                        print(f"Error saving map: {e}")
+                    print('Map saved as: map.png')
+                    motor_controller.mapper.save_map_as_txt()
+                    motor_controller.mapper.save_map_as_png()
                 elif event.key == pygame.K_a:
-                    try:
-                        print(f"gyro.get_angle_z(): {gyro.get_angle_z()}")
-                    except Exception as e:
-                        print(f"Error reading gyro angle: {e}")
+                    print(f"gyro.get_angle_z(): {gyro.get_angle_z()}")
                 elif event.key == pygame.K_q:
                     running = False
 
         # Aktualizacja robota
-        try:
-            motor_controller.drive(speed)
-            if rotate > 0:
-                motor_controller.rotate_to_angle(gyro, target_angle=rotate, direction='left')
-            elif rotate < 0:
-                rotate = abs(rotate)
-                motor_controller.rotate_to_angle(gyro, target_angle=rotate, direction='right')
-            rotate = 0
-        except Exception as e:
-            print(f"Error updating robot: {e}")
+        motor_controller.drive(speed)
+        if rotate > 0:
+            motor_controller.rotate_to_angle(gyro, target_angle=rotate, direction='left')
+        elif rotate < 0:
+            rotate = abs(rotate)
+            motor_controller.rotate_to_angle(gyro, target_angle=rotate, direction='right')
+        rotate = 0
 
-        # Rysowanie na ekranie
-        screen.fill((0, 0, 0))  # Czyszczenie ekranu
-        draw_text(f'Speed: {speed}', (255, 255, 255), screen, 20, 20)
-        draw_text(f'Rotation: {rotate}', (255, 255, 255), screen, 20, 60)
-        try:
-            draw_text(f'Gyro Angle: {gyro.get_angle_z():.2f}', (255, 255, 255), screen, 20, 100)
-        except Exception as e:
-            print(f"Error reading gyro angle for display: {e}")
-        pygame.display.flip()
-
-        # Ustawienie liczby klatek na sekundę
-        clock.tick(60)
+        # Wydruk danych debugujących
+        print(f'Speed: {speed}')
+        print(f'Rotation: {rotate}')
+        print(f'Gyro Angle: {gyro.get_angle_z():.2f}')
+        time.sleep(0.1)  # Spowolnienie pętli
 
     pygame.quit()
+
 
 if __name__ == '__main__':
     main()

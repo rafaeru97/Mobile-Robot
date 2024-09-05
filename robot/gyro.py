@@ -25,7 +25,7 @@ class Gyro:
         self.address = address
         self.last_time = time.time()
         self.angle_z = 0.0
-        self.alpha = 0.98  # Filtr komplementarny
+        self.alpha = 0.95  # Filtr komplementarny
         self.sensitivity = 131.0  # Domyślna wartość
         self.log_file = None  # Zainicjalizowane na None
 

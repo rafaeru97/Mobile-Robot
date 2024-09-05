@@ -12,6 +12,10 @@ class PID:
         self.previous_error = 0
         self.integral = 0
 
+    def reset(self):
+        self.previous_error = 0
+        self.integral = 0
+
     def compute(self, error):
         self.integral += error * self.dt
         derivative = (error - self.previous_error) / self.dt
@@ -84,6 +88,7 @@ class MotorController:
         GPIO.output(self.IN2, GPIO.LOW)
         GPIO.output(self.IN3, GPIO.HIGH)
         GPIO.output(self.IN4, GPIO.LOW)
+        self.pid.reset()
         self.status = "Forward"
 
     def backward(self):
@@ -92,6 +97,7 @@ class MotorController:
         GPIO.output(self.IN2, GPIO.HIGH)
         GPIO.output(self.IN3, GPIO.LOW)
         GPIO.output(self.IN4, GPIO.HIGH)
+        self.pid.reset()
         self.status = "Backward"
 
     def turn_left(self, speed):

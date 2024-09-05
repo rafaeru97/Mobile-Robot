@@ -133,10 +133,7 @@ class Gyro:
         self.last_time = current_time
 
         gyro_angle_z = self.angle_z + gz_deg_s * dt
-
-        # Filtr komplementarny
-        acc_angle_z = self.calculate_acc_angle()
-        self.angle_z = self.alpha * gyro_angle_z + (1.0 - self.alpha) * acc_angle_z
+        self.angle_z = gyro_angle_z
 
         self.log(f"gyro_angle_z: {gyro_angle_z}, acc_angle_z: {acc_angle_z}, angle_z: {self.angle_z}")
 

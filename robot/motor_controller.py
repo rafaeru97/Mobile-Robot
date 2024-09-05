@@ -169,13 +169,11 @@ class MotorController:
 
                 if (left_distance + right_distance) / 2 >= target_distance:
                     self.mapper.update_position(target_distance)
-                    print(f"Target distance {target_distance} meters reached.")
                     break
 
                 elapsed_time = time.time() - start_time
                 if elapsed_time > timeout:
                     self.mapper.update_position((left_distance + right_distance) / 2)
-                    print("Timeout reached before target distance was achieved.")
                     break
 
                 time.sleep(0.02)
@@ -215,13 +213,11 @@ class MotorController:
                 # Ensure the distance is measured in reverse
                 if (left_distance + right_distance) / 2 >= target_distance:
                     self.mapper.update_position(-target_distance)
-                    print(f"Target distance {target_distance} meters reached.")
                     break
 
                 elapsed_time = time.time() - start_time
                 if elapsed_time > timeout:
                     self.mapper.update_position(-(left_distance + right_distance) / 2)
-                    print("Timeout reached before target distance was achieved.")
                     break
 
                 time.sleep(0.1)
@@ -260,13 +256,11 @@ class MotorController:
                 current_angle = gyro.get_angle_z() % 360  # Upewnij się, że wartość jest w zakresie 0-360
                 dt = time.time() - start_time
                 if dt > timeout:
-                    print("Timeout reached before target angle was achieved.")
                     break
 
                 # Obliczaj prędkość obrotu na podstawie PID
                 control = pid.compute(current_angle, dt)
                 control = max(45, min(100, control))
-                print(f"control: {control}")
 
                 if direction == 'left':
                     self.turn_left(control)
@@ -275,7 +269,6 @@ class MotorController:
 
                 if abs(current_angle - target_angle) < 1:  # Tolerancja dla precyzyjnego osiągnięcia kąta
                     self.mapper.update_orientation(target_angle)
-                    print(f"Target angle {target_angle} degrees reached [{current_angle}].")
                     break
 
                 time.sleep(0.02)  # Krótkie opóźnienie między odczytami

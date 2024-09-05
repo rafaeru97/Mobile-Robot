@@ -64,12 +64,13 @@ def main(stdscr):
             elif key == ord('q'):
                 break
 
-            motor_controller.drive(speed)
             if rotate > 0:
                 motor_controller.turn_left(rotate)
             elif rotate < 0:
                 rotate = abs(rotate)
                 motor_controller.turn_right(rotate)
+            else:
+                motor_controller.drive(speed)
 
             print_gui(stdscr, speed, sensor.get_distance(), gyro.get_angle_z(), rotate)
             time.sleep(0.2)  # Spowolnienie pętli

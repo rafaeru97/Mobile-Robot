@@ -132,10 +132,9 @@ class Gyro:
         dt = current_time - self.last_time
         self.last_time = current_time
 
-        gyro_angle_z = self.angle_z + gz_deg_s * dt
-        self.angle_z = gyro_angle_z
+        self.angle_z = self.angle_z + gz_deg_s * dt
 
-        self.log(f"gyro_angle_z: {gyro_angle_z}, acc_angle_z: {acc_angle_z}, angle_z: {self.angle_z}")
+        self.log(f"angle_z: {self.angle_z}")
 
     def calculate_acc_angle(self):
         acc_x, acc_y, acc_z = self.read_accelerometer_data()

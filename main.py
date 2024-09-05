@@ -13,7 +13,7 @@ def print_gui(stdscr, speed, distance, orientation, rotate, status, encoder):
     # Utwórz ramkę
     border = "*" * (width - 2)
     stdscr.addstr(0, 0, border)
-    stdscr.addstr(height // 2 - 2, 0, "*" + " Robot Status ".center(width - 2) + "*")
+    stdscr.addstr(height // 2 - 2, 0, "*" + " Mobile Robot - UI".center(width - 2) + "*")
     stdscr.addstr(height - 1, 0, border)
 
     # Wyświetl dane

@@ -134,7 +134,10 @@ class Gyro:
         self.last_time = current_time
 
         # Oblicz nowy kąt z żyroskopu (integracja prędkości kątowej)
-        self.angle_z = self.angle_z + gz_deg_s * dt
+        self.angle_z += gz_deg_s * dt
+
+        # Utrzymaj kąt w zakresie 0-360 stopni
+        self.angle_z %= 360
 
         # Logowanie wartości
         self.log(f"angle_z: {self.angle_z}")

@@ -1,93 +1,78 @@
 from robot import MotorController, Encoder, Gyro, DistanceSensor
+import pygame
 import time
-import curses
 
-import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BCM)
+# Inicjalizacja pygame
+pygame.init()
+screen = pygame.display.set_mode((600, 400))  # Ustawienia rozmiaru ekranu
+pygame.display.set_caption("Robot Control")
+clock = pygame.time.Clock()
+font = pygame.font.SysFont(None, 36)
 
-def showMessage(stdscr, message):
-    stdscr.clear()
-    stdscr.addstr(0, 0, message)
-    stdscr.refresh()
+# Inicjalizacja komponentów robota
+left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
+right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
+motor_controller = MotorController()
+motor_controller.setEncoders(left_encoder, right_encoder)
+gyro = Gyro()
+sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
 
-def main(stdscr):
-    left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
-    right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
-    motor_controller = MotorController()
-    motor_controller.setEncoders(left_encoder, right_encoder)
-    gyro = Gyro()
-    sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
+def draw_text(message, color, surface, x, y):
+    text = font.render(message, True, color)
+    surface.blit(text, (x, y))
 
-    # Włącz tryb nie-blokujący w curses
-    stdscr.nodelay(1)
-    stdscr.timeout(100)
-    last_key = None
-    last_key_time = time.time()
-
+def main():
     speed = 0
     rotate = 0
+    running = True
 
-    try:
-        while True:
-            # showMessage(stdscr, f"Current value: {gyro.get_angle_z():.2f}")
-            current_time = time.time()
-            key = stdscr.getch()
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    speed = min(100, speed + 5)
+                elif event.key == pygame.K_DOWN:
+                    speed = max(-100, speed - 5)
+                elif event.key == pygame.K_LEFT:
+                    speed = 0
+                    rotate = min(30, rotate + 5)
+                elif event.key == pygame.K_RIGHT:
+                    speed = 0
+                    rotate = max(-30, rotate - 5)
+                elif event.key == pygame.K_d:
+                    distance = sensor.get_distance()
+                    print(f"Distance sensor: {distance} cm")
+                elif event.key == pygame.K_m:
+                    print('Map saved as: map.png')
+                    motor_controller.mapper.save_map_as_txt()
+                    motor_controller.mapper.save_map_as_png()
+                elif event.key == pygame.K_a:
+                    print(f"gyro.get_angle_z(): {gyro.get_angle_z()}")
+                elif event.key == pygame.K_q:
+                    running = False
 
-            if key != -1:
-                if key != last_key or (current_time - last_key_time) > 0.1:
-                    if key == curses.KEY_UP:
-                        speed = min(100, speed + 5)
-                        showMessage(stdscr, f'Moving Forward (Speed: {str(speed)})\n')
-                    elif key == curses.KEY_DOWN:
-                        speed = max(-100, speed - 5)
-                        showMessage(stdscr, f'Moving Backward (Speed: {str(speed)})\n')
-                    elif key == curses.KEY_LEFT:
-                        speed = 0
-                        rotate = min(30, rotate + 5)
-                        showMessage(stdscr, 'Rotating Left\n')
-                    elif key == curses.KEY_RIGHT:
-                        speed = 0
-                        rotate = max(-30, rotate - 5)
-                        showMessage(stdscr, 'Rotating Right\n')
-                    elif key == ord('d'):
-                        showMessage(stdscr, 'Reading distance\n')
-                        distance = sensor.get_distance()
-                        print(f"Distance sensor: {distance} cm")
-                    elif key == ord('m'):
-                        showMessage(stdscr, 'Map saved as: map.png\n')
-                        motor_controller.mapper.save_map_as_txt()
-                        motor_controller.mapper.save_map_as_png()
-                    elif key == ord('a'):
-                        stdscr.clear()
-                        stdscr.refresh()
-                        print(f"gyro.get_angle_z(): {gyro.get_angle_z()}")
-                    elif key == ord('q'):
-                        showMessage(stdscr, 'Quitting')
-                        break
+        # Aktualizacja robota
+        motor_controller.drive(speed)
+        if rotate > 0:
+            motor_controller.rotate_to_angle(gyro, target_angle=rotate, direction='left')
+        elif rotate < 0:
+            rotate = abs(rotate)
+            motor_controller.rotate_to_angle(gyro, target_angle=rotate, direction='right')
+        rotate = 0
 
-                    last_key = key
-                    last_key_time = current_time
+        # Rysowanie na ekranie
+        screen.fill((0, 0, 0))  # Czyszczenie ekranu
+        draw_text(f'Speed: {speed}', (255, 255, 255), screen, 20, 20)
+        draw_text(f'Rotation: {rotate}', (255, 255, 255), screen, 20, 60)
+        draw_text(f'Gyro Angle: {gyro.get_angle_z():.2f}', (255, 255, 255), screen, 20, 100)
+        pygame.display.flip()
 
-            motor_controller.drive(speed)
+        # Ustawienie liczby klatek na sekundę
+        clock.tick(60)
 
-            if rotate > 0:
-                motor_controller.rotate_to_angle(gyro, target_angle=rotate, direction='left')
-            elif rotate < 0:
-                rotate = abs(rotate)
-                motor_controller.rotate_to_angle(gyro, target_angle=rotate, direction='right')
-
-            rotate = 0
-            time.sleep(0.1)
-
-    except KeyboardInterrupt:
-        stdscr.clear()
-        stdscr.addstr(1, 0, 'Interrupted by user.')
-        stdscr.refresh()
-        time.sleep(1)  # Daj chwilę na zobaczenie komunikatu
-
-    finally:
-        motor_controller.stop()
-        motor_controller.cleanup()
+    pygame.quit()
 
 if __name__ == '__main__':
-    curses.wrapper(main)
+    main()

@@ -82,6 +82,10 @@ class MotorController:
         self.leftEncoder.reset_position()
         self.rightEncoder.reset_position()
 
+    def resetEncoders(self):
+        self.leftEncoder.reset_position()
+        self.rightEncoder.reset_position()
+
     def getEncoderDistance(self):
         return (self.leftEncoder.get_distance() + self.rightEncoder.get_distance()) / 2
 
@@ -91,6 +95,7 @@ class MotorController:
         GPIO.output(self.IN2, GPIO.LOW)
         GPIO.output(self.IN3, GPIO.HIGH)
         GPIO.output(self.IN4, GPIO.LOW)
+        self.resetEncoders()
         self.pid.reset()
         self.status = "Forward"
 
@@ -100,6 +105,7 @@ class MotorController:
         GPIO.output(self.IN2, GPIO.HIGH)
         GPIO.output(self.IN3, GPIO.LOW)
         GPIO.output(self.IN4, GPIO.HIGH)
+        self.resetEncoders()
         self.pid.reset()
         self.status = "Backward"
 
@@ -109,6 +115,7 @@ class MotorController:
         GPIO.output(self.IN2, GPIO.HIGH)
         GPIO.output(self.IN3, GPIO.HIGH)
         GPIO.output(self.IN4, GPIO.LOW)
+        self.resetEncoders()
         self.pwm_a.ChangeDutyCycle(speed)
         self.pwm_b.ChangeDutyCycle(speed)
         self.status = "Turn Left"
@@ -119,6 +126,7 @@ class MotorController:
         GPIO.output(self.IN2, GPIO.LOW)
         GPIO.output(self.IN3, GPIO.LOW)
         GPIO.output(self.IN4, GPIO.HIGH)
+        self.resetEncoders()
         self.pwm_a.ChangeDutyCycle(speed)
         self.pwm_b.ChangeDutyCycle(speed)
         self.status = "Turn Right"

@@ -71,7 +71,8 @@ def main(stdscr):
                 break
 
             if sensor.get_distance() <= 10:
-                speed = 0
+                if speed > 0:
+                    speed = 0
                 rotate = 0
                 motor_controller.stop()
 

@@ -25,7 +25,7 @@ class Gyro:
         self.address = address
         self.last_time = time.time()
         self.angle_z = 0.0
-        self.alpha = 0.90  # Filtr komplementarny
+        self.alpha = 0.98  # Filtr komplementarny
         self.sensitivity = 131.0  # Domyślna wartość
         self.log_file = None  # Zainicjalizowane na None
 
@@ -125,24 +125,41 @@ class Gyro:
         return val
 
     def update_angle(self):
+        # Odczytaj prędkość kątową z żyroskopu
         gz = self.read_raw_gyro_data() - self.gyro_z_offset
-        gz_deg_s = gz / self.sensitivity
+        gz_deg_s = gz / self.sensitivity  # Przelicz na stopnie na sekundę
 
+        # Oblicz deltę czasu
         current_time = time.time()
         dt = current_time - self.last_time
         self.last_time = current_time
 
-        self.angle_z = self.angle_z + gz_deg_s * dt
+        # Oblicz nowy kąt z żyroskopu (integracja prędkości kątowej)
+        gyro_angle_z = self.angle_z + gz_deg_s * dt
 
+        # Odczytaj kąt z akcelerometru
+        accel_angle_z = self.read_accel_angle()
+
+        # Zastosuj filtr komplementarny
+        self.angle_z = self.alpha * gyro_angle_z + (1 - self.alpha) * accel_angle_z
+
+        # Logowanie wartości
         self.log(f"angle_z: {self.angle_z}")
 
-    def calculate_acc_angle(self):
+    def read_accel_angle(self):
+        # Odczytaj dane z akcelerometru
         acc_x, acc_y, acc_z = self.read_accelerometer_data()
-        acc_x /= 16384.0  # Normalizacja dla ±2g
-        acc_y /= 16384.0
-        acc_z /= 16384.0
-        acc_angle_z = math.atan2(acc_y, acc_x) * (180 / math.pi)  # Kąt wokół osi Z
-        return acc_angle_z
+
+        # Normalizacja danych akcelerometru (jeśli to potrzebne)
+        accel_total = math.sqrt(acc_x**2 + acc_y**2 + acc_z**2)
+        acc_x_norm = acc_x / accel_total
+        acc_y_norm = acc_y / accel_total
+        acc_z_norm = acc_z / accel_total
+
+        # Oblicz kąt nachylenia w osi Z za pomocą funkcji atan2
+        accel_angle_z = math.degrees(math.atan2(acc_y_norm, acc_z_norm))
+
+        return accel_angle_z
 
     def get_angle_z(self):
         self.update_angle()

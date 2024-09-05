@@ -62,6 +62,17 @@ class MotorController:
         self.pid = PID(kp=500.0, ki=0.05, kd=0.1)  # Tune these values
         self.mapper = Mapper()
 
+        # Encoders
+        self.leftEncoder = None
+        self.rightEncoder = None
+        self.totalDistance = 0
+
+    def setEncoders(self, leftEncoder, rightEncoder):
+        self.leftEncoder = leftEncoder
+        self.rightEncoder = rightEncoder
+        self.leftEncoder.reset_position()
+        self.rightEncoder.reset_position()
+
     def forward(self):
         """Ruszanie do przodu z określoną prędkością"""
         GPIO.output(self.IN1, GPIO.HIGH)
@@ -98,6 +109,35 @@ class MotorController:
         """Zatrzymywanie obu silników"""
         self.pwm_a.ChangeDutyCycle(0)
         self.pwm_b.ChangeDutyCycle(0)
+
+    def drive(self, speed):
+        if speed >= 0:
+            self.forward()
+        else:
+            self.backward()
+
+        speed = abs(speed)
+
+        while speed > 0:
+            left_distance = abs(self.leftEncoder.get_distance())
+            right_distance = abs(self.rightEncoder.get_distance())
+
+            # Calculate error
+            error = left_distance - right_distance
+
+            # Compute PID output
+            correction = self.pid.compute(error)
+
+            # Adjust speed based on correction
+            left_speed = speed - correction
+            right_speed = speed + correction
+
+            # Ensure speed is within 0 to 100 range
+            left_speed = max(0, min(100, left_speed))
+            right_speed = max(0, min(100, right_speed))
+
+            self.pwm_a.ChangeDutyCycle(left_speed)
+            self.pwm_b.ChangeDutyCycle(right_speed)
 
     def forward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=50, timeout=30):
         self.forward()

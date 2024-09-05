@@ -11,15 +11,12 @@ def showMessage(stdscr, message):
     stdscr.refresh()
 
 def main(stdscr):
-    # Inicjalizacja kontrolera silników, enkoderów i żyroskopu
-    motor_controller = MotorController()
     left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
     right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
-    gyro = Gyro()  # Inicjalizuj swój żyroskop
+    motor_controller = MotorController()
+    motor_controller.setEncoders(left_encoder, right_encoder)
+    gyro = Gyro()
     sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
-
-    # Flaga do zarządzania operacjami
-    is_busy = False
 
     # Włącz tryb nie-blokujący w curses
     stdscr.nodelay(1)
@@ -32,10 +29,10 @@ def main(stdscr):
             # showMessage(stdscr, f"Current value: {gyro.get_angle_z():.2f}")
             key = stdscr.getch()
 
-            if key == curses.KEY_UP and not is_busy:
+            if key == curses.KEY_UP:
                 speed = min(100, speed + 5)
                 showMessage(stdscr, f'Moving Forward (Speed: {str(speed)})\n')
-            elif key == curses.KEY_DOWN and not is_busy:
+            elif key == curses.KEY_DOWN:
                 speed = max(-100, speed - 5)
                 showMessage(stdscr, f'Moving Backward (Speed: {str(speed)})\n')
             elif key == curses.KEY_LEFT and not is_busy:
@@ -65,12 +62,7 @@ def main(stdscr):
                 showMessage(stdscr, 'Quitting')
                 break
 
-            if speed > 0:
-                motor_controller.forward_with_encoders(left_encoder, right_encoder, 0.01)
-                speed = max(0, speed - 5)
-            elif speed < 0:
-                motor_controller.backward_with_encoders(left_encoder, right_encoder, 0.01)
-                speed = min(0, speed + 5)
+            motor_controller.drive(speed)
 
             time.sleep(0.1)
 
@@ -79,6 +71,7 @@ def main(stdscr):
         stdscr.addstr(1, 0, 'Interrupted by user.')
         stdscr.refresh()
         time.sleep(1)  # Daj chwilę na zobaczenie komunikatu
+
     finally:
         motor_controller.stop()
         motor_controller.cleanup()

@@ -49,10 +49,10 @@ def main(stdscr):
 
             if key == curses.KEY_UP:
                 rotate = 0
-                speed = min(100, speed + 5)
+                speed = min(100, max(30, speed + 5))
             elif key == curses.KEY_DOWN:
                 rotate = 0
-                speed = max(-100, speed - 5)
+                speed = max(-100, min(-30, speed - 5))
             elif key == curses.KEY_LEFT:
                 speed = 0
                 rotate = min(100, max(30, rotate + 5))
@@ -68,8 +68,7 @@ def main(stdscr):
             if rotate > 0:
                 motor_controller.turn_left(rotate)
             elif rotate < 0:
-                rotate = abs(rotate)
-                motor_controller.turn_right(rotate)
+                motor_controller.turn_right(abs(rotate))
             else:
                 motor_controller.drive(speed)
 

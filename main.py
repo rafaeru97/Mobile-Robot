@@ -23,6 +23,7 @@ def main(stdscr):
     stdscr.timeout(100)
 
     speed = 0
+    rotate = 0
 
     try:
         while True:
@@ -35,34 +36,37 @@ def main(stdscr):
             elif key == curses.KEY_DOWN:
                 speed = max(-100, speed - 5)
                 showMessage(stdscr, f'Moving Backward (Speed: {str(speed)})\n')
-            elif key == curses.KEY_LEFT and not is_busy:
+            elif key == curses.KEY_LEFT:
+                speed = 0
+                rotate = min(30, rotate + 5)
                 showMessage(stdscr, 'Rotating Left\n')
-                is_busy = True
-                motor_controller.rotate_to_angle(gyro, target_angle=90, direction='left')
-            elif key == curses.KEY_RIGHT and not is_busy:
+            elif key == curses.KEY_RIGHT:
+                speed = 0
+                rotate = max(-30, rotate - 5)
                 showMessage(stdscr, 'Rotating Right\n')
-                is_busy = True
-                motor_controller.rotate_to_angle(gyro, target_angle=90, direction='right')
-            elif key == ord('d') and not is_busy:
+            elif key == ord('d'):
                 showMessage(stdscr, 'Reading distance\n')
-                is_busy = True
                 distance = sensor.get_distance()
                 print(f"Distance sensor: {distance} cm")
-            elif key == ord('m') and not is_busy:
+            elif key == ord('m'):
                 showMessage(stdscr, 'Map saved as: map.png\n')
-                is_busy = True
                 motor_controller.mapper.save_map_as_txt()
                 motor_controller.mapper.save_map_as_png()
-            elif key == ord('a') and not is_busy:
+            elif key == ord('a'):
                 stdscr.clear()
                 stdscr.refresh()
                 print(f"gyro.get_angle_z(): {gyro.get_angle_z()}")
-                is_busy = True
             elif key == ord('q'):
                 showMessage(stdscr, 'Quitting')
                 break
 
             motor_controller.drive(speed)
+
+            if rotate >= 0:
+                motor_controller.rotate_to_angle(gyro, target_angle=rotate, direction='left')
+            else:
+                rotate = abs(rotate)
+                motor_controller.rotate_to_angle(gyro, target_angle=rotate, direction='right')
 
             time.sleep(0.1)
 

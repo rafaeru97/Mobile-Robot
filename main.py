@@ -47,8 +47,10 @@ def main(stdscr):
             key = stdscr.getch()
 
             if key == curses.KEY_UP:
+                rotate = 0
                 speed = min(100, speed + 5)
             elif key == curses.KEY_DOWN:
+                rotate = 0
                 speed = max(-100, speed - 5)
             elif key == curses.KEY_LEFT:
                 speed = 0

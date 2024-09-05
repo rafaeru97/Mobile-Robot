@@ -135,35 +135,10 @@ class Gyro:
         self.last_time = current_time
 
         # Oblicz nowy kąt z żyroskopu (integracja prędkości kątowej)
-        gyro_angle_z = self.angle_z + gz_deg_s * dt
-
-        # Odczytaj kąt z akcelerometru
-        accel_angle_z = self.read_accel_angle()
-
-        # Zastosuj filtr komplementarny
-        self.angle_z = self.alpha * gyro_angle_z + (1 - self.alpha) * accel_angle_z
+        self.angle_z = self.angle_z + gz_deg_s * dt
 
         # Logowanie wartości
         self.log(f"angle_z: {self.angle_z}")
-
-    def read_accel_angle(self):
-        # Odczytaj dane z akcelerometru
-        acc_x, acc_y, acc_z = self.read_accelerometer_data()
-
-        # Normalizacja danych akcelerometru (jeśli to potrzebne)
-        accel_total = math.sqrt(acc_x ** 2 + acc_y ** 2 + acc_z ** 2)
-
-        # Aby uniknąć dzielenia przez zero
-        if accel_total == 0:
-            accel_total = 1
-
-        acc_x_norm = acc_x / accel_total
-        acc_y_norm = acc_y / accel_total
-
-        # Oblicz kąt nachylenia w płaszczyźnie X-Y za pomocą funkcji atan2
-        accel_angle_xy = math.degrees(math.atan2(acc_y_norm, acc_x_norm))  # X-Y plane
-
-        return accel_angle_xy
 
     def get_angle_z(self):
         self.update_angle()

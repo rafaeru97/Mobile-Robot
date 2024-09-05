@@ -5,16 +5,25 @@ import curses
 
 GPIO.setmode(GPIO.BCM)
 
-def print_gui(speed, distance, orientation):
-    print("\033[H\033[J", end="")  # Czyści ekran terminala
-    print("****************************")
-    print("*  Robot Status              *")
-    print("****************************")
-    print(f"Speed:        {speed:.2f} units")
-    print(f"Distance:     {distance:.2f} cm")
-    print(f"Orientation:  {orientation:.2f} degrees")
-    print("****************************")
-    print("Press Ctrl+C to exit.")
+def print_gui(stdscr, speed, distance, orientation):
+    stdscr.clear()  # Czyści ekran
+    height, width = stdscr.getmaxyx()  # Pobierz rozmiar terminala
+
+    # Utwórz ramkę
+    border = "*" * (width - 2)
+    stdscr.addstr(0, 0, border)
+    stdscr.addstr(height // 2 - 2, 0, "*" + " Robot Status ".center(width - 2) + "*")
+    stdscr.addstr(height - 1, 0, border)
+
+    # Wyświetl dane
+    stdscr.addstr(height // 2 - 1, 2, f"Speed:        {speed:.2f} units")
+    stdscr.addstr(height // 2, 2, f"Distance:     {distance:.2f} cm")
+    stdscr.addstr(height // 2 + 1, 2, f"Orientation:  {orientation:.2f} degrees")
+
+    # Instrukcje
+    stdscr.addstr(height - 1, 2, "Press Ctrl+C to exit.")
+
+    stdscr.refresh()  # Odśwież ekran
 
 def main(stdscr):
     # Włącz tryb nieblokujący
@@ -62,7 +71,6 @@ def main(stdscr):
             rotate = 0
 
             print_gui(speed, sensor.get_distance(), gyro.get_angle_z())
-            stdscr.refresh()
             time.sleep(0.1)  # Spowolnienie pętli
 
         except KeyboardInterrupt:

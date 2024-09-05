@@ -15,7 +15,7 @@ try:
     screen = pygame.display.set_mode((600, 400))  # Ustawienia rozmiaru ekranu
     pygame.display.set_caption("Robot Control")
     clock = pygame.time.Clock()
-    font = pygame.font.SysFont(None, 36)
+    font = pygame.font.SysFont(None, 12)
 except Exception as e:
     print(f"Error setting up pygame components: {e}")
     pygame.quit()

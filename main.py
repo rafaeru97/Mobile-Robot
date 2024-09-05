@@ -71,7 +71,7 @@ def main(stdscr):
 
             rotate = 0
 
-            print_gui(speed, sensor.get_distance(), gyro.get_angle_z())
+            print_gui(stdscr, speed, sensor.get_distance(), gyro.get_angle_z())
             time.sleep(0.1)  # Spowolnienie pętli
 
         except KeyboardInterrupt:

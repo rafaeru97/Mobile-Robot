@@ -6,7 +6,7 @@ import curses
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
-def print_gui(stdscr, speed, distance, orientation):
+def print_gui(stdscr, speed, distance, orientation, rotate):
     stdscr.clear()  # Czyści ekran
     height, width = stdscr.getmaxyx()  # Pobierz rozmiar terminala
 
@@ -20,6 +20,7 @@ def print_gui(stdscr, speed, distance, orientation):
     stdscr.addstr(height // 2 - 1, 2, f"Speed:        {speed:.2f} units")
     stdscr.addstr(height // 2, 2, f"Distance:     {distance:.2f} cm")
     stdscr.addstr(height // 2 + 1, 2, f"Orientation:  {orientation:.2f} degrees")
+    stdscr.addstr(height // 2 + 2, 2, f"Rotary:  {rotate:.2f} units")
 
     # Instrukcje
     stdscr.addstr(height - 1, 2, "Press Ctrl+C to exit.")
@@ -68,7 +69,7 @@ def main(stdscr):
                 rotate = abs(rotate)
                 motor_controller.turn_left(rotate)
 
-            print_gui(stdscr, speed, sensor.get_distance(), gyro.get_angle_z())
+            print_gui(stdscr, speed, sensor.get_distance(), gyro.get_angle_z(), rotate)
             time.sleep(0.1)  # Spowolnienie pętli
 
         except KeyboardInterrupt:

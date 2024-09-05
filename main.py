@@ -27,6 +27,7 @@ def main(stdscr):
 
     try:
         while True:
+            showMessage(stdscr, f"Current value: {gyro.get_angle_z():.2f}")
             key = stdscr.getch()
 
             if key == curses.KEY_UP and not is_busy:

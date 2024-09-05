@@ -35,9 +35,6 @@ class Gyro:
         # Kalibracja żyroskopu
         self.gyro_z_offset = self.calibrate_gyro(calib_value)
 
-        # Kalibracja akcelerometru
-        self.accel_error_x, self.accel_error_y = self.calibrate_accelerometer()
-
     def initialize(self):
         # Włącz MPU-6050 i ustaw opcje konfiguracji
         self.bus.write_byte_data(self.address, self.PWR_MGMT_1, 0x00)  # Przebudzenie MPU-6050

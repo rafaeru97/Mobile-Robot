@@ -70,6 +70,11 @@ def main(stdscr):
             elif key == ord('q'):
                 break
 
+            if sensor.get_distance() <= 10:
+                speed = 0
+                rotate = 0
+                motor_controller.stop()
+
             if rotate > 0:
                 motor_controller.turn_left(rotate)
             elif rotate < 0:

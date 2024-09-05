@@ -4,6 +4,7 @@ import RPi.GPIO as GPIO
 import curses
 
 GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
 
 def print_gui(stdscr, speed, distance, orientation):
     stdscr.clear()  # Czyści ekran

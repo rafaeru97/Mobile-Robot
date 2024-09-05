@@ -1,6 +1,8 @@
 from robot import MotorController, Encoder, Gyro, DistanceSensor
 import pygame
-import time
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BCM)
 
 # Inicjalizacja pygame
 try:

@@ -62,12 +62,13 @@ def main(stdscr):
 
             motor_controller.drive(speed)
 
-            if rotate >= 0:
+            if rotate > 0:
                 motor_controller.rotate_to_angle(gyro, target_angle=rotate, direction='left')
-            else:
+            elif rotate < 0:
                 rotate = abs(rotate)
                 motor_controller.rotate_to_angle(gyro, target_angle=rotate, direction='right')
 
+            rotate = 0
             time.sleep(0.1)
 
     except KeyboardInterrupt:

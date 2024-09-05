@@ -23,7 +23,7 @@ class Gyro:
     def __init__(self, bus_number=1, address=0x68, calib_value=None):
         self.bus = smbus.SMBus(bus_number)
         self.address = address
-        self.last_time = time.time()
+        self.last_time = time.perf_counter()
         self.angle_z = 0.0
         self.alpha = 0.99  # Filtr komplementarny
         self.sensitivity = 131.0  # Domyślna wartość
@@ -130,7 +130,7 @@ class Gyro:
         gz_deg_s = gz / self.sensitivity  # Przelicz na stopnie na sekundę
 
         # Oblicz deltę czasu
-        current_time = time.time()
+        current_time = time.perf_counter()
         dt = current_time - self.last_time
         self.last_time = current_time
 
@@ -171,7 +171,7 @@ class Gyro:
 
     def reset_angle(self):
         self.angle_z = 0.0
-        self.last_time = time.time()
+        self.last_time = time.perf_counter()
 
     def close(self):
         # Zamknięcie pliku logu

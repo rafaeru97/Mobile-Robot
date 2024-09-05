@@ -25,7 +25,7 @@ class Gyro:
         self.address = address
         self.last_time = time.time()
         self.angle_z = 0.0
-        self.alpha = 0.95  # Filtr komplementarny
+        self.alpha = 0.98  # Filtr komplementarny
         self.sensitivity = 131.0  # Domyślna wartość
         self.log_file = None  # Zainicjalizowane na None
 
@@ -159,14 +159,11 @@ class Gyro:
 
         acc_x_norm = acc_x / accel_total
         acc_y_norm = acc_y / accel_total
-        acc_z_norm = acc_z / accel_total
 
-        # Oblicz kąt nachylenia za pomocą funkcji atan2
-        accel_angle_z = math.degrees(math.atan2(acc_x_norm, acc_z_norm))  # Zmiana osi
+        # Oblicz kąt nachylenia w płaszczyźnie X-Y za pomocą funkcji atan2
+        accel_angle_xy = math.degrees(math.atan2(acc_y_norm, acc_x_norm))  # X-Y plane
 
-        return accel_angle_z
-
-        return accel_angle_z
+        return accel_angle_xy
 
     def get_angle_z(self):
         self.update_angle()

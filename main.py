@@ -21,6 +21,8 @@ def main(stdscr):
     # Włącz tryb nie-blokujący w curses
     stdscr.nodelay(1)
     stdscr.timeout(100)
+    last_key = None
+    last_key_time = time.time()
 
     speed = 0
     rotate = 0
@@ -28,37 +30,43 @@ def main(stdscr):
     try:
         while True:
             # showMessage(stdscr, f"Current value: {gyro.get_angle_z():.2f}")
+            current_time = time.time()
             key = stdscr.getch()
 
-            if key == curses.KEY_UP:
-                speed = min(100, speed + 5)
-                showMessage(stdscr, f'Moving Forward (Speed: {str(speed)})\n')
-            elif key == curses.KEY_DOWN:
-                speed = max(-100, speed - 5)
-                showMessage(stdscr, f'Moving Backward (Speed: {str(speed)})\n')
-            elif key == curses.KEY_LEFT:
-                speed = 0
-                rotate = min(30, rotate + 5)
-                showMessage(stdscr, 'Rotating Left\n')
-            elif key == curses.KEY_RIGHT:
-                speed = 0
-                rotate = max(-30, rotate - 5)
-                showMessage(stdscr, 'Rotating Right\n')
-            elif key == ord('d'):
-                showMessage(stdscr, 'Reading distance\n')
-                distance = sensor.get_distance()
-                print(f"Distance sensor: {distance} cm")
-            elif key == ord('m'):
-                showMessage(stdscr, 'Map saved as: map.png\n')
-                motor_controller.mapper.save_map_as_txt()
-                motor_controller.mapper.save_map_as_png()
-            elif key == ord('a'):
-                stdscr.clear()
-                stdscr.refresh()
-                print(f"gyro.get_angle_z(): {gyro.get_angle_z()}")
-            elif key == ord('q'):
-                showMessage(stdscr, 'Quitting')
-                break
+            if key != -1:
+                if key != last_key or (current_time - last_key_time) > 0.1:
+                    if key == curses.KEY_UP:
+                        speed = min(100, speed + 5)
+                        showMessage(stdscr, f'Moving Forward (Speed: {str(speed)})\n')
+                    elif key == curses.KEY_DOWN:
+                        speed = max(-100, speed - 5)
+                        showMessage(stdscr, f'Moving Backward (Speed: {str(speed)})\n')
+                    elif key == curses.KEY_LEFT:
+                        speed = 0
+                        rotate = min(30, rotate + 5)
+                        showMessage(stdscr, 'Rotating Left\n')
+                    elif key == curses.KEY_RIGHT:
+                        speed = 0
+                        rotate = max(-30, rotate - 5)
+                        showMessage(stdscr, 'Rotating Right\n')
+                    elif key == ord('d'):
+                        showMessage(stdscr, 'Reading distance\n')
+                        distance = sensor.get_distance()
+                        print(f"Distance sensor: {distance} cm")
+                    elif key == ord('m'):
+                        showMessage(stdscr, 'Map saved as: map.png\n')
+                        motor_controller.mapper.save_map_as_txt()
+                        motor_controller.mapper.save_map_as_png()
+                    elif key == ord('a'):
+                        stdscr.clear()
+                        stdscr.refresh()
+                        print(f"gyro.get_angle_z(): {gyro.get_angle_z()}")
+                    elif key == ord('q'):
+                        showMessage(stdscr, 'Quitting')
+                        break
+
+                    last_key = key
+                    last_key_time = current_time
 
             motor_controller.drive(speed)
 

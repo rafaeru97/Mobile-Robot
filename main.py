@@ -83,7 +83,7 @@ def main(stdscr):
                 motor_controller.drive(speed)
 
             print_gui(stdscr, speed, sensor.get_distance(), gyro.get_angle_z(), rotate, motor_controller.getStatus(), motor_controller.getEncoderDistance())
-            time.sleep(0.2)  # Spowolnienie pętli
+            time.sleep(0.05)  # Spowolnienie pętli
 
         except KeyboardInterrupt:
             break

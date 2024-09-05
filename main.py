@@ -25,6 +25,8 @@ def main(stdscr):
     stdscr.nodelay(1)
     stdscr.timeout(100)
 
+    speed = 0
+
     try:
         while True:
             # showMessage(stdscr, f"Current value: {gyro.get_angle_z():.2f}")
@@ -32,12 +34,10 @@ def main(stdscr):
 
             if key == curses.KEY_UP and not is_busy:
                 showMessage(stdscr, 'Moving Forward\n')
-                is_busy = True
-                motor_controller.forward_with_encoders(left_encoder, right_encoder, 0.1)
+                speed = min(100, speed + 5)
             elif key == curses.KEY_DOWN and not is_busy:
                 showMessage(stdscr, 'Moving Backward\n')
-                is_busy = True
-                motor_controller.backward_with_encoders(left_encoder, right_encoder, 0.1)
+                speed = max(-100, speed - 5)
             elif key == curses.KEY_LEFT and not is_busy:
                 showMessage(stdscr, 'Rotating Left\n')
                 is_busy = True
@@ -65,7 +65,13 @@ def main(stdscr):
                 showMessage(stdscr, 'Quitting')
                 break
 
-            is_busy = False
+            if speed > 0:
+                motor_controller.forward_with_encoders(left_encoder, right_encoder, 0.01)
+                speed = max(0, speed - 5)
+            elif speed < 0:
+                motor_controller.backward_with_encoders(left_encoder, right_encoder, 0.01)
+                speed = min(0, speed + 5)
+
             time.sleep(0.1)
 
     except KeyboardInterrupt:

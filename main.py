@@ -1,4 +1,4 @@
-from robot import MotorController, Encoder, Gyro, DistanceSensor
+from robot import MotorController, Encoder, Gyro, DistanceSensor, Mapper
 import time
 import RPi.GPIO as GPIO
 import curses
@@ -40,6 +40,7 @@ def main(stdscr):
     motor_controller.setEncoders(left_encoder, right_encoder)
     gyro = Gyro()
     sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
+    mapper = Mapper(motor_controller, gyro)
 
     speed = 0
     rotate = 0
@@ -83,6 +84,7 @@ def main(stdscr):
             else:
                 motor_controller.drive(speed)
 
+            mapper.update_position()
             print_gui(stdscr, speed, sensor.get_distance(), gyro.get_angle_z(), rotate, motor_controller.getStatus(), motor_controller.getEncoderDistance())
             time.sleep(0.05)  # Spowolnienie pętli
 

@@ -62,8 +62,7 @@ def main(stdscr):
                 speed = 0
                 rotate = max(-100, min(-35, rotate - 2))
             elif key == ord('m'):
-                motor_controller.mapper.save_map_as_txt()
-                motor_controller.mapper.save_map_as_png()
+                motor_controller.mapper.create_map()
             elif key == ord(' '):
                 speed = 0
                 rotate = 0

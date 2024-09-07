@@ -64,7 +64,6 @@ class MotorController:
 
         # PID Controller for speed correction
         self.pid = PID(kp=500.0, ki=0.05, kd=0.1)  # Tune these values
-        self.mapper = Mapper()
 
         # Encoders
         self.leftEncoder = None

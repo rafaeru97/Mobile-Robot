@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
+
 class Mapper:
     def __init__(self, motor_controller, gyro):
         self.motor_controller = motor_controller
@@ -40,11 +41,17 @@ class Mapper:
 
         # Create the plot
         plt.figure(figsize=(8, 8))  # Bigger figure for better visibility
-        plt.plot(x_positions, y_positions, marker="o", color="b", markersize=3)
+        plt.plot(x_positions, y_positions, marker="o", color="b", markersize=3)  # Path of the robot
+
+        # Highlight the current position
+        plt.plot(x_positions[-1], y_positions[-1], marker="o", color="r", markersize=10,
+                 label="Current Position")  # Red marker for current position
+
         plt.title("Robot Movement Path (in cm)")
         plt.xlabel("X position (cm)")
         plt.ylabel("Y position (cm)")
         plt.grid(True)
+        plt.legend()  # Show legend
 
         # Save the figure as a PNG file
         plt.savefig(filename)

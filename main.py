@@ -2,6 +2,28 @@ from robot import MotorController, Encoder, Gyro, DistanceSensor, Mapper
 import time
 import RPi.GPIO as GPIO
 import curses
+from http.server import SimpleHTTPRequestHandler, HTTPServer
+import threading
+import os
+
+# Ustawienie ścieżki do pliku
+map_file_path = "robot_map.png"
+
+
+def start_http_server(port=8000):
+    os.chdir(".")  # Zmień bieżący katalog na lokalny katalog skryptu
+
+    handler = SimpleHTTPRequestHandler
+    httpd = HTTPServer(("localhost", port), handler)
+
+    print(f"Serwer działa na http://localhost:{port}")
+    httpd.serve_forever()
+
+
+# Uruchom serwer w osobnym wątku
+server_thread = threading.Thread(target=start_http_server)
+server_thread.daemon = True
+server_thread.start()
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -30,6 +52,7 @@ def print_gui(stdscr, speed, distance, orientation, rotate, status, encoder):
     stdscr.refresh()  # Odśwież ekran
 
 def main(stdscr):
+    server_thread.start()  # Uruchomienie serwera, jeśli jeszcze nie działa
     # Włącz tryb nieblokujący
     stdscr.nodelay(1)
     stdscr.timeout(100)  # Czeka na 100 ms na wejście

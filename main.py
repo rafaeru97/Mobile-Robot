@@ -11,7 +11,7 @@ os.chdir("/home/pi/Desktop/Mobile-Robot")
 # Uruchomienie serwera HTTP
 port = 5000
 handler = SimpleHTTPRequestHandler
-httpd = HTTPServer(("localhost", port), handler)
+httpd = HTTPServer(("0.0.0.0", port), handler)
 
 print(f"Serwer działa na http://localhost:{port}")
 httpd.serve_forever()

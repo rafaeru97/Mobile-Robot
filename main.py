@@ -19,13 +19,7 @@ def start_http_server(port=8000):
     except Exception as e:
         print(f"Serwer napotkał błąd: {e}")
 
-# Uruchom serwer w osobnym wątku
-def run_server():
-    server_thread = threading.Thread(target=start_http_server)
-    server_thread.daemon = True
-    server_thread.start()
-
-run_server()  # Ręczne wywołanie funkcji
+start_http_server()
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)

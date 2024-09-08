@@ -1,6 +1,7 @@
 from robot import MotorController, Encoder, Gyro, DistanceSensor, Mapper
 import time
 import RPi.GPIO as GPIO
+import sys
 import curses
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 import threading

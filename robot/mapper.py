@@ -41,7 +41,6 @@ class Mapper:
         # Reset encoder after updating position
         self.motor_controller.resetEncoders()
 
-
     def create_map(self, filename="robot_map.png"):
         # Convert positions to numpy arrays for plotting
         positions = np.array(self.positions)
@@ -49,7 +48,7 @@ class Mapper:
         y_positions = positions[:, 1]  # Y coordinates (in cm)
 
         # Calculate the end of the orientation arrow
-        orientation_length = 5  # Length of the orientation arrow in cm
+        orientation_length = 10  # Increase the length of the orientation arrow in cm
         angle_rad = math.radians(self.current_angle)
         dx_arrow = orientation_length * math.cos(angle_rad)
         dy_arrow = orientation_length * math.sin(angle_rad)
@@ -63,7 +62,7 @@ class Mapper:
                  label="Current Position")  # Red marker for current position
 
         # Draw orientation arrow
-        plt.arrow(x_positions[-1], y_positions[-1], dx_arrow, dy_arrow, head_width=1, head_length=1, fc='k', ec='k',
+        plt.arrow(x_positions[-1], y_positions[-1], dx_arrow, dy_arrow, head_width=2, head_length=2, fc='k', ec='k',
                   label="Orientation")
 
         plt.title("Robot Movement Path (in cm)")

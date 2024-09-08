@@ -19,6 +19,7 @@ def start_http_server(port=8000):
     except Exception as e:
         print(f"Serwer napotkał błąd: {e}")
 
+
 start_http_server()
 
 GPIO.setmode(GPIO.BCM)

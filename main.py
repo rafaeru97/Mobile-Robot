@@ -52,7 +52,6 @@ def print_gui(stdscr, speed, distance, orientation, rotate, status, encoder):
     stdscr.refresh()  # Odśwież ekran
 
 def main(stdscr):
-    server_thread.start()  # Uruchomienie serwera, jeśli jeszcze nie działa
     # Włącz tryb nieblokujący
     stdscr.nodelay(1)
     stdscr.timeout(100)  # Czeka na 100 ms na wejście

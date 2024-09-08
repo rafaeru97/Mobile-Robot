@@ -38,6 +38,10 @@ class Mapper:
         # Append the new position (rounded to centimeters) to the list
         self.positions.append((round(self.x * 100, 2), round(self.y * 100, 2)))
 
+        # Reset encoder after updating position
+        self.motor_controller.resetEncoders()
+
+
     def create_map(self, filename="robot_map.png"):
         # Convert positions to numpy arrays for plotting
         positions = np.array(self.positions)

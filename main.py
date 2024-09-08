@@ -6,12 +6,12 @@ from http.server import SimpleHTTPRequestHandler, HTTPServer
 import threading
 import os
 
-def start_http_server(port=8000):
+def start_http_server(port=5000):
     directory = os.path.dirname(os.path.abspath(__file__))
     os.chdir(directory)  # Ustaw katalog roboczy
 
     handler = SimpleHTTPRequestHandler
-    httpd = HTTPServer(("localhost", port), handler)
+    httpd = HTTPServer(("127.0.0.1", port), handler)
 
     print(f"Serwer działa na http://localhost:{port}")
     try:

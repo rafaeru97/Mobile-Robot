@@ -7,19 +7,25 @@ import threading
 import os
 
 def start_http_server(port=8000):
-    os.chdir("/home/pi/Desktop/Mobile-Robot")  # Zmień bieżący katalog na lokalny katalog skryptu
+    directory = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(directory)  # Ustaw katalog roboczy
 
     handler = SimpleHTTPRequestHandler
     httpd = HTTPServer(("localhost", port), handler)
 
     print(f"Serwer działa na http://localhost:{port}")
-    httpd.serve_forever()
-
+    try:
+        httpd.serve_forever()
+    except Exception as e:
+        print(f"Serwer napotkał błąd: {e}")
 
 # Uruchom serwer w osobnym wątku
-server_thread = threading.Thread(target=start_http_server)
-server_thread.daemon = True
-server_thread.start()
+def run_server():
+    server_thread = threading.Thread(target=start_http_server)
+    server_thread.daemon = True
+    server_thread.start()
+
+run_server()  # Ręczne wywołanie funkcji
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)

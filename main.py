@@ -86,8 +86,6 @@ def main(stdscr):
             elif key == curses.KEY_RIGHT:
                 speed = 0
                 rotate = max(-100, min(-35, rotate - 2))
-            elif key == ord('m'):
-                mapper.create_map()
             elif key == ord(' '):
                 speed = 0
                 rotate = 0
@@ -110,7 +108,8 @@ def main(stdscr):
 
             mapper.update_position()
             print_gui(stdscr, speed, sensor.get_distance(), gyro.get_angle_z(), rotate, motor_controller.getStatus(), motor_controller.getEncoderDistance())
-            time.sleep(0.05)  # Spowolnienie pętli
+            mapper.create_map()
+            time.sleep(0.1)  # Spowolnienie pętli
 
         except KeyboardInterrupt:
             break

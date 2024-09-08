@@ -11,10 +11,15 @@ class Mapper:
         self.current_angle = 0  # Initial angle is 0 degrees
         self.x = 0
         self.y = 0
+        self.angle_history = []
 
     def update_position(self):
         # Get current angle from the gyro in degrees
-        self.current_angle = self.gyro.get_angle_z()
+        angle = self.gyro.get_angle_z()
+        self.angle_history.append(angle)
+        if len(self.angle_history) > 10:  # Average over last 10 readings
+            self.angle_history.pop(0)
+        self.current_angle = np.mean(self.angle_history)
 
         # Get distance traveled in meters from the motor controller
         distance = self.motor_controller.getEncoderDistance()

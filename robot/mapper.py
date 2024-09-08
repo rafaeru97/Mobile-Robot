@@ -39,6 +39,12 @@ class Mapper:
         x_positions = positions[:, 0]  # X coordinates (in cm)
         y_positions = positions[:, 1]  # Y coordinates (in cm)
 
+        # Calculate the end of the orientation arrow
+        orientation_length = 5  # Length of the orientation arrow in cm
+        angle_rad = math.radians(self.current_angle)
+        dx_arrow = orientation_length * math.cos(angle_rad)
+        dy_arrow = orientation_length * math.sin(angle_rad)
+
         # Create the plot
         plt.figure(figsize=(8, 8))  # Bigger figure for better visibility
         plt.plot(x_positions, y_positions, marker="o", color="b", markersize=3)  # Path of the robot
@@ -46,6 +52,10 @@ class Mapper:
         # Highlight the current position
         plt.plot(x_positions[-1], y_positions[-1], marker="o", color="r", markersize=10,
                  label="Current Position")  # Red marker for current position
+
+        # Draw orientation arrow
+        plt.arrow(x_positions[-1], y_positions[-1], dx_arrow, dy_arrow, head_width=1, head_length=1, fc='k', ec='k',
+                  label="Orientation")
 
         plt.title("Robot Movement Path (in cm)")
         plt.xlabel("X position (cm)")

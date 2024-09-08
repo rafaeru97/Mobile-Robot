@@ -3,24 +3,18 @@ import time
 import RPi.GPIO as GPIO
 import curses
 from http.server import SimpleHTTPRequestHandler, HTTPServer
-import threading
 import os
 
-def start_http_server(port=5000):
-    directory = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(directory)  # Ustaw katalog roboczy
+# Zmiana katalogu na ten, w którym są pliki
+os.chdir("/home/pi/Desktop/Mobile-Robot")
 
-    handler = SimpleHTTPRequestHandler
-    httpd = HTTPServer(("127.0.0.1", port), handler)
+# Uruchomienie serwera HTTP
+port = 5000
+handler = SimpleHTTPRequestHandler
+httpd = HTTPServer(("localhost", port), handler)
 
-    print(f"Serwer działa na http://localhost:{port}")
-    try:
-        httpd.serve_forever()
-    except Exception as e:
-        print(f"Serwer napotkał błąd: {e}")
-
-
-start_http_server()
+print(f"Serwer działa na http://localhost:{port}")
+httpd.serve_forever()
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)

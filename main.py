@@ -7,7 +7,7 @@ import threading
 import os
 
 def start_http_server(port=8000):
-    os.chdir(".")  # Zmień bieżący katalog na lokalny katalog skryptu
+    os.chdir("/home/pi/Desktop/Mobile-Robot")  # Zmień bieżący katalog na lokalny katalog skryptu
 
     handler = SimpleHTTPRequestHandler
     httpd = HTTPServer(("localhost", port), handler)

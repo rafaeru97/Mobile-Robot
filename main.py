@@ -11,6 +11,9 @@ def start_http_server():
 
     # Uruchomienie serwera HTTP
     port = 5000
+
+    sys.stderr = open(os.devnull, 'w')
+
     handler = SimpleHTTPRequestHandler
     httpd = HTTPServer(("0.0.0.0", port), handler)
 

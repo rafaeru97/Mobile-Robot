@@ -6,10 +6,6 @@ from http.server import SimpleHTTPRequestHandler, HTTPServer
 import threading
 import os
 
-# Ustawienie ścieżki do pliku
-map_file_path = "robot_map.png"
-
-
 def start_http_server(port=8000):
     os.chdir(".")  # Zmień bieżący katalog na lokalny katalog skryptu
 

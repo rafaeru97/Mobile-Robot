@@ -225,7 +225,18 @@ class Mapper:
             if label == -1:
                 continue  # Skip noise
 
-            cluster_points = points[np.array(labels) == label]
+            # Ensure labels and points have matching lengths
+            if len(points) != len(labels):
+                print("Error: Mismatch between points and labels lengths.")
+                continue
+
+            # Create boolean index based on labels
+            boolean_index = np.array(labels) == label
+            if boolean_index.sum() == 0:
+                continue
+
+            # Filter points based on the boolean index
+            cluster_points = points[boolean_index]
             min_x, min_y = np.min(cluster_points, axis=0)
             max_x, max_y = np.max(cluster_points, axis=0)
 

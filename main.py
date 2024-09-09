@@ -22,7 +22,7 @@ def start_http_server():
     httpd.serve_forever()
 
 def run_server():
-    server_thread = threading.Thread(target=start_http_server)
+    server_thread = threading.Thread(target=start_http_server, name="ServerThread")
     server_thread.daemon = True
     server_thread.start()
 
@@ -123,9 +123,9 @@ def main(stdscr):
     mapper.create_map()
 
     # Tworzymy wątki dla różnych zadań
-    sensor_t = threading.Thread(target=sensor_thread, args=(sensor,))
-    motor_t = threading.Thread(target=motor_control_thread, args=(motor_controller,))
-    gyro_t = threading.Thread(target=gyro_thread, args=(gyro,))
+    sensor_t = threading.Thread(target=sensor_thread, args=(sensor,), name="DistanceSensorThread")
+    motor_t = threading.Thread(target=motor_control_thread, args=(motor_controller,), name="MotorControllerThread")
+    gyro_t = threading.Thread(target=gyro_thread, args=(gyro,), name="GyroThread")
 
     # Startujemy wątki
     sensor_t.start()

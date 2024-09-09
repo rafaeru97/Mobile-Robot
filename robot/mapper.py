@@ -251,7 +251,7 @@ class Mapper:
         :param filename: The name of the output image file.
         """
         plt.figure(figsize=(8, 8))
-        plt.plot(filtered_points[:, 0], filtered_points[:, 1], marker="o", color="b", markersize=3, label="Filtered Points")
+        # plt.plot(filtered_points[:, 0], filtered_points[:, 1], marker="o", color="b", markersize=3, label="Filtered Points")
 
         # Plot Convex Hull
         for simplex in hull.simplices:

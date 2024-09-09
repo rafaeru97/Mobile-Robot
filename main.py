@@ -31,7 +31,61 @@ run_server()  # Ręczne wywołanie funkcji
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
-def print_gui(stdscr, speed, distance, orientation, rotate, status, encoder):
+# Definiujemy zmienne współdzielone
+speed = 0
+rotate = 0
+distance = 0
+orientation = 0
+encoder_distance = 0
+motor_status = ""
+
+# Synchronizacja danych za pomocą Lock
+lock = threading.Lock()
+
+
+def sensor_thread(sensor):
+    global distance
+    while True:
+        with lock:
+            distance = sensor.get_distance()
+        time.sleep(0.05)
+
+
+def motor_control_thread(motor_controller):
+    global speed, rotate, motor_status, encoder_distance
+    while True:
+        with lock:
+            if rotate > 0:
+                motor_controller.turn_left(rotate)
+            elif rotate < 0:
+                motor_controller.turn_right(abs(rotate))
+            else:
+                motor_controller.drive(speed)
+
+            motor_status = motor_controller.getStatus()
+            encoder_distance = motor_controller.getEncoderDistance()
+        time.sleep(0.05)
+
+
+def gyro_thread(gyro):
+    global orientation
+    while True:
+        with lock:
+            orientation = gyro.get_angle_z()
+        time.sleep(0.05)
+
+
+def print_gui(stdscr):
+    global speed, distance, orientation, rotate, motor_status, encoder_distance
+    stdscr.nodelay(1)
+    stdscr.timeout(100)
+
+    while True:
+        with lock:
+            print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance)
+
+
+def print_gui_data(stdscr, speed, distance, orientation, rotate, status, encoder):
     stdscr.clear()  # Czyści ekran
     height, width = stdscr.getmaxyx()  # Pobierz rozmiar terminala
 
@@ -54,11 +108,9 @@ def print_gui(stdscr, speed, distance, orientation, rotate, status, encoder):
 
     stdscr.refresh()  # Odśwież ekran
 
-def main(stdscr):
-    # Włącz tryb nieblokujący
-    stdscr.nodelay(1)
-    stdscr.timeout(10)  # Czeka na 10 ms na wejście
 
+def main(stdscr):
+    global speed, rotate
     left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
     right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
     motor_controller = MotorController()
@@ -67,9 +119,17 @@ def main(stdscr):
     sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
     mapper = Mapper(motor_controller, gyro)
 
-    speed = 0
-    rotate = 0
+    # Tworzymy wątki dla różnych zadań
+    sensor_t = threading.Thread(target=sensor_thread, args=(sensor,))
+    motor_t = threading.Thread(target=motor_control_thread, args=(motor_controller,))
+    gyro_t = threading.Thread(target=gyro_thread, args=(gyro,))
 
+    # Startujemy wątki
+    sensor_t.start()
+    motor_t.start()
+    gyro_t.start()
+
+    # Główna pętla dla interfejsu i sterowania
     while True:
         try:
             key = stdscr.getch()
@@ -93,25 +153,17 @@ def main(stdscr):
             elif key == ord('q'):
                 break
 
-            if sensor.get_distance() <= 10:
-                if speed > 0:
-                    speed = 0
-                rotate = 0
+            if distance <= 10 and speed > 0:
+                speed = 0
                 motor_controller.stop()
 
-            if rotate > 0:
-                motor_controller.turn_left(rotate)
-            elif rotate < 0:
-                motor_controller.turn_right(abs(rotate))
-            else:
-                motor_controller.drive(speed)
-
             mapper.update_position()
-            print_gui(stdscr, speed, sensor.get_distance(), gyro.get_angle_z(), rotate, motor_controller.getStatus(), motor_controller.getEncoderDistance())
             mapper.create_map()
 
+            time.sleep(0.1)
         except KeyboardInterrupt:
             break
+
 
 if __name__ == '__main__':
     curses.wrapper(main)

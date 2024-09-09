@@ -46,41 +46,50 @@ lock = threading.Lock()
 def sensor_thread(sensor):
     global distance
     while True:
-        with lock:
-            distance = sensor.get_distance()
-        time.sleep(0.05)
+        try:
+            with lock:
+                distance = sensor.get_distance()
+            time.sleep(0.05)
+        except Exception as e:
+            print(f"Sensor thread error: {e}")
 
 
 def motor_control_thread(motor_controller):
     global speed, rotate, motor_status, encoder_distance
     while True:
-        with lock:
-            if rotate > 0:
-                motor_controller.turn_left(rotate)
-            elif rotate < 0:
-                motor_controller.turn_right(abs(rotate))
-            elif speed == 0 and rotate == 0:
-                motor_controller.stop()
-            else:
-                motor_controller.drive(speed)
+        try:
+            with lock:
+                if rotate > 0:
+                    motor_controller.turn_left(rotate)
+                elif rotate < 0:
+                    motor_controller.turn_right(abs(rotate))
+                elif speed == 0 and rotate == 0:
+                    motor_controller.stop()
+                else:
+                    motor_controller.drive(speed)
 
-            motor_status = motor_controller.getStatus()
-            encoder_distance = motor_controller.getEncoderDistance()
-        time.sleep(0.05)
+                motor_status = motor_controller.getStatus()
+                encoder_distance = motor_controller.getEncoderDistance()
+            time.sleep(0.05)
+        except Exception as e:
+            print(f"Motor control thread error: {e}")
 
 
 def gyro_thread(gyro):
     global orientation
     while True:
-        with lock:
-            orientation = gyro.get_angle_z()
-        time.sleep(0.05)
+        try:
+            with lock:
+                orientation = gyro.get_angle_z()
+            time.sleep(0.05)
+        except Exception as e:
+            print(f"Gyro thread error: {e}")
 
 
 def print_gui(stdscr):
     global speed, distance, orientation, rotate, motor_status, encoder_distance
     stdscr.nodelay(1)
-    stdscr.timeout(100)
+    stdscr.timeout(100)  # Możesz zwiększyć timeout, jeśli GUI zbyt często przerywa
 
     while True:
         with lock:
@@ -88,27 +97,28 @@ def print_gui(stdscr):
 
 
 def print_gui_data(stdscr, speed, distance, orientation, rotate, status, encoder):
-    stdscr.clear()  # Czyści ekran
-    height, width = stdscr.getmaxyx()  # Pobierz rozmiar terminala
+    try:
+        stdscr.clear()
+        height, width = stdscr.getmaxyx()
 
-    # Utwórz ramkę
-    border = "*" * (width - 2)
-    stdscr.addstr(0, 0, border)
-    stdscr.addstr(height // 2 - 2, 0, "*" + " Mobile Robot - UI".center(width - 2) + "*")
-    stdscr.addstr(height - 1, 0, border)
+        border = "*" * (width - 2)
+        stdscr.addstr(0, 0, border)
+        stdscr.addstr(height // 2 - 2, 0, "*" + " Mobile Robot - UI".center(width - 2) + "*")
+        stdscr.addstr(height - 1, 0, border)
 
-    # Wyświetl dane
-    stdscr.addstr(height // 2 - 1, 2, f"Speed:        {speed:.2f} units")
-    stdscr.addstr(height // 2, 2, f"Distance:     {distance:.2f} cm")
-    stdscr.addstr(height // 2 + 1, 2, f"Orientation:  {orientation:.2f} degrees")
-    stdscr.addstr(height // 2 + 2, 2, f"Rotary:  {rotate:.2f} units")
-    stdscr.addstr(height // 2 + 3, 2, f"Motor Controller Status:  {status}")
-    stdscr.addstr(height // 2 + 4, 2, f"Encoder Distance:  {encoder:.2f} meters")
+        stdscr.addstr(height // 2 - 1, 2, f"Speed:        {speed:.2f} units")
+        stdscr.addstr(height // 2, 2, f"Distance:     {distance:.2f} cm")
+        stdscr.addstr(height // 2 + 1, 2, f"Orientation:  {orientation:.2f} degrees")
+        stdscr.addstr(height // 2 + 2, 2, f"Rotary:  {rotate:.2f} units")
+        stdscr.addstr(height // 2 + 3, 2, f"Motor Controller Status:  {status}")
+        stdscr.addstr(height // 2 + 4, 2, f"Encoder Distance:  {encoder:.2f} meters")
 
-    # Instrukcje
-    stdscr.addstr(height - 1, 2, "Press Ctrl+C to exit.")
+        stdscr.addstr(height - 1, 2, "Press Ctrl+C to exit.")
+        stdscr.refresh()
+    except Exception as e:
+        stdscr.addstr(0, 0, f"Error: {str(e)}")
+        stdscr.refresh()
 
-    stdscr.refresh()  # Odśwież ekran
 
 
 def main(stdscr):

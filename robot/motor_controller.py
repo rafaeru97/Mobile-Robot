@@ -70,6 +70,7 @@ class MotorController:
         self.rightEncoder = None
         self.totalDistance = 0
 
+        self.init = True
         self.status = "Initializing..."
 
     def getStatus(self):
@@ -95,7 +96,6 @@ class MotorController:
         GPIO.output(self.IN3, GPIO.HIGH)
         GPIO.output(self.IN4, GPIO.LOW)
         self.resetEncoders()
-        self.pid.reset()
         self.status = "Forward"
 
     def backward(self):
@@ -105,7 +105,6 @@ class MotorController:
         GPIO.output(self.IN3, GPIO.LOW)
         GPIO.output(self.IN4, GPIO.HIGH)
         self.resetEncoders()
-        self.pid.reset()
         self.status = "Backward"
 
     def turn_left(self, speed):
@@ -115,6 +114,7 @@ class MotorController:
         GPIO.output(self.IN3, GPIO.HIGH)
         GPIO.output(self.IN4, GPIO.LOW)
         self.resetEncoders()
+        self.pid.reset()
         self.pwm_a.ChangeDutyCycle(speed)
         self.pwm_b.ChangeDutyCycle(speed)
         self.status = "Turn Left"
@@ -126,6 +126,7 @@ class MotorController:
         GPIO.output(self.IN3, GPIO.LOW)
         GPIO.output(self.IN4, GPIO.HIGH)
         self.resetEncoders()
+        self.pid.reset()
         self.pwm_a.ChangeDutyCycle(speed)
         self.pwm_b.ChangeDutyCycle(speed)
         self.status = "Turn Right"

@@ -163,8 +163,7 @@ def main(stdscr):
                 elif key == ord('m'):
                     mapper.create_map()
                 elif key == ord('o'):
-                    mapper.process_detected_points(mapper.detected_points)
-                    mapper.generate_and_plot_map()
+                    mapper.process_detected_points()
                 elif key == ord('q'):
                     break
 

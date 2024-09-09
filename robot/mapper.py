@@ -52,6 +52,7 @@ class SimpleDBSCAN:
 
         return labels
 
+
 class EKF_SLAM:
     def __init__(self):
         # Stan robota i mapy (początkowo tylko robot)
@@ -185,24 +186,25 @@ class Mapper:
             print("No detected points to process.")
             return
 
-        # Step 1: Convert detected points to a numpy array and apply DBSCAN for filtering
+        # Convert detected points to a numpy array and apply SimpleDBSCAN for filtering
         detected_array = np.array(self.detected_points)
-        clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(detected_array[:, :2])
+        clustering = SimpleDBSCAN(eps=eps, min_samples=min_samples)
+        labels = clustering.fit(detected_array[:, :2])
 
         # Filter out noise points (label = -1)
-        filtered_points = detected_array[clustering.labels_ != -1]
+        filtered_points = detected_array[np.array(labels) != -1]
 
         if len(filtered_points) == 0:
             print("No valid points after filtering.")
             return
 
-        # Step 2: Estimate boundaries using Convex Hull
+        # Estimate boundaries using Convex Hull
         hull = ConvexHull(filtered_points[:, :2])
 
-        # Step 3: Detect objects by clustering points and generating bounding boxes
-        boxes = self.get_bounding_boxes(filtered_points, clustering)
+        # Detect objects by clustering points and generating bounding boxes
+        boxes = self.get_bounding_boxes(filtered_points, labels)
 
-        # Step 4: Plot the map with boundaries and bounding boxes
+        # Plot the map with boundaries and bounding boxes
         self.plot_map_with_boundaries_and_boxes(filtered_points, hull, boxes, zoom_level, filename)
 
     def get_bounding_boxes(self, filtered_points, clustering):

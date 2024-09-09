@@ -135,6 +135,8 @@ def main(stdscr):
     stdscr.nodelay(1)
     stdscr.timeout(100)
 
+    mapper.create_map()
+
     while True:
         try:
             key = stdscr.getch()

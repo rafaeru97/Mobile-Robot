@@ -12,17 +12,24 @@ class Mapper:
         self.x = 0
         self.y = 0
         self.angle_history = []
+        self.last_encoder_distance = 0  # Track the last encoder distance
 
     def update_position(self):
         # Get current angle from the gyro in degrees
         angle = self.gyro.get_angle_z()
         self.angle_history.append(angle)
-        if len(self.angle_history) > 10:  # Average over last 10 readings
+
+        # Average over more readings for better smoothing
+        if len(self.angle_history) > 20:  # Increase averaging window to 20
             self.angle_history.pop(0)
         self.current_angle = np.mean(self.angle_history)
 
-        # Get distance traveled in meters from the motor controller
-        distance = self.motor_controller.getEncoderDistance()
+        # Get the current distance traveled in meters
+        current_distance = self.motor_controller.getEncoderDistance()
+
+        # Calculate the difference in distance since the last update
+        distance = current_distance - self.last_encoder_distance
+        self.last_encoder_distance = current_distance  # Update last encoder distance
 
         # Convert angle to radians for trigonometric functions
         angle_rad = math.radians(self.current_angle)
@@ -31,15 +38,12 @@ class Mapper:
         dx = distance * math.cos(angle_rad)
         dy = distance * math.sin(angle_rad)
 
-        # Update the current position with the calculated values
+        # Update the current position
         self.x += dx
         self.y += dy
 
         # Append the new position (rounded to centimeters) to the list
         self.positions.append((round(self.x * 100, 2), round(self.y * 100, 2)))
-
-        # Reset encoder after updating position
-        self.motor_controller.resetEncoders()
 
     def create_map(self, filename="robot_map.png"):
         # Convert positions to numpy arrays for plotting
@@ -48,7 +52,7 @@ class Mapper:
         y_positions = positions[:, 1]  # Y coordinates (in cm)
 
         # Calculate the end of the orientation arrow
-        orientation_length = 10  # Increase the length of the orientation arrow in cm
+        orientation_length = 10  # Length of the orientation arrow in cm
         angle_rad = math.radians(self.current_angle)
         dx_arrow = orientation_length * math.cos(angle_rad)
         dy_arrow = orientation_length * math.sin(angle_rad)

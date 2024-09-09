@@ -18,7 +18,7 @@ def start_http_server():
     handler = SimpleHTTPRequestHandler
     httpd = HTTPServer(("0.0.0.0", port), handler)
 
-    print(f"Serwer działa na http://localhost:{port}")
+    print(f"Server is running at http://localhost:{port}\n")
     httpd.serve_forever()
 
 def run_server():

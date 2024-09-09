@@ -140,7 +140,7 @@ class Mapper:
         plt.xlim(center_x - zoom_level, center_x + zoom_level)
         plt.ylim(center_y - zoom_level, center_y + zoom_level)
 
-        plt.title("Robot Movement Path with Detected Points (in cm)")
+        plt.title("Robot Movement Path with Detected Points")
         plt.xlabel("X position (cm)")
         plt.ylabel("Y position (cm)")
         plt.grid(True)
@@ -268,7 +268,7 @@ class Mapper:
         plt.xlim(center_x - zoom_level, center_x + zoom_level)
         plt.ylim(center_y - zoom_level, center_y + zoom_level)
 
-        plt.title("Processed Map with Boundaries and Detected Objects")
+        plt.title("Processed Map")
         plt.xlabel("X position (cm)")
         plt.ylabel("Y position (cm)")
         plt.grid(True)

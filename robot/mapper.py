@@ -191,6 +191,10 @@ class Mapper:
         clustering = SimpleDBSCAN(eps=eps, min_samples=min_samples)
         labels = clustering.fit(detected_array[:, :2])
 
+        if len(labels) != len(detected_array):
+            print("Error: Mismatch between labels and detected points lengths.")
+            return
+
         # Filter out noise points (label = -1)
         filtered_points = detected_array[np.array(labels) != -1]
 

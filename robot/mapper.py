@@ -91,7 +91,6 @@ class Mapper:
         distance_from_sensor = self.distance_sensor.get_distance()
         if distance_from_sensor is not None and distance_from_sensor > 0:
             distance_from_sensor_cm = distance_from_sensor
-            # Oblicz położenie punktu wykrytego
             detected_x = self.x + distance_from_sensor_cm * math.cos(angle_rad)
             detected_y = self.y + distance_from_sensor_cm * math.sin(angle_rad)
 

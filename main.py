@@ -167,7 +167,7 @@ def main(stdscr):
 
             print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance)
 
-            time.sleep(0.05)
+            time.sleep(0.1)
 
         except KeyboardInterrupt:
             break

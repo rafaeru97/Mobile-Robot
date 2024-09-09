@@ -127,10 +127,27 @@ class MotorController:
         GPIO.output(self.IN2, GPIO.LOW)
         GPIO.output(self.IN3, GPIO.LOW)
         GPIO.output(self.IN4, GPIO.HIGH)
-        # self.resetEncoders()
-        self.pid.reset()
-        self.pwm_a.ChangeDutyCycle(speed)
-        self.pwm_b.ChangeDutyCycle(speed)
+
+        # Oblicz dystans od ostatniego pomiaru
+        left_distance = abs(self.leftEncoder.get_distance() - self.last_left_distance)
+        right_distance = abs(self.rightEncoder.get_distance() - self.last_right_distance)
+
+        # Zaktualizuj ostatnie wartości dystansu
+        self.last_left_distance = self.leftEncoder.get_distance()
+        self.last_right_distance = self.rightEncoder.get_distance()
+
+        # Calculate error
+        error = left_distance - right_distance
+
+        # Compute PID output
+        correction = self.pid.compute(error)
+
+        # Adjust speed based on correction
+        left_speed = speed - correction
+        right_speed = speed + correction
+
+        self.pwm_a.ChangeDutyCycle(left_speed)
+        self.pwm_b.ChangeDutyCycle(right_speed)
         self.status = "Turn Right"
 
     def stop(self):

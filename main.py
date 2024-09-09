@@ -151,7 +151,6 @@ def main(stdscr):
             elif key == ord(' '):
                 speed = 0
                 rotate = 0
-                motor_controller.stop()
             elif key == ord('m'):
                 mapper.create_map()
             elif key == ord('q'):
@@ -159,7 +158,6 @@ def main(stdscr):
 
             if distance <= 10 and speed > 0:
                 speed = 0
-                motor_controller.stop()
 
             mapper.update_position()
 

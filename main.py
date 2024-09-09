@@ -117,7 +117,7 @@ def main(stdscr):
     motor_controller.setEncoders(left_encoder, right_encoder)
     gyro = Gyro()
     sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
-    mapper = Mapper(motor_controller, gyro)
+    mapper = Mapper(motor_controller, gyro, sensor)
 
     # Tworzymy wątki dla różnych zadań
     sensor_t = threading.Thread(target=sensor_thread, args=(sensor,))

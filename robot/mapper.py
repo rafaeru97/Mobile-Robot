@@ -4,10 +4,12 @@ import math
 
 
 class Mapper:
-    def __init__(self, motor_controller, gyro):
+    def __init__(self, motor_controller, gyro, distance_sensor):
         self.motor_controller = motor_controller
         self.gyro = gyro
+        self.distance_sensor = distance_sensor  # Sensor odległości
         self.positions = [(0, 0)]  # Starting at the origin (0,0)
+        self.detected_points = []  # Lista na punkty wykryte przez sensor odległości
         self.current_angle = 0  # Initial angle is 0 degrees
         self.x = 0
         self.y = 0
@@ -19,8 +21,7 @@ class Mapper:
         angle = self.gyro.get_angle_z()
         self.angle_history.append(angle)
 
-        # Average over more readings for better smoothing
-        if len(self.angle_history) > 20:  # Increase averaging window to 20
+        if len(self.angle_history) > 20:  # Average over more readings for better smoothing
             self.angle_history.pop(0)
         self.current_angle = np.mean(self.angle_history)
 
@@ -45,11 +46,29 @@ class Mapper:
         # Append the new position (rounded to centimeters) to the list
         self.positions.append((round(self.x * 100, 2), round(self.y * 100, 2)))
 
+        # Pobieranie odległości z sensora odległości
+        distance_from_sensor = self.distance_sensor.get_distance()
+
+        # Jeśli sensor wykrywa dystans (np. nie nieskończoność), oblicz pozycję
+        if distance_from_sensor is not None and distance_from_sensor > 0:
+            # Oblicz pozycję wykrytego obiektu na podstawie kąta i dystansu
+            detected_x = self.x + (distance_from_sensor / 100) * math.cos(angle_rad)
+            detected_y = self.y + (distance_from_sensor / 100) * math.sin(angle_rad)
+
+            # Dodaj punkt wykryty przez sensor do listy
+            self.detected_points.append((round(detected_x * 100, 2), round(detected_y * 100, 2)))
+
     def create_map(self, filename="robot_map.png", zoom_level=100):
         # Convert positions to numpy arrays for plotting
         positions = np.array(self.positions)
         x_positions = positions[:, 0]  # X coordinates (in cm)
         y_positions = positions[:, 1]  # Y coordinates (in cm)
+
+        # Convert detected points to numpy arrays for plotting
+        detected_points = np.array(self.detected_points)
+        if len(detected_points) > 0:
+            x_detected = detected_points[:, 0]  # X coordinates of detected points (in cm)
+            y_detected = detected_points[:, 1]  # Y coordinates of detected points (in cm)
 
         # Calculate the end of the orientation arrow
         orientation_length = 10  # Length of the orientation arrow in cm
@@ -69,12 +88,17 @@ class Mapper:
         plt.arrow(x_positions[-1], y_positions[-1], dx_arrow, dy_arrow, head_width=2, head_length=2, fc='k', ec='k',
                   label="Orientation")
 
+        # Plot the detected points (e.g. obstacles)
+        if len(detected_points) > 0:
+            plt.scatter(x_detected, y_detected, color='g', label="Detected Points",
+                        s=30)  # Green dots for detected points
+
         # Set the limits of the plot to center the robot and provide zoom
         center_x, center_y = x_positions[-1], y_positions[-1]
         plt.xlim(center_x - zoom_level, center_x + zoom_level)
         plt.ylim(center_y - zoom_level, center_y + zoom_level)
 
-        plt.title("Robot Movement Path (in cm)")
+        plt.title("Robot Movement Path with Detected Points (in cm)")
         plt.xlabel("X position (cm)")
         plt.ylabel("Y position (cm)")
         plt.grid(True)

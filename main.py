@@ -97,7 +97,7 @@ def print_gui_data(stdscr, speed, distance, orientation, rotate, status, encoder
 
         border = "*" * (width - 2)
         stdscr.addstr(0, 0, border)
-        stdscr.addstr(height // 2 - 2, 0, "*" + " Mobile Robot - UI".center(width - 2) + "*")
+        stdscr.addstr(height // 2 - 2, 0, "*" + " Mobile Robot - UI".center(width - 4) + "*")
         stdscr.addstr(height - 1, 0, border)
 
         stdscr.addstr(height // 2 - 3, 2, f"Speed:        {speed:.2f} units")

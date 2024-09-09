@@ -128,3 +128,128 @@ class Mapper:
         plt.savefig(filename)
         plt.close()
 
+    def process_detected_points(self, detected_points, eps=5, min_samples=3, zoom_level=100, filename="output_map.png"):
+        """
+        Process the detected points by filtering noise, estimating boundaries, and detecting objects.
+        :param detected_points: List of (x, y, distance) points.
+        :param eps: Maximum distance between two samples for DBSCAN to cluster them.
+        :param min_samples: Minimum number of samples in a cluster for it not to be considered noise.
+        :param zoom_level: Zoom level for the map visualization.
+        :param filename: The name of the output image file.
+        :return: None (saves a visual map with boundaries and detected objects).
+        """
+        if len(detected_points) == 0:
+            print("No detected points to process.")
+            return
+
+        # Step 1: Convert detected points to a numpy array and apply DBSCAN for filtering
+        detected_array = np.array(detected_points)
+        clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(detected_array[:, :2])
+
+        # Filter out noise points (label = -1)
+        filtered_points = detected_array[clustering.labels_ != -1]
+
+        if len(filtered_points) == 0:
+            print("No valid points after filtering.")
+            return
+
+        # Step 2: Estimate boundaries using Convex Hull
+        hull = ConvexHull(filtered_points[:, :2])
+
+        # Step 3: Detect objects by clustering points and generating bounding boxes
+        boxes = self.get_bounding_boxes(filtered_points, clustering)
+
+        # Step 4: Plot the map with boundaries and bounding boxes
+        self.plot_map_with_boundaries_and_boxes(filtered_points, hull, boxes, zoom_level, filename)
+
+    def get_bounding_boxes(self, filtered_points, clustering):
+        """
+        Generate bounding boxes for filtered clusters of points.
+        :param filtered_points: List of (x, y, distance) points.
+        :param clustering: DBSCAN clustering result.
+        :return: List of bounding boxes [(x_min, y_min, x_max, y_max)].
+        """
+        clusters = np.array(filtered_points)
+        boxes = []
+
+        # Get unique clusters from DBSCAN
+        for cluster in np.unique(clustering.labels_):
+            if cluster == -1:
+                continue  # Skip noise points
+
+            cluster_points = clusters[clustering.labels_ == cluster][:, :2]
+            x_min, y_min = cluster_points.min(axis=0)
+            x_max, y_max = cluster_points.max(axis=0)
+            boxes.append((x_min, y_min, x_max, y_max))
+
+        return boxes
+
+    def plot_map_with_boundaries_and_boxes(self, filtered_points, hull, boxes, zoom_level, filename):
+        """
+        Plot the filtered points, convex hull boundaries, and bounding boxes.
+        :param filtered_points: Filtered points after noise reduction.
+        :param hull: Convex Hull object for boundary estimation.
+        :param boxes: Bounding boxes for detected objects.
+        :param zoom_level: Zoom level for map visualization.
+        :param filename: Name of the output file.
+        """
+        plt.figure(figsize=(8, 8))
+
+        # Plot the filtered points
+        plt.scatter(filtered_points[:, 0], filtered_points[:, 1], color='g', label="Filtered Points", s=30)
+
+        # Plot the convex hull boundary
+        for simplex in hull.simplices:
+            plt.plot(filtered_points[simplex, 0], filtered_points[simplex, 1], 'k-', label="Boundary")
+
+        # Plot the bounding boxes
+        for box in boxes:
+            x_min, y_min, x_max, y_max = box
+            plt.plot([x_min, x_max, x_max, x_min, x_min],
+                     [y_min, y_min, y_max, y_max, y_min], 'r-', label="Bounding Box")
+
+        # Adjust zoom and labels
+        center_x, center_y = filtered_points[-1, 0], filtered_points[-1, 1]
+        plt.xlim(center_x - zoom_level, center_x + zoom_level)
+        plt.ylim(center_y - zoom_level, center_y + zoom_level)
+
+        plt.title("Processed Map with Boundaries and Objects")
+        plt.xlabel("X position (cm)")
+        plt.ylabel("Y position (cm)")
+        plt.grid(True)
+        plt.legend()
+        plt.savefig(filename)
+        plt.close()
+
+# Example of using plot_map_with_boundaries_and_boxes manually
+def generate_and_plot_map(self):
+    # Get the detected points from SLAM
+    detected_points = np.array(self.slam.get_map())
+
+    if len(detected_points) == 0:
+        print("No detected points available.")
+        return
+
+    # Step 1: Perform DBSCAN clustering (for noise reduction)
+    eps = 5  # You can adjust this value based on your data
+    min_samples = 3  # Minimum samples for a valid cluster
+    clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(detected_points[:, :2])
+
+    # Step 2: Filter points (removing noise)
+    filtered_points = detected_points[clustering.labels_ != -1]
+
+    if len(filtered_points) == 0:
+        print("No valid points after filtering.")
+        return
+
+    # Step 3: Compute convex hull (for boundary estimation)
+    hull = ConvexHull(filtered_points[:, :2])
+
+    # Step 4: Generate bounding boxes for object detection
+    boxes = self.get_bounding_boxes(filtered_points, clustering)
+
+    # Step 5: Plot the results
+    zoom_level = 100  # You can adjust the zoom level as needed
+    filename = "output_map.png"  # You can specify the file name here
+    self.plot_map_with_boundaries_and_boxes(filtered_points, hull, boxes, zoom_level, filename)
+

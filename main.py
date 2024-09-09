@@ -152,6 +152,8 @@ def main(stdscr):
                 speed = 0
                 rotate = 0
                 motor_controller.stop()
+            elif key == ord('m'):
+                mapper.create_map()
             elif key == ord('q'):
                 break
 
@@ -160,13 +162,12 @@ def main(stdscr):
                 motor_controller.stop()
 
             mapper.update_position()
-            mapper.create_map()
 
             # Odświeżamy GUI co 10 ms
             with lock:
                 print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance)
 
-            time.sleep(0.01)  # Spowolnienie pętli dla lepszej wydajności
+            time.sleep(0.05)  # Spowolnienie pętli dla lepszej wydajności
 
         except KeyboardInterrupt:
             break

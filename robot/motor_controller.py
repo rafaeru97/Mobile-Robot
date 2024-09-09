@@ -70,6 +70,9 @@ class MotorController:
         self.rightEncoder = None
         self.totalDistance = 0
 
+        self.last_left_distance = 0
+        self.last_right_distance = 0
+
         self.status = "Initializing..."
 
     def getStatus(self):
@@ -147,8 +150,13 @@ class MotorController:
 
         speed = abs(speed)
 
-        left_distance = abs(self.leftEncoder.get_distance())
-        right_distance = abs(self.rightEncoder.get_distance())
+        # Oblicz dystans od ostatniego pomiaru
+        left_distance = abs(self.leftEncoder.get_distance() - self.last_left_distance)
+        right_distance = abs(self.rightEncoder.get_distance() - self.last_right_distance)
+
+        # Zaktualizuj ostatnie wartości dystansu
+        self.last_left_distance = self.leftEncoder.get_distance()
+        self.last_right_distance = self.rightEncoder.get_distance()
 
         # Calculate error
         error = left_distance - right_distance

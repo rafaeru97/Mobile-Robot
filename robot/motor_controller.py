@@ -94,7 +94,7 @@ class MotorController:
         GPIO.output(self.IN2, GPIO.LOW)
         GPIO.output(self.IN3, GPIO.HIGH)
         GPIO.output(self.IN4, GPIO.LOW)
-        self.resetEncoders()
+        # self.resetEncoders()
         self.status = "Forward"
 
     def backward(self):
@@ -103,7 +103,7 @@ class MotorController:
         GPIO.output(self.IN2, GPIO.HIGH)
         GPIO.output(self.IN3, GPIO.LOW)
         GPIO.output(self.IN4, GPIO.HIGH)
-        self.resetEncoders()
+        # self.resetEncoders()
         self.status = "Backward"
 
     def turn_left(self, speed):
@@ -112,7 +112,7 @@ class MotorController:
         GPIO.output(self.IN2, GPIO.HIGH)
         GPIO.output(self.IN3, GPIO.HIGH)
         GPIO.output(self.IN4, GPIO.LOW)
-        self.resetEncoders()
+        # self.resetEncoders()
         self.pid.reset()
         self.pwm_a.ChangeDutyCycle(speed)
         self.pwm_b.ChangeDutyCycle(speed)
@@ -124,7 +124,7 @@ class MotorController:
         GPIO.output(self.IN2, GPIO.LOW)
         GPIO.output(self.IN3, GPIO.LOW)
         GPIO.output(self.IN4, GPIO.HIGH)
-        self.resetEncoders()
+        # self.resetEncoders()
         self.pid.reset()
         self.pwm_a.ChangeDutyCycle(speed)
         self.pwm_b.ChangeDutyCycle(speed)

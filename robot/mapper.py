@@ -58,22 +58,22 @@ class Mapper:
         self.gyro = gyro
         self.distance_sensor = distance_sensor
         self.slam = EKF_SLAM()
-        self.positions = [(0, 0)]  # Świetnie, ale warto dodać np. (0,0) jako początkową pozycję
+        self.positions = [(0, 0)]
         self.current_angle = 0
         self.x = 0
         self.y = 0
         self.last_encoder_distance = 0
+        self.detected_points = []  # Inicjalizacja atrybutu
 
     def update_position(self):
+        # Aktualizacja pozycji robota
         self.current_angle = self.gyro.get_angle_z()
-
         current_distance = self.motor_controller.getEncoderDistance()
         distance = current_distance - self.last_encoder_distance
         self.last_encoder_distance = current_distance
-
         distance_cm = distance * 100
-        angle_rad = math.radians(self.current_angle)
 
+        angle_rad = math.radians(self.current_angle)
         dx = distance_cm * math.cos(angle_rad)
         dy = distance_cm * math.sin(angle_rad)
 
@@ -82,14 +82,11 @@ class Mapper:
         self.positions.append((round(self.x, 2), round(self.y, 2)))
 
         distance_from_sensor = self.distance_sensor.get_distance()
-        if distance_from_sensor is not None and distance_from_sensor > 0 and distance_from_sensor < 100:
+        if distance_from_sensor is not None and distance_from_sensor > 0:
             distance_from_sensor_cm = distance_from_sensor
             detected_x = self.x + distance_from_sensor_cm * math.cos(angle_rad)
             detected_y = self.y + distance_from_sensor_cm * math.sin(angle_rad)
-
-            # Debugowanie
-            print(f"Detected point: ({detected_x}, {detected_y})")
-
+            self.detected_points.append((detected_x, detected_y, distance_from_sensor_cm))
             self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
 
     def create_map(self, filename="robot_map.png", zoom_level=100):

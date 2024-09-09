@@ -162,7 +162,7 @@ def main(stdscr):
             mapper.update_position()
             mapper.create_map()
 
-            # Odświeżamy GUI co 100 ms
+            # Odświeżamy GUI co 10 ms
             with lock:
                 print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance)
 

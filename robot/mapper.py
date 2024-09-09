@@ -65,25 +65,41 @@ class Mapper:
         self.last_encoder_distance = 0
 
     def update_position(self):
+        # Pobierz aktualny kąt z żyroskopu
         self.current_angle = self.gyro.get_angle_z()
+
+        # Pobierz dystans z enkodera i oblicz zmiany
         current_distance = self.motor_controller.getEncoderDistance()
         distance = current_distance - self.last_encoder_distance
         self.last_encoder_distance = current_distance
+
+        # Konwersja dystansu na centymetry
         distance_cm = distance * 100
 
+        # Konwersja kąta na radiany
         angle_rad = math.radians(self.current_angle)
+
+        # Oblicz zmiany w x i y
         dx = distance_cm * math.cos(angle_rad)
         dy = distance_cm * math.sin(angle_rad)
 
+        print(f"dx: {dx}, dy: {dy}, x: {self.x}, y: {self.y}")  # Debug
+
+        # Zaktualizuj aktualną pozycję
         self.x += dx
         self.y += dy
         self.positions.append((round(self.x, 2), round(self.y, 2)))
 
+        # Pobierz dystans z sensora odległości
         distance_from_sensor = self.distance_sensor.get_distance()
         if distance_from_sensor is not None and distance_from_sensor > 0:
-            distance_from_sensor_cm = distance_from_sensor
+            distance_from_sensor_cm = distance_from_sensor  # Zakładam, że jest już w centymetrach
             detected_x = self.x + distance_from_sensor_cm * math.cos(angle_rad)
             detected_y = self.y + distance_from_sensor_cm * math.sin(angle_rad)
+
+            print(f"Detected X: {detected_x}, Detected Y: {detected_y}")  # Debug
+
+            # Aktualizacja SLAM
             self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
 
     def create_map(self, filename="robot_map.png", zoom_level=100):

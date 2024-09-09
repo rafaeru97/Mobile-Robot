@@ -163,11 +163,11 @@ def main(stdscr):
 
             mapper.update_position()
 
-            # Odświeżamy GUI co 10 ms
+            # Odświeżamy GUI co 100 ms
             with lock:
                 print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance)
 
-            time.sleep(0.01)  # Spowolnienie pętli dla lepszej wydajności
+            time.sleep(0.1)  # Spowolnienie pętli dla lepszej wydajności
 
         except KeyboardInterrupt:
             break

@@ -88,8 +88,6 @@ def gyro_thread(gyro):
 
 def print_gui(stdscr):
     global speed, distance, orientation, rotate, motor_status, encoder_distance
-    stdscr.nodelay(1)
-    stdscr.timeout(100)  # Możesz zwiększyć timeout, jeśli GUI zbyt często przerywa
 
     while True:
         with lock:
@@ -143,6 +141,7 @@ def main(stdscr):
 
     # Włączamy nodelay, aby curses działało nieblokująco
     stdscr.nodelay(1)
+    stdscr.timeout(100)
 
     while True:
         try:

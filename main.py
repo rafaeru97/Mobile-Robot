@@ -57,7 +57,7 @@ def print_gui(stdscr, speed, distance, orientation, rotate, status, encoder):
 def main(stdscr):
     # Włącz tryb nieblokujący
     stdscr.nodelay(1)
-    stdscr.timeout(100)  # Czeka na 100 ms na wejście
+    stdscr.timeout(10)  # Czeka na 10 ms na wejście
 
     left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
     right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
@@ -109,7 +109,6 @@ def main(stdscr):
             mapper.update_position()
             print_gui(stdscr, speed, sensor.get_distance(), gyro.get_angle_z(), rotate, motor_controller.getStatus(), motor_controller.getEncoderDistance())
             mapper.create_map()
-            time.sleep(0.1)  # Spowolnienie pętli
 
         except KeyboardInterrupt:
             break

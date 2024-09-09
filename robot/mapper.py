@@ -57,15 +57,14 @@ class Mapper:
         self.motor_controller = motor_controller
         self.gyro = gyro
         self.distance_sensor = distance_sensor
-        self.slam = EKF_SLAM()  # Inicjalizacja SLAM
-        self.positions = [(0, 0)]
+        self.slam = EKF_SLAM()
+        self.positions = [(0, 0)]  # Świetnie, ale warto dodać np. (0,0) jako początkową pozycję
         self.current_angle = 0
         self.x = 0
         self.y = 0
         self.last_encoder_distance = 0
 
     def update_position(self):
-        # Pobierz aktualny kąt z żyroskopu
         self.current_angle = self.gyro.get_angle_z()
 
         # Pobierz dystans z enkodera i oblicz zmiany
@@ -83,8 +82,6 @@ class Mapper:
         dx = distance_cm * math.cos(angle_rad)
         dy = distance_cm * math.sin(angle_rad)
 
-        print(f"dx: {dx}, dy: {dy}, x: {self.x}, y: {self.y}")  # Debug
-
         # Zaktualizuj aktualną pozycję
         self.x += dx
         self.y += dy
@@ -93,11 +90,10 @@ class Mapper:
         # Pobierz dystans z sensora odległości
         distance_from_sensor = self.distance_sensor.get_distance()
         if distance_from_sensor is not None and distance_from_sensor > 0:
-            distance_from_sensor_cm = distance_from_sensor  # Zakładam, że jest już w centymetrach
+            distance_from_sensor_cm = distance_from_sensor
+            # Oblicz położenie punktu wykrytego
             detected_x = self.x + distance_from_sensor_cm * math.cos(angle_rad)
             detected_y = self.y + distance_from_sensor_cm * math.sin(angle_rad)
-
-            print(f"Detected X: {detected_x}, Detected Y: {detected_y}")  # Debug
 
             # Aktualizacja SLAM
             self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
@@ -120,7 +116,8 @@ class Mapper:
         plt.figure(figsize=(8, 8))
         plt.plot(x_positions, y_positions, marker="o", color="b", markersize=3)
         plt.plot(x_positions[-1], y_positions[-1], marker="o", color="r", markersize=10, label="Current Position")
-        plt.arrow(x_positions[-1], y_positions[-1], dx_arrow, dy_arrow, head_width=2, head_length=2, fc='k', ec='k', label="Orientation")
+        plt.arrow(x_positions[-1], y_positions[-1], dx_arrow, dy_arrow, head_width=2, head_length=2, fc='k', ec='k',
+                  label="Orientation")
 
         if len(detected_points) > 0:
             plt.scatter(x_detected, y_detected, color='g', label="Detected Points", s=30)

@@ -173,8 +173,7 @@ def main(stdscr):
 
             mapper.update_position()
 
-            with lock:
-                print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance)
+            print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance)
 
             time.sleep(0.05)
 

@@ -6,6 +6,10 @@ import curses
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 import threading
 import os
+import logging
+
+logging.basicConfig(filename='app_errors.log', level=logging.ERROR,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 def start_http_server():
     os.chdir("/home/pi/Desktop/Mobile-Robot")
@@ -112,69 +116,73 @@ def print_gui_data(stdscr, speed, distance, orientation, rotate, status, encoder
 
 
 def main(stdscr):
-    global speed, rotate
-    left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
-    right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
-    motor_controller = MotorController()
-    motor_controller.setEncoders(left_encoder, right_encoder)
-    gyro = Gyro()
-    sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
-    mapper = Mapper(motor_controller, gyro, sensor)
-    mapper.create_map()
+    try:
+        global speed, rotate
+        left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
+        right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
+        motor_controller = MotorController()
+        motor_controller.setEncoders(left_encoder, right_encoder)
+        gyro = Gyro()
+        sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
+        mapper = Mapper(motor_controller, gyro, sensor)
+        mapper.create_map()
 
-    # Tworzymy wątki dla różnych zadań
-    sensor_t = threading.Thread(target=sensor_thread, args=(sensor,), name="DistanceSensorThread")
-    motor_t = threading.Thread(target=motor_control_thread, args=(motor_controller,), name="MotorControllerThread")
-    gyro_t = threading.Thread(target=gyro_thread, args=(gyro,), name="GyroThread")
+        # Tworzymy wątki dla różnych zadań
+        sensor_t = threading.Thread(target=sensor_thread, args=(sensor,), name="DistanceSensorThread")
+        motor_t = threading.Thread(target=motor_control_thread, args=(motor_controller,), name="MotorControllerThread")
+        gyro_t = threading.Thread(target=gyro_thread, args=(gyro,), name="GyroThread")
 
-    # Startujemy wątki
-    sensor_t.start()
-    motor_t.start()
-    gyro_t.start()
+        # Startujemy wątki
+        sensor_t.start()
+        motor_t.start()
+        gyro_t.start()
 
-    # Włączamy nodelay, aby curses działało nieblokująco
-    stdscr.nodelay(1)
-    stdscr.timeout(100)
+        # Włączamy nodelay, aby curses działało nieblokująco
+        stdscr.nodelay(1)
+        stdscr.timeout(100)
 
-    while True:
-        try:
-            key = stdscr.getch()
+        while True:
+            try:
+                key = stdscr.getch()
 
-            if key == curses.KEY_UP:
-                rotate = 0
-                speed = min(100, max(30, speed + 5))
-            elif key == curses.KEY_DOWN:
-                rotate = 0
-                speed = max(-100, min(-30, speed - 5))
-            elif key == curses.KEY_LEFT:
-                speed = 0
-                rotate = min(100, max(35, rotate + 2))
-            elif key == curses.KEY_RIGHT:
-                speed = 0
-                rotate = max(-100, min(-35, rotate - 2))
-            elif key == ord(' '):
-                speed = 0
-                rotate = 0
-            elif key == ord('m'):
-                mapper.create_map()
-            elif key == ord('o'):
-                mapper.process_detected_points(mapper.detected_points)
-                mapper.generate_and_plot_map()
-            elif key == ord('q'):
+                if key == curses.KEY_UP:
+                    rotate = 0
+                    speed = min(100, max(30, speed + 5))
+                elif key == curses.KEY_DOWN:
+                    rotate = 0
+                    speed = max(-100, min(-30, speed - 5))
+                elif key == curses.KEY_LEFT:
+                    speed = 0
+                    rotate = min(100, max(35, rotate + 2))
+                elif key == curses.KEY_RIGHT:
+                    speed = 0
+                    rotate = max(-100, min(-35, rotate - 2))
+                elif key == ord(' '):
+                    speed = 0
+                    rotate = 0
+                elif key == ord('m'):
+                    mapper.create_map()
+                elif key == ord('o'):
+                    mapper.process_detected_points(mapper.detected_points)
+                    mapper.generate_and_plot_map()
+                elif key == ord('q'):
+                    break
+
+                if distance <= 10 and speed > 0:
+                    speed = 0
+
+                mapper.update_position()
+
+                print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance)
+
+                time.sleep(0.1)
+
+            except KeyboardInterrupt:
                 break
 
-            if distance <= 10 and speed > 0:
-                speed = 0
-
-            mapper.update_position()
-
-            print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance)
-
-            time.sleep(0.1)
-
-        except KeyboardInterrupt:
-            break
-
+    except Exception as e:
+        logging.error("An error occurred", exc_info=True)
+        raise  # Opcjonalnie ponownie zgłoś wyjątek, aby program zakończył działanie
 
 if __name__ == '__main__':
     curses.wrapper(main)

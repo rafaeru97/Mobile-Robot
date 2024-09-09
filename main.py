@@ -152,7 +152,6 @@ def main(stdscr):
                 speed = 0
                 rotate = 0
                 motor_controller.stop()
-            elif key == ord('m'):
             elif key == ord('q'):
                 break
 

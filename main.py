@@ -86,14 +86,6 @@ def gyro_thread(gyro):
             print(f"Gyro thread error: {e}")
 
 
-def print_gui(stdscr):
-    global speed, distance, orientation, rotate, motor_status, encoder_distance
-
-    while True:
-        with lock:
-            print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance)
-
-
 def print_gui_data(stdscr, speed, distance, orientation, rotate, status, encoder):
     try:
         stdscr.clear()

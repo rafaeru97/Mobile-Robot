@@ -207,22 +207,26 @@ class Mapper:
         # Plot the map with boundaries and bounding boxes
         self.plot_map_with_boundaries_and_boxes(filtered_points, hull, boxes, zoom_level, filename)
 
-    def get_bounding_boxes(self, filtered_points, clustering):
+    def get_bounding_boxes(self, points, labels):
         """
-        Generate bounding boxes for detected objects.
-        :param filtered_points: Points after noise filtering.
-        :param clustering: DBSCAN clustering result.
+        Generate bounding boxes for clusters in the detected points.
+        :param points: List of (x, y) points.
+        :param labels: Array of cluster labels.
         :return: List of bounding boxes.
         """
+        unique_labels = set(labels)
         boxes = []
-        unique_labels = set(clustering.labels_)
+
         for label in unique_labels:
             if label == -1:
                 continue  # Skip noise
-            cluster_points = filtered_points[clustering.labels_ == label]
-            min_x, min_y = cluster_points.min(axis=0)[:2]
-            max_x, max_y = cluster_points.max(axis=0)[:2]
+
+            cluster_points = points[np.array(labels) == label]
+            min_x, min_y = np.min(cluster_points, axis=0)
+            max_x, max_y = np.max(cluster_points, axis=0)
+
             boxes.append((min_x, min_y, max_x, max_y))
+
         return boxes
 
     def plot_map_with_boundaries_and_boxes(self, filtered_points, hull, boxes, zoom_level, filename):

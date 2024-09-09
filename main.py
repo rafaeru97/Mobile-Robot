@@ -167,7 +167,7 @@ def main(stdscr):
                 elif key == ord('q'):
                     break
 
-                if distance <= 10 and speed > 0:
+                if distance <= 6 and speed > 0:
                     speed = 0
 
                 mapper.update_position()

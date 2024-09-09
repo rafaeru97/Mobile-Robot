@@ -183,7 +183,6 @@ class Mapper:
         :return: None (saves a visual map with boundaries and detected objects).
         """
         if len(self.detected_points) == 0:
-            print("No detected points to process.")
             return
 
         # Convert detected points to a numpy array and apply SimpleDBSCAN for filtering
@@ -192,14 +191,13 @@ class Mapper:
         labels = clustering.fit(detected_array[:, :2])
 
         if len(labels) != len(detected_array):
-            print("Error: Mismatch between labels and detected points lengths.")
             return
 
         # Filter out noise points (label = -1)
         filtered_points = detected_array[np.array(labels) != -1]
 
         if len(filtered_points) == 0:
-            print("No valid points after filtering.")
+
             return
 
         # Estimate boundaries using Convex Hull
@@ -227,7 +225,6 @@ class Mapper:
 
             # Ensure labels and points have matching lengths
             if len(points) != len(labels):
-                print("Error: Mismatch between points and labels lengths.")
                 continue
 
             # Create boolean index based on labels
@@ -275,6 +272,5 @@ class Mapper:
         plt.xlabel("X position (cm)")
         plt.ylabel("Y position (cm)")
         plt.grid(True)
-        plt.legend()
         plt.savefig(filename)
         plt.close()

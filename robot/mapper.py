@@ -1,8 +1,7 @@
+from sklearn.cluster import DBSCAN
+from scipy.spatial import ConvexHull
+import numpy as np
 import matplotlib.pyplot as plt
-import numpy as np
-import math
-
-import numpy as np
 import math
 
 

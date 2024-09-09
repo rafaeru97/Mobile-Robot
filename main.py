@@ -166,7 +166,7 @@ def main(stdscr):
             with lock:
                 print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance)
 
-            time.sleep(0.1)  # Spowolnienie pętli dla lepszej wydajności
+            time.sleep(0.01)  # Spowolnienie pętli dla lepszej wydajności
 
         except KeyboardInterrupt:
             break

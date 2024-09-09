@@ -1,7 +1,6 @@
 import RPi.GPIO as GPIO
 import time
 
-
 class DistanceSensor:
     def __init__(self, trigger_pin, echo_pin, timeout=1):
         self.trigger_pin = trigger_pin
@@ -22,6 +21,10 @@ class DistanceSensor:
         time.sleep(0.00001)
         GPIO.output(self.trigger_pin, False)
 
+        # Initialize variables
+        pulse_start = None
+        pulse_end = None
+
         # Wait for the echo pin to go high and record the start time
         start_time = time.time()
         while GPIO.input(self.echo_pin) == 0:
@@ -35,6 +38,10 @@ class DistanceSensor:
             pulse_end = time.time()
             if pulse_end - start_time > self.timeout:
                 return None  # Return None if timeout occurs
+
+        # Ensure pulse_start and pulse_end are set before calculating
+        if pulse_start is None or pulse_end is None:
+            return None
 
         # Calculate the pulse duration
         pulse_duration = pulse_end - pulse_start

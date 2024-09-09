@@ -59,6 +59,8 @@ def motor_control_thread(motor_controller):
                 motor_controller.turn_left(rotate)
             elif rotate < 0:
                 motor_controller.turn_right(abs(rotate))
+            elif speed == 0 and rotate == 0:
+                motor_controller.stop()
             else:
                 motor_controller.drive(speed)
 

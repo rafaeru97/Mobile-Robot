@@ -1,9 +1,56 @@
-from sklearn.cluster import DBSCAN
 from scipy.spatial import ConvexHull
 import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+from scipy.spatial.distance import euclidean
+from collections import deque
+
+class SimpleDBSCAN:
+    def __init__(self, eps=5, min_samples=3):
+        self.eps = eps
+        self.min_samples = min_samples
+
+    def fit(self, points):
+        labels = np.full(len(points), -1)  # -1 indicates noise
+        cluster_id = 0
+
+        for i in range(len(points)):
+            if labels[i] != -1:
+                continue
+
+            neighbors = self._region_query(points, i)
+            if len(neighbors) < self.min_samples:
+                labels[i] = -1
+            else:
+                self._expand_cluster(points, labels, i, neighbors, cluster_id)
+                cluster_id += 1
+
+        return labels
+
+    def _region_query(self, points, index):
+        neighbors = []
+        for i, point in enumerate(points):
+            if euclidean(points[index], point) < self.eps:
+                neighbors.append(i)
+        return neighbors
+
+    def _expand_cluster(self, points, labels, index, neighbors, cluster_id):
+        labels[index] = cluster_id
+        queue = deque(neighbors)
+
+        while queue:
+            point_index = queue.popleft()
+            if labels[point_index] == -1:
+                labels[point_index] = cluster_id
+            elif labels[point_index] != -1:
+                continue
+
+            point_neighbors = self._region_query(points, point_index)
+            if len(point_neighbors) >= self.min_samples:
+                queue.extend(point_neighbors)
+
+        return labels
 
 class EKF_SLAM:
     def __init__(self):

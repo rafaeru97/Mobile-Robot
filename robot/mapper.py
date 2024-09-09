@@ -127,3 +127,4 @@ class Mapper:
         plt.legend()
         plt.savefig(filename)
         plt.close()
+

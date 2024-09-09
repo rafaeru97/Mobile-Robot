@@ -17,45 +17,39 @@ class Mapper:
         self.last_encoder_distance = 0  # Track the last encoder distance
 
     def update_position(self):
-        # Get current angle from the gyro in degrees
-        angle = self.gyro.get_angle_z()
-        self.angle_history.append(angle)
+        # Pobierz aktualny kąt z żyroskopu w stopniach
+        self.current_angle = self.gyro.get_angle_z()
 
-        if len(self.angle_history) > 20:  # Average over more readings for better smoothing
-            self.angle_history.pop(0)
-        self.current_angle = np.mean(self.angle_history)
-
-        # Get the current distance traveled in meters
+        # Pobierz dystans przebyty przez robota od enkodera
         current_distance = self.motor_controller.getEncoderDistance()
 
-        # Calculate the difference in distance since the last update
+        # Oblicz różnicę dystansu od ostatniej aktualizacji
         distance = current_distance - self.last_encoder_distance
-        self.last_encoder_distance = current_distance  # Update last encoder distance
+        self.last_encoder_distance = current_distance  # Zaktualizuj dystans
 
-        # Convert angle to radians for trigonometric functions
+        # Konwertuj kąt na radiany
         angle_rad = math.radians(self.current_angle)
 
-        # Calculate the change in x and y using the distance and angle
+        # Oblicz zmianę w x i y na podstawie dystansu i kąta
         dx = distance * math.cos(angle_rad)
         dy = distance * math.sin(angle_rad)
 
-        # Update the current position
+        # Zaktualizuj aktualną pozycję
         self.x += dx
         self.y += dy
 
-        # Append the new position (rounded to centimeters) to the list
+        # Dodaj nową pozycję (zaokrągloną do cm) do listy
         self.positions.append((round(self.x * 100, 2), round(self.y * 100, 2)))
 
-        # Pobieranie odległości z sensora odległości
+        # Pobierz dystans z sensora odległości
         distance_from_sensor = self.distance_sensor.get_distance()
 
-        # Jeśli sensor wykrywa dystans (np. nie nieskończoność), oblicz pozycję
+        # Oblicz pozycję wykrytego punktu, jeśli sensor zarejestruje dystans
         if distance_from_sensor is not None and distance_from_sensor > 0:
-            # Oblicz pozycję wykrytego obiektu na podstawie kąta i dystansu
             detected_x = self.x + (distance_from_sensor / 100) * math.cos(angle_rad)
             detected_y = self.y + (distance_from_sensor / 100) * math.sin(angle_rad)
 
-            # Dodaj punkt wykryty przez sensor do listy
+            # Dodaj wykryty punkt do listy
             self.detected_points.append((round(detected_x * 100, 2), round(detected_y * 100, 2)))
 
     def create_map(self, filename="robot_map.png", zoom_level=100):

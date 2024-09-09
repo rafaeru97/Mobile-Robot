@@ -70,7 +70,6 @@ class MotorController:
         self.rightEncoder = None
         self.totalDistance = 0
 
-        self.init = True
         self.status = "Initializing..."
 
     def getStatus(self):

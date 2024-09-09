@@ -282,7 +282,7 @@ class MotorController:
 
         try:
             while True:
-                current_angle = gyro.get_angle_z() % 360  # Upewnij się, że wartość jest w zakresie 0-360
+                current_angle = gyro.get_angle_z() % 360
                 dt = time.time() - start_time
                 if dt > timeout:
                     break
@@ -296,11 +296,10 @@ class MotorController:
                 elif direction == 'right':
                     self.turn_right(control)
 
-                if abs(current_angle - target_angle) < 1:  # Tolerancja dla precyzyjnego osiągnięcia kąta
-                    self.mapper.update_orientation(target_angle)
+                if abs(current_angle - target_angle) < 1:
                     break
 
-                time.sleep(0.02)  # Krótkie opóźnienie między odczytami
+                time.sleep(0.02)
 
         finally:
             self.stop()

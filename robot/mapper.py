@@ -45,7 +45,7 @@ class Mapper:
         # Append the new position (rounded to centimeters) to the list
         self.positions.append((round(self.x * 100, 2), round(self.y * 100, 2)))
 
-    def create_map(self, filename="robot_map.png"):
+    def create_map(self, filename="robot_map.png", zoom_level=100):
         # Convert positions to numpy arrays for plotting
         positions = np.array(self.positions)
         x_positions = positions[:, 0]  # X coordinates (in cm)
@@ -68,6 +68,11 @@ class Mapper:
         # Draw orientation arrow
         plt.arrow(x_positions[-1], y_positions[-1], dx_arrow, dy_arrow, head_width=2, head_length=2, fc='k', ec='k',
                   label="Orientation")
+
+        # Set the limits of the plot to center the robot and provide zoom
+        center_x, center_y = x_positions[-1], y_positions[-1]
+        plt.xlim(center_x - zoom_level, center_x + zoom_level)
+        plt.ylim(center_y - zoom_level, center_y + zoom_level)
 
         plt.title("Robot Movement Path (in cm)")
         plt.xlabel("X position (cm)")

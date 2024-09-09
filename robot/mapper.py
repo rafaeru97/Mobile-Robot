@@ -64,30 +64,6 @@ class Mapper:
         self.last_encoder_distance = 0
         self.detected_points = []  # Inicjalizacja atrybutu
 
-    def update_position(self):
-        # Aktualizacja pozycji robota
-        self.current_angle = self.gyro.get_angle_z()
-        current_distance = self.motor_controller.getEncoderDistance()
-        distance = current_distance - self.last_encoder_distance
-        self.last_encoder_distance = current_distance
-        distance_cm = distance * 100
-
-        angle_rad = math.radians(self.current_angle)
-        dx = distance_cm * math.cos(angle_rad)
-        dy = distance_cm * math.sin(angle_rad)
-
-        self.x += dx
-        self.y += dy
-        self.positions.append((round(self.x, 2), round(self.y, 2)))
-
-        distance_from_sensor = self.distance_sensor.get_distance()
-        if distance_from_sensor is not None and distance_from_sensor > 0:
-            distance_from_sensor_cm = distance_from_sensor
-            detected_x = self.x + distance_from_sensor_cm * math.cos(angle_rad)
-            detected_y = self.y + distance_from_sensor_cm * math.sin(angle_rad)
-            self.detected_points.append((detected_x, detected_y, distance_from_sensor_cm))
-            self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
-
     def create_map(self, filename="robot_map.png", zoom_level=100):
         positions = np.array(self.positions)
         x_positions = positions[:, 0]
@@ -124,6 +100,31 @@ class Mapper:
         plt.savefig(filename)
         plt.close()
 
+
+    def update_position(self):
+        # Aktualizacja pozycji robota
+        self.current_angle = self.gyro.get_angle_z()
+        current_distance = self.motor_controller.getEncoderDistance()
+        distance = current_distance - self.last_encoder_distance
+        self.last_encoder_distance = current_distance
+        distance_cm = distance * 100
+
+        angle_rad = math.radians(self.current_angle)
+        dx = distance_cm * math.cos(angle_rad)
+        dy = distance_cm * math.sin(angle_rad)
+
+        self.x += dx
+        self.y += dy
+        self.positions.append((round(self.x, 2), round(self.y, 2)))
+
+        distance_from_sensor = self.distance_sensor.get_distance()
+        if distance_from_sensor is not None and distance_from_sensor > 0:
+            distance_from_sensor_cm = distance_from_sensor
+            detected_x = self.x + distance_from_sensor_cm * math.cos(angle_rad)
+            detected_y = self.y + distance_from_sensor_cm * math.sin(angle_rad)
+            self.detected_points.append((detected_x, detected_y, distance_from_sensor_cm))
+            self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
+
     def process_detected_points(self, eps=5, min_samples=3, zoom_level=100, filename="output_map.png"):
         """
         Process the detected points by filtering noise, estimating boundaries, and detecting objects.
@@ -157,7 +158,6 @@ class Mapper:
         # Step 4: Plot the map with boundaries and bounding boxes
         self.plot_map_with_boundaries_and_boxes(filtered_points, hull, boxes, zoom_level, filename)
 
-
     def get_bounding_boxes(self, filtered_points, clustering):
         """
         Generate bounding boxes for detected objects.
@@ -165,7 +165,6 @@ class Mapper:
         :param clustering: DBSCAN clustering result.
         :return: List of bounding boxes.
         """
-        # Implement bounding box generation
         boxes = []
         unique_labels = set(clustering.labels_)
         for label in unique_labels:
@@ -177,7 +176,6 @@ class Mapper:
             boxes.append((min_x, min_y, max_x, max_y))
         return boxes
 
-
     def plot_map_with_boundaries_and_boxes(self, filtered_points, hull, boxes, zoom_level, filename):
         """
         Plot the map with boundaries and bounding boxes.
@@ -187,8 +185,6 @@ class Mapper:
         :param zoom_level: Zoom level for the map visualization.
         :param filename: The name of the output image file.
         """
-        import matplotlib.pyplot as plt
-
         plt.figure(figsize=(8, 8))
         plt.plot(filtered_points[:, 0], filtered_points[:, 1], marker="o", color="b", markersize=3, label="Filtered Points")
 
@@ -214,4 +210,3 @@ class Mapper:
         plt.legend()
         plt.savefig(filename)
         plt.close()
-

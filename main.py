@@ -129,7 +129,9 @@ def main(stdscr):
     motor_t.start()
     gyro_t.start()
 
-    # Główna pętla dla interfejsu i sterowania
+    # Włączamy nodelay, aby curses działało nieblokująco
+    stdscr.nodelay(1)
+
     while True:
         try:
             key = stdscr.getch()
@@ -160,7 +162,12 @@ def main(stdscr):
             mapper.update_position()
             mapper.create_map()
 
-            time.sleep(0.1)
+            # Odświeżamy GUI co 100 ms
+            with lock:
+                print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance)
+
+            time.sleep(0.1)  # Spowolnienie pętli dla lepszej wydajności
+
         except KeyboardInterrupt:
             break
 

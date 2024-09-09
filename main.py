@@ -120,6 +120,7 @@ def main(stdscr):
     gyro = Gyro()
     sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
     mapper = Mapper(motor_controller, gyro, sensor)
+    mapper.create_map()
 
     # Tworzymy wątki dla różnych zadań
     sensor_t = threading.Thread(target=sensor_thread, args=(sensor,))
@@ -134,8 +135,6 @@ def main(stdscr):
     # Włączamy nodelay, aby curses działało nieblokująco
     stdscr.nodelay(1)
     stdscr.timeout(100)
-
-    mapper.create_map()
 
     while True:
         try:

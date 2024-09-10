@@ -196,7 +196,7 @@ def main(stdscr):
                     program_status = "loading map"
                     print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
                                    program_status)
-                    mapper.process_saved_points("mapa.json", output_filename="mapa_test.png")
+                    mapper.process_saved_points("mapa.json")
                 elif key == ord('q'):
                     break
 

@@ -187,7 +187,7 @@ class Mapper:
         dist_matrix = distance_matrix(points, points)
 
         # Threshold to consider a point as a neighbor
-        threshold = 2  # Adjust this value based on your data
+        threshold = 4  # Adjust this value based on your data
 
         # Filter points that are isolated
         filtered_points = []
@@ -203,7 +203,7 @@ class Mapper:
 
         # Apply Z-score for statistical filtering
         z_scores = np.abs(zscore(filtered_points, axis=0))
-        filtered_points = filtered_points[(z_scores < 2).all(axis=1)]
+        filtered_points = filtered_points[(z_scores < 3).all(axis=1)]
 
         if len(filtered_points) < 3:
             return

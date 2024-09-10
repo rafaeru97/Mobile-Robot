@@ -175,6 +175,12 @@ def main(stdscr):
                 elif key == ord(' '):
                     speed = 0
                     rotate = 0
+                elif key == ord('a'):
+                    program_status = "saving map grid"
+                    print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
+                                   program_status)
+                    map_grid = mapper.generate_map_grid()
+                    mapper.save_map_grid_to_file(map_grid)
                 elif key == ord('d'):
                     toggle_distance_reading(sensor)
                 elif key == ord('m'):

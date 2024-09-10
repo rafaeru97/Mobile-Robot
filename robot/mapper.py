@@ -231,3 +231,46 @@ class Mapper:
         plt.grid()
         plt.savefig(filename)
         plt.show()
+
+    def generate_map_grid(self, resolution=1.0):
+        """
+        Generate a grid map from detected points.
+        :param resolution: The resolution of the grid in the same units as the detected points.
+        :return: A numpy array representing the grid map.
+        """
+        if len(self.detected_points) == 0:
+            raise ValueError("No detected points available to generate a map.")
+
+        # Convert detected points to a numpy array
+        detected_array = np.array(self.detected_points)
+        points = detected_array[:, :2]
+
+        # Determine the bounds of the grid
+        min_x, max_x = points[:, 0].min(), points[:, 0].max()
+        min_y, max_y = points[:, 1].min(), points[:, 1].max()
+
+        # Determine grid dimensions
+        width = int(np.ceil((max_x - min_x) / resolution))
+        height = int(np.ceil((max_y - min_y) / resolution))
+
+        # Create an empty grid
+        map_grid = np.zeros((height, width), dtype=int)
+
+        # Fill the grid with obstacles
+        for point in points:
+            grid_x = int((point[0] - min_x) / resolution)
+            grid_y = int((point[1] - min_y) / resolution)
+            if 0 <= grid_x < width and 0 <= grid_y < height:
+                map_grid[grid_y, grid_x] = 1
+
+        return map_grid
+
+    def save_map_grid_to_file(self, map_grid, filename="map_grid.txt"):
+        """
+        Save the map grid to a text file.
+        :param map_grid: The grid map array to save.
+        :param filename: The name of the output text file.
+        :return: None
+        """
+        np.savetxt(filename, map_grid, fmt='%d', delimiter=' ')
+        print(f"Map grid saved to {filename}")

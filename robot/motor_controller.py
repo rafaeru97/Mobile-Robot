@@ -208,17 +208,17 @@ class MotorController:
         self.pwm_a.ChangeDutyCycle(left_speed)
         self.pwm_b.ChangeDutyCycle(right_speed)
 
-    def forward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=50, timeout=30):
+    def forward_with_encoders(self, target_distance, base_speed=50, timeout=30):
         self.forward()
 
         start_time = time.time()
-        left_encoder.reset_position()
-        right_encoder.reset_position()
+        self.left_encoder.reset_position()
+        self.right_encoder.reset_position()
 
         try:
             while True:
-                left_distance = abs(left_encoder.get_distance())
-                right_distance = abs(right_encoder.get_distance())
+                left_distance = abs(self.left_encoder.get_distance())
+                right_distance = abs(self.right_encoder.get_distance())
 
                 # Calculate error
                 error = left_distance - right_distance

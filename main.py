@@ -214,9 +214,6 @@ def main(stdscr):
                     speed = 0
                     rotate = 0
                 elif key == ord('a'):
-                    program_status = "pathfinding"
-                    print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
-                                   program_status, mapper.get_pos())
                     cords = get_coordinates(stdscr)
                     if cords:
                         map_grid = mapper.generate_map_grid()
@@ -225,6 +222,10 @@ def main(stdscr):
                         pathfinder = AStarPathfinder(map_grid)
                         path = pathfinder.astar(robot_position, cords)
                         pathfinder.visualize_path(path, map_grid, robot_position)
+                        program_status = "pathfinding"
+                        print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
+                                       program_status, mapper.get_pos())
+                        pathfinder.move_robot_along_path(motor_controller, path, gyro)
                 elif key == ord('d'):
                     toggle_distance_reading(sensor)
                 elif key == ord('m'):

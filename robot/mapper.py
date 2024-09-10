@@ -12,6 +12,7 @@ logging.basicConfig(filename='mapper_log.txt', level=logging.DEBUG,
 from scipy.spatial import distance_matrix, ConvexHull
 from shapely.geometry import MultiPoint
 import alphashape
+from scipy.stats import zscore
 
 from shapely.geometry import LineString
 from scipy.interpolate import griddata
@@ -198,6 +199,8 @@ class Mapper:
                 self.detected_points.append((detected_x, detected_y, distance_from_sensor_cm))
                 self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
 
+    from scipy.stats import zscore
+
     def process_detected_points(self, zoom_level=100, filename="output_map.png"):
         """
         Process the detected points by filtering noise, estimating boundaries, and detecting objects.
@@ -233,6 +236,15 @@ class Mapper:
             logging.warning("Not enough points after filtering to compute Alpha Shape.")
             return
 
+        # Apply Z-score for statistical filtering
+        z_scores = np.abs(zscore(filtered_points, axis=0))
+        filtered_points = filtered_points[(z_scores < 3).all(axis=1)]
+        logging.debug(f"Filtered Points after Z-score filtering: {filtered_points}")
+
+        if len(filtered_points) < 3:
+            logging.warning("Not enough points after statistical filtering to compute Alpha Shape.")
+            return
+
         # Generate Alpha Shape
         alpha = 0.1  # Adjust this value to control the level of detail
         alpha_shape = alphashape.alphashape(filtered_points, alpha)
@@ -242,7 +254,6 @@ class Mapper:
             boundary = np.array(alpha_shape.exterior.coords)
             logging.debug(f"Alpha Shape boundary (Polygon): {boundary}")
         elif alpha_shape.geom_type == 'MultiPolygon':
-            # Używamy .geoms do iteracji po pojedynczych poligonach w MultiPolygon
             boundary = np.concatenate([np.array(p.exterior.coords) for p in alpha_shape.geoms], axis=0)
             logging.debug(f"Alpha Shape boundary (MultiPolygon): {boundary}")
         else:

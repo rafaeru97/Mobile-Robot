@@ -222,7 +222,6 @@ def main(stdscr):
                         pathfinder = AStarPathfinder(map_grid)
                         path = pathfinder.astar(mapper.get_grid_position(), cords)
                         pathfinder.visualize_path(path, map_grid)
-
                 elif key == ord('d'):
                     toggle_distance_reading(sensor)
                 elif key == ord('m'):
@@ -248,7 +247,7 @@ def main(stdscr):
                 elif key == ord('q'):
                     break
 
-                if distance <= 22 and speed > 0:
+                if distance <= 25 and speed > 0:
                     speed = 0
 
                 mapper.update_position()

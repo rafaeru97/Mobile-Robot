@@ -58,11 +58,12 @@ class AStarPathfinder:
             path.append(current)
         return path[::-1]
 
-    def visualize_path(self, path, map_grid, filename="path_visualization.png"):
+    def visualize_path(self, path, map_grid, robot_position=None, filename="path_visualization.png"):
         """
-        Visualize the path on the map grid.
+        Visualize the path on the map grid and optionally include the robot's position.
         :param path: The list of points representing the path.
         :param map_grid: The grid map array to overlay the path on.
+        :param robot_position: A tuple (x, y) representing the robot's position in grid coordinates.
         :param filename: The name of the output image file.
         """
 
@@ -77,6 +78,11 @@ class AStarPathfinder:
             path = np.array(path)
             plt.plot(path[:, 1], path[:, 0], 'r-', lw=2, label='Path')
 
+        # Dodanie pozycji robota jako kropki
+        if robot_position:
+            robot_x, robot_y = robot_position
+            plt.plot(robot_x, robot_y, 'bo', markersize=10, label='Robot Position')
+
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')
         plt.title('Path Visualization')
@@ -84,3 +90,4 @@ class AStarPathfinder:
         plt.grid(True)
         plt.savefig(filename)
         plt.close()
+

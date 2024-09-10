@@ -224,7 +224,7 @@ def main(stdscr):
                         mapper.save_map_grid_to_file(map_grid)
                         pathfinder = AStarPathfinder(map_grid)
                         path = pathfinder.astar(mapper.get_robot_grid_position(), cords)
-                        pathfinder.visualize_path(path, map_grid)
+                        pathfinder.visualize_path(path, map_grid, mapper.get_robot_grid_position())
                 elif key == ord('d'):
                     toggle_distance_reading(sensor)
                 elif key == ord('m'):

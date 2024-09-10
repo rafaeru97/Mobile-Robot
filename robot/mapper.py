@@ -160,7 +160,7 @@ class Mapper:
 
         distance_from_sensor = self.distance_sensor.get_distance()
         if self.distance_sensor.get_status():
-            if distance_from_sensor is not None and distance_from_sensor > 0:
+            if distance_from_sensor is not None and 0 < distance_from_sensor < 100:
                 distance_from_sensor_cm = distance_from_sensor
                 detected_x = self.x + distance_from_sensor_cm * math.cos(angle_rad)
                 detected_y = self.y + distance_from_sensor_cm * math.sin(angle_rad)

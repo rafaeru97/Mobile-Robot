@@ -324,4 +324,4 @@ class Mapper:
         grid_x = max(0, min(grid_x, width - 1))
         grid_y = max(0, min(grid_y, height - 1))
 
-        return grid_x, grid_y
+        return grid_x - 100, grid_y - 100

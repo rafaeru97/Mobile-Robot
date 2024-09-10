@@ -118,8 +118,8 @@ def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, e
         if distance_reading:
             dist_status = "ON"
 
-        stdscr.addstr(height // 2 + 3, 2, f"Mapping:     {dist_status}")
-        stdscr.addstr(height // 2 + 3, 2, f"Distance Sensor:     {distance:.2f} cm (MAPPING: {dist_status})")
+        stdscr.addstr(height // 2 + 2, 2, f"Mapping:     {dist_status}")
+        stdscr.addstr(height // 2 + 3, 2, f"Distance Sensor:     {distance:.2f} cm")
         stdscr.addstr(height // 2 + 4, 2, f"Gyroscope Orientation:  {orientation:.2f} degrees")
         stdscr.addstr(height // 2 + 5, 2, f"Encoder Distance:  {encoder:.2f} meters")
 

@@ -305,4 +305,4 @@ class Mapper:
         # Convert the robot's position from real-world coordinates to grid coordinates
         grid_x = int(self.x / resolution)
         grid_y = int(self.y / resolution)
-        return grid_x, grid_y
+        return grid_x - 100, grid_y - 100

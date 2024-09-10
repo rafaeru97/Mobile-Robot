@@ -198,12 +198,13 @@ class Mapper:
         self.positions.append((round(self.x, 2), round(self.y, 2)))
 
         distance_from_sensor = self.distance_sensor.get_distance()
-        if distance_from_sensor is not None and distance_from_sensor > 0:
-            distance_from_sensor_cm = distance_from_sensor
-            detected_x = self.x + distance_from_sensor_cm * math.cos(angle_rad)
-            detected_y = self.y + distance_from_sensor_cm * math.sin(angle_rad)
-            self.detected_points.append((detected_x, detected_y, distance_from_sensor_cm))
-            self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
+        if self.distance_sensor.get_status():
+            if distance_from_sensor is not None and distance_from_sensor > 0:
+                distance_from_sensor_cm = distance_from_sensor
+                detected_x = self.x + distance_from_sensor_cm * math.cos(angle_rad)
+                detected_y = self.y + distance_from_sensor_cm * math.sin(angle_rad)
+                self.detected_points.append((detected_x, detected_y, distance_from_sensor_cm))
+                self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
 
     def process_detected_points(self, zoom_level=100, filename="output_map.png"):
         """
@@ -213,6 +214,7 @@ class Mapper:
         :return: None (saves a visual map with boundaries and detected objects).
         """
         if len(self.detected_points) == 0:
+            print("No detected_points")
             return
 
         # Convert detected points to a numpy array

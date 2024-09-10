@@ -21,12 +21,12 @@ class DistanceSensor:
     def set_status(self, status):
         self.status = status
 
+    def get_status(self):
+        return self.status
+
     def get_distance(self):
         with self.lock:  # Ensure thread-safe access to GPIO
             try:
-                if not self.status:
-                    return None
-
                 # Ensure that the trigger pin is set low
                 GPIO.output(self.trigger_pin, False)
                 time.sleep(0.01)  # Reduced sleep time

@@ -4,7 +4,6 @@ import math
 import json
 
 from scipy.spatial import distance_matrix, ConvexHull
-import alphashape
 from shapely.geometry import MultiPoint
 
 class EKF_SLAM:
@@ -192,29 +191,33 @@ class Mapper:
                 filtered_points.append(point)
 
         filtered_points = np.array(filtered_points)
+        print("Filtered Points:")
+        print(filtered_points)
+
         if len(filtered_points) < 3:
-            print("Not enough points after filtering to compute Alpha Shape.")
+            print("Not enough points after filtering to compute Convex Hull.")
             return
 
-        # Generate Alpha Shape
-        alpha = 1.0  # Adjust this value based on your data
-        alpha_shape = alphashape.alphashape(filtered_points, alpha)
+        # Generate Convex Hull
+        multipoint = MultiPoint(filtered_points)
+        convex_hull = multipoint.convex_hull
+        print("Convex Hull Type:", convex_hull.geom_type)
 
-        # Convert Alpha Shape to coordinates for plotting
-        if alpha_shape.geom_type == 'Polygon':
-            boundary = np.array(alpha_shape.exterior.coords)
+        # Convert Convex Hull to coordinates for plotting
+        if convex_hull.geom_type == 'Polygon':
+            boundary = np.array(convex_hull.exterior.coords)
         else:
-            boundary = np.array([])  # Handle cases where the alpha shape is not a polygon
+            boundary = np.array([])  # Handle cases where the convex hull is not a polygon
 
         # Plotting the results
         plt.figure(figsize=(8, 8))
         plt.plot(filtered_points[:, 0], filtered_points[:, 1], 'o', label='Filtered Points')
         if boundary.size > 0:
-            plt.plot(boundary[:, 0], boundary[:, 1], 'r--', lw=2, label='Alpha Shape')
+            plt.plot(boundary[:, 0], boundary[:, 1], 'r--', lw=2, label='Convex Hull')
 
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')
-        plt.title('Map with Alpha Shape')
+        plt.title('Map with Convex Hull')
         plt.legend()
         plt.grid()
         plt.savefig(filename)

@@ -218,33 +218,15 @@ class MotorController:
         self.drive(base_speed)
 
         start_time = time.time()
+        start_left_distance = self.last_left_distance
+        start_right_distance = self.last_right_distance
         try:
             while True:
-                print(f"target_distance: {target_distance}")
-                # Oblicz dystans od ostatniego pomiaru
-                left_distance = abs(self.leftEncoder.get_distance() - self.last_left_distance)
-                right_distance = abs(self.rightEncoder.get_distance() - self.last_right_distance)
-
-                # Zaktualizuj ostatnie wartości dystansu
-                self.last_left_distance = self.leftEncoder.get_distance()
-                self.last_right_distance = self.rightEncoder.get_distance()
-
-                # Oblicz błąd
-                error = left_distance - right_distance
-
-                # Oblicz korekcję PID
-                correction = self.pid.compute(error)
-
-                # Dostosuj prędkość na podstawie korekcji
-                left_speed = base_speed - correction
-                right_speed = base_speed + correction
-
-                # Upewnij się, że prędkość jest w zakresie 0-100
-                left_speed = max(0, min(100, left_speed))
-                right_speed = max(0, min(100, right_speed))
-
                 # Steruj robotem
-                self.drive(left_speed)
+                self.drive(base_speed)
+
+                left_distance = abs(self.leftEncoder.get_distance() - start_left_distance)
+                right_distance = abs(self.rightEncoder.get_distance() - start_right_distance)
 
                 # Sprawdź, czy robot osiągnął docelowy dystans
                 if (left_distance + right_distance) / 2 >= target_distance:

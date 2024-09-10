@@ -156,14 +156,6 @@ class AStarPathfinder:
             logging.debug(f'Target position: {target_position}')
             logging.debug(f'Calculated angle: {target_angle}, distance: {target_distance}')
 
-            # Get current angle from gyroscope
-            current_angle = gyro.get_angle_z()
-            logging.debug(f'Current angle: {current_angle}')
-
-            # Calculate the rotation required to face the target angle
-            angle_to_rotate = (target_angle - current_angle + 180) % 360 - 180
-            logging.debug(f'Angle to rotate: {angle_to_rotate}')
-
             # Rotate the robot to face the target angle
             motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
 

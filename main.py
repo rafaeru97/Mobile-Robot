@@ -221,10 +221,11 @@ def main(stdscr):
                     cords = get_coordinates(stdscr)
                     if cords:
                         map_grid = mapper.generate_map_grid()
+                        robot_position = mapper.get_robot_grid_position(map_grid, mapper.get_pos())
                         mapper.save_map_grid_to_file(map_grid)
                         pathfinder = AStarPathfinder(map_grid)
-                        path = pathfinder.astar(mapper.get_robot_grid_position(), cords)
-                        pathfinder.visualize_path(path, map_grid, mapper.get_robot_grid_position())
+                        path = pathfinder.astar(robot_position, cords)
+                        pathfinder.visualize_path(path, map_grid, robot_position)
                 elif key == ord('d'):
                     toggle_distance_reading(sensor)
                 elif key == ord('m'):

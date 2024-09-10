@@ -61,10 +61,10 @@ class Mapper:
         self.gyro = gyro
         self.distance_sensor = distance_sensor
         self.slam = EKF_SLAM()
-        self.positions = [(100, 100)]
+        self.positions = [(0, 0)]
         self.current_angle = 0
-        self.x = 100
-        self.y = 100
+        self.x = 0
+        self.y = 0
         self.last_encoder_distance = 0
         self.detected_points = []  # Inicjalizacja atrybutu
 
@@ -296,13 +296,32 @@ class Mapper:
         """
         np.savetxt(filename, map_grid, fmt='%d', delimiter=' ')
 
-    def get_robot_grid_position(self, resolution=1.0):
+    def get_robot_grid_position(self, map_grid, robot_pos, resolution=1.0):
         """
-        Get the current position of the robot in grid coordinates.
-        :param resolution: The resolution of the grid in the same units as the detected points.
-        :return: A tuple (grid_x, grid_y) representing the position in grid coordinates.
+        Calculate the robot's position on the grid map based on its current position and grid dimensions.
+        :param map_grid: The grid map array.
+        :param robot_pos: A tuple (x, y) representing the robot's position in map units.
+        :param resolution: The resolution of the grid in the same units as the robot position.
+        :return: A tuple (grid_x, grid_y) representing the robot's position in grid coordinates.
         """
-        # Convert the robot's position from real-world coordinates to grid coordinates
-        grid_x = int(self.x / resolution)
-        grid_y = int(self.y / resolution)
-        return grid_x - 100, grid_y - 100
+        # Sprawdzenie wymiarów mapy siatki
+        height, width = map_grid.shape
+
+        # Sprawdzenie granic mapy
+        min_x = 0
+        min_y = 0
+        max_x = width * resolution
+        max_y = height * resolution
+
+        # Obliczanie położenia robota w siatce
+        x, y = robot_pos
+
+        # Obliczenie współrzędnych robota w kontekście siatki
+        grid_x = int((x - min_x) / resolution)
+        grid_y = int((y - min_y) / resolution)
+
+        # Upewnij się, że współrzędne są w granicach mapy
+        grid_x = max(0, min(grid_x, width - 1))
+        grid_y = max(0, min(grid_y, height - 1))
+
+        return grid_x, grid_y

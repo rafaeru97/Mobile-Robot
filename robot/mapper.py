@@ -333,11 +333,9 @@ class Mapper:
             """
             np.savetxt(filename, map_grid, fmt='%d', delimiter=' ')
 
-        def get_grid_position(self, x, y, resolution=1.0):
+        def get_grid_position(self, resolution=1.0):
             """
             Convert robot position to grid coordinates.
-            :param x: The X coordinate of the robot's position.
-            :param y: The Y coordinate of the robot's position.
             :param resolution: The resolution of the grid in the same units as the detected points.
             :return: Tuple of (grid_x, grid_y)
             """
@@ -351,7 +349,7 @@ class Mapper:
             min_x, min_y = detected_array[:, 0].min(), detected_array[:, 1].min()
 
             # Convert robot position to grid coordinates
-            grid_x = int((x - min_x) / resolution)
-            grid_y = int((y - min_y) / resolution)
+            grid_x = int((self.x - min_x) / resolution)
+            grid_y = int((self.y - min_y) / resolution)
 
             return grid_x, grid_y

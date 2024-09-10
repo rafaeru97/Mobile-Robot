@@ -155,8 +155,8 @@ class AStarPathfinder:
             current_angle = gyro.get_angle_z()
             logging.debug(f'Current angle: {current_angle}')
 
-            # Calculate the rotation required
-            angle_to_rotate = target_angle - current_angle
+            # Calculate the shortest angle to rotate
+            angle_to_rotate = (target_angle - current_angle + 180) % 360 - 180
             logging.debug(f'Angle to rotate: {angle_to_rotate}')
 
             # Choose the direction of rotation
@@ -182,7 +182,7 @@ class AStarPathfinder:
                 current_angle = gyro.get_angle_z()
                 logging.debug(f'Updated angle: {current_angle}')
                 target_angle, _ = self.calculate_angle_and_distance(current_position, target_position)
-                angle_to_rotate = target_angle - current_angle
+                angle_to_rotate = (target_angle - current_angle + 180) % 360 - 180
                 direction = 'left' if angle_to_rotate < 0 else 'right'
                 logging.debug(f'Updated angle to rotate: {angle_to_rotate}')
 

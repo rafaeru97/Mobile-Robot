@@ -247,12 +247,12 @@ class MotorController:
 
                 # Sprawdź, czy robot osiągnął docelowy dystans
                 if (left_distance + right_distance) / 2 >= target_distance:
-                    self.mapper.update_position(target_distance)
+                    self.mapper.update_position()
                     break
 
                 elapsed_time = time.time() - start_time
                 if elapsed_time > timeout:
-                    self.mapper.update_position((left_distance + right_distance) / 2)
+                    self.mapper.update_position()
                     break
 
                 time.sleep(0.02)

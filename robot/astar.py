@@ -166,13 +166,29 @@ class AStarPathfinder:
             while target_distance > 0:
                 segment_distance = min(segment_length_m, target_distance)
                 logging.debug(f'Moving forward segment distance: {segment_distance}')
+
+                # Move forward
                 motor_controller.forward_with_encoders(segment_distance)
+
+                # Update position and remaining distance
                 target_distance -= segment_distance
                 logging.debug(f'Remaining distance to move: {target_distance}')
 
-            # Update current position
-            current_position = target_position
-            logging.debug(f'Updated current position: {current_position}')
+                # Check current angle and correct if necessary
+                current_angle = gyro.get_angle_z()
+                logging.debug(f'Updated angle: {current_angle}')
+                target_angle, _ = self.calculate_angle_and_distance(current_position, target_position)
+                angle_to_rotate = target_angle - current_angle
+                direction = 'left' if angle_to_rotate < 0 else 'right'
+                logging.debug(f'Updated angle to rotate: {angle_to_rotate}')
 
-            # Small delay to simulate real robot movement
-            time.sleep(0.5)
+                # If the robot is significantly off course, rotate it to adjust
+                if abs(angle_to_rotate) > 1:  # Threshold can be adjusted
+                    motor_controller.rotate_to_angle(gyro, target_angle=target_angle, direction=direction)
+
+                # Update current position
+                current_position = self.mapper.update_position(segment_distance)
+                logging.debug(f'Updated current position: {current_position}')
+
+                # Small delay to simulate real robot movement
+                time.sleep(0.5)

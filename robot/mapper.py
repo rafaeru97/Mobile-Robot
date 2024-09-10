@@ -144,7 +144,6 @@ class Mapper:
         plt.savefig(filename)
         plt.close()
 
-
     def update_position(self):
         # Aktualizacja pozycji robota
         self.current_angle = self.gyro.get_angle_z()
@@ -169,7 +168,6 @@ class Mapper:
                 detected_y = self.y + distance_from_sensor_cm * math.sin(angle_rad)
                 self.detected_points.append((detected_x, detected_y, distance_from_sensor_cm))
                 self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
-
 
     def process_detected_points(self, zoom_level=100, filename="output_map.png"):
         """

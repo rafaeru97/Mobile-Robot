@@ -297,8 +297,12 @@ class Mapper:
         :param resolution: The resolution of the grid in the same units as the detected points.
         :return: A tuple (grid_x, grid_y) representing the position in grid coordinates.
         """
-        # Ustalanie granic siatki
         detected_array = np.array(self.detected_points)
+
+        # Sprawdzenie czy detected_array jest dwuwymiarowa
+        if detected_array.ndim != 2 or detected_array.shape[1] != 2:
+            raise ValueError("Detected points should be a 2D array with shape (N, 2).")
+
         min_x, max_x = detected_array[:, 0].min(), detected_array[:, 0].max()
         min_y, max_y = detected_array[:, 1].min(), detected_array[:, 1].max()
 

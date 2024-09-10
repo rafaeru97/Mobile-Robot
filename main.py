@@ -220,7 +220,7 @@ def main(stdscr):
                     cords = get_coordinates(stdscr)
                     if cords:
                         map_grid = mapper.generate_map_grid()
-                        robot_position = mapper.get_robot_grid_position(map_grid, mapper.get_pos())
+                        robot_position = mapper.get_robot_grid_position(map_grid)
                         mapper.save_map_grid_to_file(map_grid)
                         pathfinder = AStarPathfinder(map_grid)
                         path = pathfinder.astar(robot_position, cords)

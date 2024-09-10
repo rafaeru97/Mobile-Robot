@@ -289,7 +289,7 @@ class Mapper:
         """
         np.savetxt(filename, map_grid, fmt='%d', delimiter=' ')
 
-    def get_robot_grid_position(self, map_grid, robot_pos, resolution=1.0):
+    def get_robot_grid_position(self, map_grid, resolution=1.0):
         """
         Calculate the robot's position on the grid map based on its current position and grid dimensions.
         :param map_grid: The grid map array.
@@ -300,18 +300,16 @@ class Mapper:
         # Sprawdzenie wymiarów mapy siatki
         height, width = map_grid.shape
 
-        # Sprawdzenie granic mapy
-        min_x = 0
-        min_y = 0
-        max_x = width * resolution
-        max_y = height * resolution
+        # Zakładamy, że środek mapy siatki to (width/2, height/2)
+        center_x = width / 2
+        center_y = height / 2
 
-        # Obliczanie położenia robota w siatce
-        x, y = robot_pos
+        # Uzyskanie pozycji robota
+        robot_x, robot_y = self.get_pos()
 
-        # Obliczenie współrzędnych robota w kontekście siatki
-        grid_x = int((x - min_x) / resolution)
-        grid_y = int((y - min_y) / resolution)
+        # Obliczenie przesunięcia robota w kontekście siatki
+        grid_x = int(center_x + (robot_x / resolution))
+        grid_y = int(center_y + (robot_y / resolution))
 
         # Upewnij się, że współrzędne są w granicach mapy
         grid_x = max(0, min(grid_x, width - 1))

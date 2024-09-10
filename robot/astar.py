@@ -141,6 +141,7 @@ class AStarPathfinder:
             # Rotate the robot to face the target angle
             motor_controller.rotate_to_angle(gyro, target_angle=target_angle, direction=direction)
             time.sleep(0.5)
+
             # Move forward the calculated distance in segments
             while target_distance > 0:
                 segment_distance = min(segment_length_m, target_distance)

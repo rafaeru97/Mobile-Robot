@@ -4,10 +4,11 @@ import threading
 import logging
 
 class DistanceSensor:
-    def __init__(self, trigger_pin, echo_pin, timeout=1):
+    def __init__(self, trigger_pin, echo_pin, timeout=1, sensor_offset=16):
         self.trigger_pin = trigger_pin
         self.echo_pin = echo_pin
         self.timeout = timeout  # Timeout in seconds
+        self.sensor_offset = sensor_offset  # sensor distance from center
 
         # Setup trigger pin as output and echo pin as input
         GPIO.setup(self.trigger_pin, GPIO.OUT)
@@ -62,7 +63,7 @@ class DistanceSensor:
                 # Round the distance to two decimal places
                 distance = round(distance, 2)
 
-                return distance
+                return distance + self.sensor_offset
 
             except Exception as e:
                 logging.error(f"Error in get_distance: {e}")

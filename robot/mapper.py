@@ -251,8 +251,8 @@ class Mapper:
             return
 
         # Additional filtering to remove outliers
-        filtered_points = filter_points(filtered_points, min_distance=0.5)
-        logging.debug(f"Filtered Points after Outlier Removal: {filtered_points}")
+        # filtered_points = filter_points(filtered_points, min_distance=0.5)
+        # logging.debug(f"Filtered Points after Outlier Removal: {filtered_points}")
 
         if len(filtered_points) < 3:
             logging.warning("Not enough points after outlier removal to compute Alpha Shape.")

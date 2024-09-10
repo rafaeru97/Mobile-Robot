@@ -292,7 +292,7 @@ class MotorController:
         finally:
             self.stop()
 
-    def rotate_to_angle(self, gyro, target_angle, speed=50, direction='left', timeout=30):
+    def rotate_to_angle(self, gyro, target_angle, speed=50, direction='left'):
         """
         Obrót robota o określony kąt za pomocą żyroskopu z debugowaniem.
 
@@ -302,43 +302,15 @@ class MotorController:
         :param direction: Kierunek obrotu ('left' lub 'right')
         :param timeout: Maksymalny czas obrotu w sekundach
         """
-        start_time = time.time()
-
-        # Ustawienia PID
-        kp = 1.0  # Współczynnik proporcjonalny
-        ki = 0.0  # Współczynnik całkujący
-        kd = 0.1  # Współczynnik różniczkujący
-        pid = RotatePID(kp, ki, kd, target_angle)
-
-        # Ustaw kierunek obrotu
-        if direction == 'left':
-            GPIO.output(self.IN1, GPIO.LOW)
-            GPIO.output(self.IN2, GPIO.HIGH)
-            GPIO.output(self.IN3, GPIO.HIGH)
-            GPIO.output(self.IN4, GPIO.LOW)
-        elif direction == 'right':
-            GPIO.output(self.IN1, GPIO.HIGH)
-            GPIO.output(self.IN2, GPIO.LOW)
-            GPIO.output(self.IN3, GPIO.LOW)
-            GPIO.output(self.IN4, GPIO.HIGH)
-        else:
-            raise ValueError("Invalid direction. Use 'left' or 'right'.")
 
         try:
             while True:
                 current_angle = gyro.get_angle_z() % 360
-                dt = time.time() - start_time
-                if dt > timeout:
-                    break
-
-                # Obliczaj prędkość obrotu na podstawie PID
-                control = pid.compute(current_angle, dt)
-                control = max(45, min(100, control))
 
                 if direction == 'left':
-                    self.turn_left(control)
+                    self.turn_left(speed)
                 elif direction == 'right':
-                    self.turn_right(control)
+                    self.turn_right(speed)
 
                 if abs(current_angle - target_angle) < 1:
                     break

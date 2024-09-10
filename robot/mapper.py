@@ -209,7 +209,7 @@ class Mapper:
             return
 
         # Generate Alpha Shape
-        alpha = 0.1  # Adjust this value to control the level of detail
+        alpha = 0.2  # Adjust this value to control the level of detail
         alpha_shape = alphashape.alphashape(filtered_points, alpha)
 
         # Convert Alpha Shape to coordinates for plotting

@@ -99,7 +99,7 @@ def gyro_thread(gyro):
             print(f"Gyro thread error: {e}")
 
 
-def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder, program_status="", robot_pos=(0,0), grid_pos=(0,0)):
+def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder, program_status="", robot_pos=(0,0)):
     try:
         stdscr.clear()
         height, width = stdscr.getmaxyx()
@@ -124,7 +124,6 @@ def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, e
         stdscr.addstr(height // 2 + 5, 2, f"Encoder Distance:  {encoder:.2f} meters")
 
         stdscr.addstr(height // 2 + 7, 2, f"Robot Position:  ({robot_pos[0]}, {robot_pos[1]})")
-        stdscr.addstr(height // 2 + 8, 2, f"Grid Robot Position:  ({grid_pos[0]}, {grid_pos[1]})")
 
         stdscr.addstr(height - 1, 2, "Press Ctrl+C to exit.")
         stdscr.refresh()
@@ -217,7 +216,7 @@ def main(stdscr):
                 elif key == ord('a'):
                     program_status = "pathfinding"
                     print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
-                                   program_status)
+                                   program_status, mapper.get_pos())
                     cords = get_coordinates(stdscr)
                     if cords:
                         map_grid = mapper.generate_map_grid()
@@ -231,22 +230,22 @@ def main(stdscr):
                 elif key == ord('m'):
                     program_status = "refresh map"
                     print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
-                                   program_status)
+                                   program_status, mapper.get_pos())
                     mapper.create_map()
                 elif key == ord('o'):
                     program_status = "post processing map"
                     print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
-                                   program_status)
+                                   program_status, mapper.get_pos())
                     mapper.process_detected_points()
                 elif key == ord('s'):
                     program_status = "saving map"
                     print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
-                                   program_status)
+                                   program_status, mapper.get_pos())
                     mapper.save_detected_points(filename="mapa.json")
                 elif key == ord('l'):
                     program_status = "loading map"
                     print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
-                                   program_status)
+                                   program_status, mapper.get_pos())
                     mapper.process_saved_points("mapa.json")
                 elif key == ord('q'):
                     break
@@ -258,7 +257,7 @@ def main(stdscr):
 
                 program_status = "running"
                 print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
-                               program_status, mapper.get_pos(), mapper.get_robot_grid_position())
+                               program_status, mapper.get_pos())
 
                 time.sleep(0.1)
 

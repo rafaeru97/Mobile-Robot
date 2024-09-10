@@ -63,9 +63,10 @@ def sensor_thread(sensor):
                     print(f"Sensor thread error: {e}")
         time.sleep(0.05)
 
-def toggle_distance_reading():
+def toggle_distance_reading(sensor):
     global distance_reading
     distance_reading = not distance_reading
+    sensor.set_status(distance_reading)
 
 def motor_control_thread(motor_controller):
     global speed, rotate, motor_status, encoder_distance
@@ -175,7 +176,7 @@ def main(stdscr):
                     speed = 0
                     rotate = 0
                 elif key == ord('d'):
-                    toggle_distance_reading()
+                    toggle_distance_reading(sensor)
                 elif key == ord('m'):
                     program_status = "refresh map"
                     print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,

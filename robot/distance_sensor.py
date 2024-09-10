@@ -18,6 +18,9 @@ class DistanceSensor:
         # Lock for thread-safe access to GPIO
         self.lock = threading.Lock()
 
+    def set_status(self, status):
+        self.status = status
+
     def get_distance(self):
         with self.lock:  # Ensure thread-safe access to GPIO
             try:

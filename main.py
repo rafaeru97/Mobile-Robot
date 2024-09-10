@@ -184,7 +184,7 @@ def main(stdscr):
                     pathfinder = AStarPathfinder(map_grid)
                     goal = (20, 20)
                     path = pathfinder.astar(mapper.get_grid_position(), goal)
-                    pathfinder.visualize_path(path)
+                    pathfinder.visualize_path(path, map_grid)
                 elif key == ord('d'):
                     toggle_distance_reading(sensor)
                 elif key == ord('m'):

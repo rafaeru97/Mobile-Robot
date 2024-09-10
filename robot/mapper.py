@@ -274,7 +274,7 @@ class Mapper:
             grid_x = int((point[0] + offset_x) / resolution)  # Adding offset_x instead of subtracting
             grid_y = int((point[1] + offset_y) / resolution)  # Adding offset_y instead of subtracting
             if 0 <= grid_x < width and 0 <= grid_y < height:
-                map_grid[grid_y, grid_x] = True
+                map_grid[grid_y, width - 1 - grid_x] = True  # Odwróć współrzędne x
 
         # Create structuring elements for dilation and erosion
         dilate_elem = np.ones((2 * dilation_radius + 1, 2 * dilation_radius + 1), dtype=bool)

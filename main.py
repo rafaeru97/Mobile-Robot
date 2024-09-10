@@ -131,6 +131,8 @@ def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, e
 
 
 def get_coordinates(stdscr):
+    stdscr.nodelay(0)  # Disable non-blocking mode
+    stdscr.timeout(-1)  # Disable timeout (blocking mode)
     curses.curs_set(1)  # Show cursor
     stdscr.clear()
     stdscr.addstr(0, 0, "Enter X coordinate:")
@@ -144,6 +146,8 @@ def get_coordinates(stdscr):
     stdscr.refresh()
     y_str = stdscr.getstr(3, 0).decode('utf-8')
     curses.noecho()
+    stdscr.nodelay(1)
+    stdscr.timeout(100)
 
     try:
         x = int(x_str)

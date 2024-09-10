@@ -307,7 +307,7 @@ class MotorController:
                     break
 
                 # Decyzja o kierunku obrotu
-                if angle_difference > 0:
+                if angle_difference < 0:
                     self.turn_right(speed)
                 else:
                     self.turn_left(speed)

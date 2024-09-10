@@ -61,10 +61,10 @@ class Mapper:
         self.gyro = gyro
         self.distance_sensor = distance_sensor
         self.slam = EKF_SLAM()
-        self.positions = [(0, 0)]
+        self.positions = [(100, 100)]
         self.current_angle = 0
-        self.x = 0
-        self.y = 0
+        self.x = 100
+        self.y = 100
         self.last_encoder_distance = 0
         self.detected_points = []  # Inicjalizacja atrybutu
 

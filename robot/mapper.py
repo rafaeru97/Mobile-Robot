@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import math
 import json
 
+from scipy.ndimage import binary_dilation, binary_erosion
 from scipy.spatial import distance_matrix, ConvexHull
 import alphashape
 from scipy.stats import zscore
@@ -231,9 +232,6 @@ class Mapper:
         plt.grid()
         plt.savefig(filename)
         plt.show()
-
-    import numpy as np
-    from scipy.ndimage import binary_dilation, binary_erosion
 
     def generate_map_grid(self, resolution=1.0, dilation_radius=1):
         """

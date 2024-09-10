@@ -302,26 +302,30 @@ class Mapper:
         """
         Calculate the robot's position on the grid map based on its current position and grid dimensions.
         :param map_grid: The grid map array.
-        :param robot_pos: A tuple (x, y) representing the robot's position in map units.
         :param resolution: The resolution of the grid in the same units as the robot position.
         :return: A tuple (grid_x, grid_y) representing the robot's position in grid coordinates.
         """
-        # Sprawdzenie wymiarów mapy siatki
+        # Check the dimensions of the map grid
         height, width = map_grid.shape
 
-        # Zakładamy, że środek mapy siatki to (width/2, height/2)
+        # Assume the center of the map grid is (width/2, height/2)
         center_x = width / 2
         center_y = height / 2
 
-        # Uzyskanie pozycji robota
+        # Get the robot's position
         robot_x, robot_y = self.get_pos()
 
-        # Obliczenie przesunięcia robota w kontekście siatki
+        # Calculate the robot's position in grid coordinates
         grid_x = int(center_x + (robot_x / resolution))
         grid_y = int(center_y + (robot_y / resolution))
 
-        # Upewnij się, że współrzędne są w granicach mapy
+        # Adjust for the offset (subtract 100)
+        grid_x -= 100
+        grid_y -= 100
+
+        # Ensure coordinates are within the map bounds
         grid_x = max(0, min(grid_x, width - 1))
         grid_y = max(0, min(grid_y, height - 1))
 
-        return grid_x - 100, grid_y - 100
+        return grid_x, grid_y
+

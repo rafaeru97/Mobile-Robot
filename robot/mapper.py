@@ -233,11 +233,12 @@ class Mapper:
         plt.savefig(filename)
         plt.show()
 
-    def generate_map_grid(self, resolution=1.0, dilation_radius=1):
+    def generate_map_grid(self, resolution=1.0, dilation_radius=3, erosion_radius=1):
         """
-        Generate a grid map from detected points with morphological operations to fill gaps.
+        Generate a grid map from detected points with enhanced morphological operations to fill gaps.
         :param resolution: The resolution of the grid in the same units as the detected points.
         :param dilation_radius: The radius of the dilation operation.
+        :param erosion_radius: The radius of the erosion operation.
         :return: A numpy array representing the grid map.
         """
         if len(self.detected_points) == 0:
@@ -265,14 +266,16 @@ class Mapper:
             if 0 <= grid_x < width and 0 <= grid_y < height:
                 map_grid[grid_y, grid_x] = True
 
-        # Create a structuring element for dilation
-        struct_elem = np.ones((2 * dilation_radius + 1, 2 * dilation_radius + 1), dtype=bool)
+        # Create structuring elements for dilation and erosion
+        dilate_elem = np.ones((2 * dilation_radius + 1, 2 * dilation_radius + 1), dtype=bool)
+        erode_elem = np.ones((2 * erosion_radius + 1, 2 * erosion_radius + 1), dtype=bool)
 
-        # Apply dilation to fill gaps
-        map_grid = binary_dilation(map_grid, structure=struct_elem).astype(map_grid.dtype)
+        # Apply multiple dilation to fill larger gaps
+        for _ in range(3):  # Apply dilation 3 times
+            map_grid = binary_dilation(map_grid, structure=dilate_elem).astype(map_grid.dtype)
 
         # Apply erosion to remove small noise
-        map_grid = binary_erosion(map_grid, structure=struct_elem).astype(map_grid.dtype)
+        map_grid = binary_erosion(map_grid, structure=erode_elem).astype(map_grid.dtype)
 
         return map_grid
 

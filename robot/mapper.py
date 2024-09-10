@@ -197,11 +197,11 @@ class Mapper:
             print("Brak wczytanych punktów do przetworzenia.")
             return
 
-        # Zamiana listy na numpy array
+        # Zamiana listy na numpy array do przetwarzania, ale nie nadpisujemy self.detected_points
         detected_array = np.array(loaded_points)
 
         # Wykorzystanie tej samej logiki co w `process_detected_points`
-        self.detected_points = detected_array  # Zapisz wczytane punkty do atrybutu detected_points
+        self.detected_points = list(loaded_points)  # Zapisz wczytane punkty do atrybutu detected_points jako lista
         self.process_detected_points(zoom_level=zoom_level, filename=output_filename)
 
     def create_map(self, filename="robot_map.png", zoom_level=100):

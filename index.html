@@ -15,13 +15,13 @@
             justify-content: center;
             margin-bottom: 20px;
         }
-        #map1, #map2 {
-            max-width: 45%;
+        .map-container img {
+            max-width: 30%;
             height: auto;
             display: none; /* Domyślnie ukryte */
         }
-        #map1 {
-            display: block; /* Domyślnie pokazana pierwsza mapa */
+        .map-container img.active {
+            display: block; /* Pokazanie aktywnej mapy */
         }
         .button-container {
             margin: 20px;
@@ -31,36 +31,52 @@
 <body>
     <h1>Robot Map</h1>
     <div class="map-container">
-        <img id="map1" src="robot_map.png" alt="Robot Map">
+        <img id="map1" src="robot_map.png" alt="Robot Map" class="active">
         <img id="map2" src="output_map.png" alt="Output Map">
+        <img id="map3" src="path_visualization.png" alt="Path Visualization">
     </div>
     <div class="button-container">
-        <button onclick="toggleMap()">Toggle Map</button>
+        <button onclick="prevMap()">Previous Map</button>
+        <button onclick="nextMap()">Next Map</button>
     </div>
     <script>
-        // Funkcja do odświeżania obrazka
+        const maps = ['map1', 'map2', 'map3'];
+        let currentMapIndex = 0;
+
+        function updateMapVisibility() {
+            maps.forEach((mapId, index) => {
+                const mapElement = document.getElementById(mapId);
+                if (index === currentMapIndex) {
+                    mapElement.classList.add('active');
+                } else {
+                    mapElement.classList.remove('active');
+                }
+            });
+        }
+
+        function prevMap() {
+            currentMapIndex = (currentMapIndex - 1 + maps.length) % maps.length;
+            updateMapVisibility();
+        }
+
+        function nextMap() {
+            currentMapIndex = (currentMapIndex + 1) % maps.length;
+            updateMapVisibility();
+        }
+
         function refreshImage() {
-            const visibleMapId = document.querySelector('#map1').style.display === 'block' ? 'map1' : 'map2';
-            const img = document.getElementById(visibleMapId);
-            const timestamp = new Date().getTime(); // Pobierz aktualny czas w milisekundach
-            img.src = img.id === 'map1' ? `robot_map.png?${timestamp}` : `output_map.png?${timestamp}`; // Dodaj znacznik czasu do URL
+            maps.forEach((mapId) => {
+                const img = document.getElementById(mapId);
+                const timestamp = new Date().getTime(); // Pobierz aktualny czas w milisekundach
+                img.src = `${mapId}.png?${timestamp}`; // Dodaj znacznik czasu do URL
+            });
         }
 
         // Ustaw interwał odświeżania co 1 sekundę (1000 ms)
         setInterval(refreshImage, 1000);
 
-        // Funkcja do przełączania map
-        function toggleMap() {
-            const map1 = document.getElementById('map1');
-            const map2 = document.getElementById('map2');
-            if (map1.style.display === 'block') {
-                map1.style.display = 'none';
-                map2.style.display = 'block';
-            } else {
-                map1.style.display = 'block';
-                map2.style.display = 'none';
-            }
-        }
+        // Inicjalna konfiguracja map
+        updateMapVisibility();
     </script>
 </body>
 </html>

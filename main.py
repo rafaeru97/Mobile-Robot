@@ -99,7 +99,7 @@ def gyro_thread(gyro):
             print(f"Gyro thread error: {e}")
 
 
-def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder, program_status="", robot_pos, grid_pos):
+def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder, program_status="", robot_pos=(0,0), grid_pos=(0,0)):
     try:
         stdscr.clear()
         height, width = stdscr.getmaxyx()

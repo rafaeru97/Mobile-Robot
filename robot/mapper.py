@@ -251,7 +251,7 @@ class Mapper:
             return
 
         # Additional filtering to remove outliers
-        filtered_points = filter_points(filtered_points, min_distance=1.0)
+        filtered_points = filter_points(filtered_points, min_distance=0.5)
         logging.debug(f"Filtered Points after Outlier Removal: {filtered_points}")
 
         if len(filtered_points) < 3:

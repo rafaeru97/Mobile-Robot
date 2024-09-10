@@ -6,133 +6,7 @@ import json
 from scipy.spatial.distance import euclidean
 from collections import deque
 
-from scipy.spatial import Delaunay
-from shapely.geometry import Polygon, Point
-from sklearn.neighbors import NearestNeighbors
-
-
-class ConcaveHull:
-    def __init__(self, k=3):
-        self.k = k  # Number of nearest neighbors
-
-    def _knn(self, points):
-        nbrs = NearestNeighbors(n_neighbors=self.k).fit(points)
-        distances, indices = nbrs.kneighbors(points)
-        return indices
-
-    def fit(self, points):
-        indices = self._knn(points)
-        edge_points = set()
-
-        for i, neighbors in enumerate(indices):
-            for j in neighbors[1:]:  # Skip self (first neighbor is always the point itself)
-                edge_points.add(tuple(sorted([i, j])))
-
-        edges = [list(points[list(edge)]) for edge in edge_points]
-        polygon = Polygon(edges)
-
-        return polygon
-
-def alpha_shape(points, alpha):
-    """
-    Calculate the alpha shape (concave hull) of a set of points.
-    :param points: np.array of shape (n, 2) points.
-    :param alpha: alpha value to control the shape of the hull.
-    :return: Set of edges representing the alpha shape.
-    """
-    if len(points) < 4:
-        # No alpha shape possible, return a convex hull.
-        return Delaunay(points).convex_hull
-
-    tri = Delaunay(points)
-    edges = set()
-    for ia, ib, ic in tri.simplices:
-        a = points[ia]
-        b = points[ib]
-        c = points[ic]
-        # Length of triangle edges
-        ab = np.linalg.norm(a - b)
-        bc = np.linalg.norm(b - c)
-        ca = np.linalg.norm(c - a)
-        # Circumradius of the triangle
-        s = (ab + bc + ca) / 2.0
-        area = max(s * (s - ab) * (s - bc) * (s - ca), 0.00001)
-        circum_r = ab * bc * ca / (4.0 * np.sqrt(area))
-        if circum_r < 1.0 / alpha:
-            edges.add((ia, ib))
-            edges.add((ib, ic))
-            edges.add((ic, ia))
-    return edges
-
-def plot_alpha_shape(points, alpha, filename="alpha_shape_map.png"):
-    """
-    Plot the alpha shape of the given points.
-    :param points: Array of detected points.
-    :param alpha: Alpha value for the shape.
-    :param filename: Output image file.
-    """
-    plt.figure(figsize=(8, 8))
-    # Plot points
-    plt.scatter(points[:, 0], points[:, 1], color='g', s=30, label="Detected Points")
-
-    # Compute and plot alpha shape
-    edges = alpha_shape(points, alpha)
-    for i, j in edges:
-        plt.plot([points[i, 0], points[j, 0]], [points[i, 1], points[j, 1]], 'k-')
-
-    plt.title("Alpha Shape Map")
-    plt.xlabel("X position (cm)")
-    plt.ylabel("Y position (cm)")
-    plt.grid(True)
-    plt.savefig(filename)
-    plt.close()
-
-
-class SimpleDBSCAN:
-    def __init__(self, eps=5, min_samples=3):
-        self.eps = eps
-        self.min_samples = min_samples
-
-    def fit(self, points):
-        labels = np.full(len(points), -1)  # -1 indicates noise
-        cluster_id = 0
-
-        for i in range(len(points)):
-            if labels[i] != -1:
-                continue
-
-            neighbors = self._region_query(points, i)
-            if len(neighbors) < self.min_samples:
-                labels[i] = -1
-            else:
-                self._expand_cluster(points, labels, i, neighbors, cluster_id)
-                cluster_id += 1
-
-        return labels
-
-    def _region_query(self, points, index):
-        neighbors = []
-        for i, point in enumerate(points):
-            if euclidean(points[index], point) < self.eps:
-                neighbors.append(i)
-        return neighbors
-
-    def _expand_cluster(self, points, labels, index, neighbors, cluster_id):
-        labels[index] = cluster_id
-        queue = deque(neighbors)
-
-        while queue:
-            point_index = queue.popleft()
-            if labels[point_index] == -1:
-                labels[point_index] = cluster_id
-            elif labels[point_index] != -1:
-                continue
-
-            point_neighbors = self._region_query(points, point_index)
-            if len(point_neighbors) >= self.min_samples:
-                queue.extend(point_neighbors)
-
-        return labels
+from scipy.spatial import Delaunay, ConvexHull
 
 
 class EKF_SLAM:
@@ -194,8 +68,6 @@ class Mapper:
         self.last_encoder_distance = 0
         self.detected_points = []  # Inicjalizacja atrybutu
 
-        self.concave_hull = ConcaveHull(k=5)  # Ustaw k-nn dla Concave Hull
-
     def save_detected_points(self, filename="mapa.json", format="json"):
         """
         Save detected points to a file in a specified format (e.g., JSON).
@@ -216,16 +88,18 @@ class Mapper:
             with open(filename, "r") as f:
                 loaded_points = json.load(f)
 
-        # Przetwarzanie wczytanych punktów
+        # Convert loaded points to a numpy array
+        loaded_points = np.array(loaded_points)
+
+        # Check if loaded points are valid
         if len(loaded_points) == 0:
             print("Brak wczytanych punktów do przetworzenia.")
             return
 
-        # Zamiana listy na numpy array do przetwarzania, ale nie nadpisujemy self.detected_points
-        detected_array = np.array(loaded_points)
+        # Save loaded points to detected_points for processing
+        self.detected_points = list(loaded_points)  # Convert array back to list if necessary
 
-        # Wykorzystanie tej samej logiki co w `process_detected_points`
-        self.detected_points = list(loaded_points)  # Zapisz wczytane punkty do atrybutu detected_points jako lista
+        # Process the points and generate the map
         self.process_detected_points(zoom_level=zoom_level, filename=output_filename)
 
     def create_map(self, filename="robot_map.png", zoom_level=100):
@@ -291,33 +165,45 @@ class Mapper:
 
     def process_detected_points(self, zoom_level=100, filename="output_map.png"):
         """
-        Process detected points and visualize the concave hull.
+        Process the detected points by filtering noise, estimating boundaries, and detecting objects.
+        :param zoom_level: Zoom level for the map visualization.
+        :param filename: The name of the output image file.
+        :return: None (saves a visual map with boundaries and detected objects).
         """
         if len(self.detected_points) == 0:
-            print("Brak punktów do przetworzenia.")
             return
 
-        # Konwersja punktów na numpy array
-        points = np.array(self.detected_points)
+        # Convert detected points to a numpy array
+        detected_array = np.array(self.detected_points)
+        points = detected_array[:, :2]
 
-        # Stwórz Concave Hull
-        hull_polygon = self.concave_hull.fit(points)
+        # Create a Delaunay triangulation of the points
+        delaunay = Delaunay(points)
 
-        # Rysowanie mapy
-        plt.figure(figsize=(8, 8))
-        plt.scatter(points[:, 0], points[:, 1], color='g', label="Detected Points", s=30)
+        # Estimate boundaries using Convex Hull
+        if len(points) > 2:
+            hull = ConvexHull(points)
+            hull_points = points[hull.vertices]
 
-        if hull_polygon:
-            x, y = hull_polygon.exterior.xy
-            plt.plot(x, y, 'r--', label="Boundary (Concave Hull)")
+            plt.figure(figsize=(8, 8))
+            plt.plot(points[:, 0], points[:, 1], 'o', label="Detected Points")
+            plt.plot(hull_points[:, 0], hull_points[:, 1], 'r--', label="Convex Hull")
 
-        plt.title("Processed Map with Concave Hull")
-        plt.xlabel("X position (cm)")
-        plt.ylabel("Y position (cm)")
-        plt.grid(True)
-        plt.legend()
-        plt.savefig(filename)
-        plt.close()
+            # Plot the triangulation
+            for simplex in delaunay.simplices:
+                plt.plot(points[simplex, 0], points[simplex, 1], 'k-', alpha=0.5)
+
+            center_x, center_y = self.positions[-1]
+            plt.xlim(center_x - zoom_level, center_x + zoom_level)
+            plt.ylim(center_y - zoom_level, center_y + zoom_level)
+
+            plt.title("Processed Map")
+            plt.xlabel("X position (cm)")
+            plt.ylabel("Y position (cm)")
+            plt.grid(True)
+            plt.legend()
+            plt.savefig(filename)
+            plt.close()
 
     def get_bounding_boxes(self, points, labels):
         """

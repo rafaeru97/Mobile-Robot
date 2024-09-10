@@ -15,6 +15,7 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
 class AStarPathfinder:
     def __init__(self, map_grid):

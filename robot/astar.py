@@ -191,7 +191,7 @@ class AStarPathfinder:
                     motor_controller.rotate_to_angle(gyro, target_angle=target_angle, direction=direction)
 
                 # Update current position
-                current_position = self.mapper.update_position(segment_distance)
+                current_position = self.mapper.update_position()
                 logging.debug(f'Updated current position: {current_position}')
 
                 # Small delay to simulate real robot movement

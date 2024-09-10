@@ -256,17 +256,19 @@ class Mapper:
         min_x, max_x = points[:, 0].min(), points[:, 0].max()
         min_y, max_y = points[:, 1].min(), points[:, 1].max()
 
-        # Determine grid dimensions
+        # Calculate grid dimensions and offset
         width = max(min_width, int(np.ceil((max_x - min_x) / resolution)))
         height = max(min_height, int(np.ceil((max_y - min_y) / resolution)))
+        offset_x = min_x
+        offset_y = min_y
 
         # Create an empty grid
         map_grid = np.zeros((height, width), dtype=bool)
 
         # Fill the grid with obstacles
         for point in points:
-            grid_x = int((point[0] - min_x) / resolution)
-            grid_y = int((point[1] - min_y) / resolution)
+            grid_x = int((point[0] - offset_x) / resolution)
+            grid_y = int((point[1] - offset_y) / resolution)
             if 0 <= grid_x < width and 0 <= grid_y < height:
                 map_grid[grid_y, grid_x] = True
 

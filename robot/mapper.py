@@ -253,6 +253,13 @@ class Mapper:
         min_x, max_x = points[:, 0].min(), points[:, 0].max()
         min_y, max_y = points[:, 1].min(), points[:, 1].max()
 
+        # Include robot's position to adjust the grid center if necessary
+        robot_x, robot_y = self.get_pos()
+        min_x = min(min_x, robot_x)
+        max_x = max(max_x, robot_x)
+        min_y = min(min_y, robot_y)
+        max_y = max(max_y, robot_y)
+
         # Determine grid dimensions
         width = int(np.ceil((max_x - min_x) / resolution))
         height = int(np.ceil((max_y - min_y) / resolution))

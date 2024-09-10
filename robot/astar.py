@@ -117,17 +117,22 @@ class AStarPathfinder:
 
     def calculate_angle_and_distance(self, current_position, target_position):
         """
-        Calculate the angle and distance to move from current position to target position.
+        Calculate the angle and distance from the current position to the target position.
         :param current_position: Tuple (x, y) representing the current position.
         :param target_position: Tuple (x, y) representing the target position.
-        :return: Tuple (angle, distance) where angle is the angle to rotate and distance is the distance to move.
+        :return: Tuple (angle, distance) where angle is the direction to the target and distance is the straight-line distance.
         """
+        logging.debug(f'Current position: {current_position}')
+        logging.debug(f'Target position: {target_position}')
+
+        if current_position is None or target_position is None:
+            logging.error('Current position or target position is None.')
+            return None, None
+
         dx = target_position[0] - current_position[0]
         dy = target_position[1] - current_position[1]
-
         distance = np.sqrt(dx ** 2 + dy ** 2)
-        angle = np.degrees(np.arctan2(dy, dx))  # Angle in degrees
-
+        angle = np.degrees(np.arctan2(dy, dx))
         return angle, distance
 
     def move_robot_along_path(self, motor_controller, path, gyro, segment_length_cm=10):

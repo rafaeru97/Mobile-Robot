@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Map</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .map-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        #map1, #map2 {
+            max-width: 45%;
+            height: auto;
+            display: none; /* Domyślnie ukryte */
+        }
+        #map1 {
+            display: block; /* Domyślnie pokazana pierwsza mapa */
+        }
+        .button-container {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Robot Map</h1>
+    <div class="map-container">
+        <img id="map1" src="robot_map.png" alt="Robot Map">
+        <img id="map2" src="output_map.png" alt="Output Map">
+    </div>
+    <div class="button-container">
+        <button onclick="toggleMap()">Toggle Map</button>
+    </div>
+    <script>
+        // Funkcja do odświeżania obrazka
+        function refreshImage() {
+            const visibleMapId = document.querySelector('#map1').style.display === 'block' ? 'map1' : 'map2';
+            const img = document.getElementById(visibleMapId);
+            const timestamp = new Date().getTime(); // Pobierz aktualny czas w milisekundach
+            img.src = img.id === 'map1' ? `robot_map.png?${timestamp}` : `output_map.png?${timestamp}`; // Dodaj znacznik czasu do URL
+        }
+
+        // Ustaw interwał odświeżania co 1 sekundę (1000 ms)
+        setInterval(refreshImage, 1000);
+
+        // Funkcja do przełączania map
+        function toggleMap() {
+            const map1 = document.getElementById('map1');
+            const map2 = document.getElementById('map2');
+            if (map1.style.display === 'block') {
+                map1.style.display = 'none';
+                map2.style.display = 'block';
+            } else {
+                map1.style.display = 'block';
+                map2.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

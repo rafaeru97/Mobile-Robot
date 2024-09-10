@@ -172,45 +172,37 @@ class Mapper:
         self.last_encoder_distance = 0
         self.detected_points = []  # Inicjalizacja atrybutu
 
-    def save_detected_points_to_csv(self, filename="detected_points.csv"):
+    def save_detected_points(self, filename="mapa.json", format="json"):
         """
-        Save the detected points to a CSV file.
-        :param filename: Name of the output CSV file.
+        Save detected points to a file in a specified format (e.g., JSON).
         """
-        with open(filename, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(["x", "y", "distance"])
-            for point in self.detected_points:
-                writer.writerow(point)
+        if format == "json":
+            with open(filename, "w") as f:
+                json.dump(self.detected_points, f)
 
-    def save_detected_points_to_json(self, filename="detected_points.json"):
+    def process_saved_points(self, filename, format="json", output_filename="output_map.png", zoom_level=100):
         """
-        Save the detected points to a JSON file.
-        :param filename: Name of the output JSON file.
+        Load points from a file, process them and generate a map.
+        :param filename: The name of the file where the points are stored.
+        :param format: Format of the file (default is JSON).
+        :param output_filename: The name of the output image file.
+        :param zoom_level: Zoom level for the map visualization.
         """
-        with open(filename, 'w') as file:
-            json.dump(self.detected_points, file)
+        if format == "json":
+            with open(filename, "r") as f:
+                loaded_points = json.load(f)
 
-    def load_detected_points_from_csv(self, filename="detected_points.csv"):
-        """
-        Load detected points from a CSV file.
-        :param filename: Name of the input CSV file.
-        """
-        self.detected_points = []
-        with open(filename, mode='r') as file:
-            reader = csv.reader(file)
-            next(reader)  # Skip header
-            for row in reader:
-                x, y, distance = map(float, row)
-                self.detected_points.append((x, y, distance))
+        # Przetwarzanie wczytanych punktów
+        if len(loaded_points) == 0:
+            print("Brak wczytanych punktów do przetworzenia.")
+            return
 
-    def load_detected_points_from_json(self, filename="detected_points.json"):
-        """
-        Load detected points from a JSON file.
-        :param filename: Name of the input JSON file.
-        """
-        with open(filename, 'r') as file:
-            self.detected_points = json.load(file)
+        # Zamiana listy na numpy array
+        detected_array = np.array(loaded_points)
+
+        # Wykorzystanie tej samej logiki co w `process_detected_points`
+        self.detected_points = detected_array  # Zapisz wczytane punkty do atrybutu detected_points
+        self.process_detected_points(zoom_level=zoom_level, filename=output_filename)
 
     def create_map(self, filename="robot_map.png", zoom_level=100):
         positions = np.array(self.positions)

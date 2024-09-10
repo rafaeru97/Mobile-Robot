@@ -182,7 +182,7 @@ def main(stdscr):
                     map_grid = mapper.generate_map_grid()
                     mapper.save_map_grid_to_file(map_grid)
                     pathfinder = AStarPathfinder(map_grid)
-                    goal = (20, 20)
+                    goal = (80, 75)
                     path = pathfinder.astar(mapper.get_grid_position(), goal)
                     pathfinder.visualize_path(path, map_grid)
                 elif key == ord('d'):

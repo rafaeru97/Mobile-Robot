@@ -90,7 +90,7 @@ def gyro_thread(gyro):
             print(f"Gyro thread error: {e}")
 
 
-def print_gui_data(stdscr, speed, distance, orientation, rotate, status, encoder):
+def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder, program_status = ""):
     try:
         stdscr.clear()
         height, width = stdscr.getmaxyx()
@@ -98,11 +98,12 @@ def print_gui_data(stdscr, speed, distance, orientation, rotate, status, encoder
         border = "*" * (width - 2)
         stdscr.addstr(0, 0, border)
         stdscr.addstr(height // 2 - 5, 0, "*" + " Mobile Robot - UI".center(width - 4) + "*")
+        stdscr.addstr(height // 2 - 5, 0, "*" + f"Status:  {program_status}")
         stdscr.addstr(height - 1, 0, border)
 
         stdscr.addstr(height // 2 - 3, 2, f"Speed:        {speed:.2f} units")
         stdscr.addstr(height // 2 - 2, 2, f"Rotary Speed:  {rotate:.2f} units")
-        stdscr.addstr(height // 2, 2, f"Motor Controller Status:  {status}")
+        stdscr.addstr(height // 2, 2, f"Motor Controller Status:  {motor_status}")
         stdscr.addstr(height // 2 + 2, 2, f"Distance Sensor:     {distance:.2f} cm")
         stdscr.addstr(height // 2 + 3, 2, f"Gyroscope Orientation:  {orientation:.2f} degrees")
         stdscr.addstr(height // 2 + 4, 2, f"Encoder Distance:  {encoder:.2f} meters")
@@ -141,6 +142,8 @@ def main(stdscr):
         stdscr.nodelay(1)
         stdscr.timeout(100)
 
+        program_status = "running"
+
         while True:
             try:
                 key = stdscr.getch()
@@ -161,22 +164,26 @@ def main(stdscr):
                     speed = 0
                     rotate = 0
                 elif key == ord('m'):
+                    program_status = "refresh map"
                     mapper.create_map()
                 elif key == ord('o'):
+                    program_status = "post processing map"
                     mapper.process_detected_points()
                 elif key == ord('s'):
+                    program_status = "saving map"
                     mapper.save_detected_points(filename="mapa.json")
                 elif key == ord('l'):
+                    program_status = "loading map"
                     mapper.process_saved_points("mapa.json", output_filename="mapa_test.png")
                 elif key == ord('q'):
                     break
 
-                if distance <= 6 and speed > 0:
+                if distance <= 22 and speed > 0:
                     speed = 0
 
                 mapper.update_position()
 
-                print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance)
+                print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance, program_status)
 
                 time.sleep(0.1)
 

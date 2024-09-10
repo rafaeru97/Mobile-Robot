@@ -130,6 +130,30 @@ def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, e
         stdscr.refresh()
 
 
+def get_coordinates(stdscr):
+    curses.curs_set(1)  # Show cursor
+    stdscr.clear()
+    stdscr.addstr(0, 0, "Enter X coordinate:")
+    curses.echo()
+    x_str = stdscr.getstr(1, 0).decode('utf-8')
+    curses.noecho()
+    stdscr.addstr(2, 0, "Enter Y coordinate:")
+    curses.echo()
+    y_str = stdscr.getstr(3, 0).decode('utf-8')
+    curses.noecho()
+
+    try:
+        x = int(x_str)
+        y = int(y_str)
+    except ValueError:
+        stdscr.addstr(5, 0, "Invalid input. Please enter integers.")
+        stdscr.refresh()
+        stdscr.getch()
+        return None
+
+    return (x, y)
+
+
 def main(stdscr):
     try:
         global speed, rotate
@@ -176,15 +200,17 @@ def main(stdscr):
                     speed = 0
                     rotate = 0
                 elif key == ord('a'):
-                    program_status = "saving map grid"
+                    program_status = "pathfinding"
                     print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
                                    program_status)
-                    map_grid = mapper.generate_map_grid()
-                    mapper.save_map_grid_to_file(map_grid)
-                    pathfinder = AStarPathfinder(map_grid)
-                    goal = (80, 75)
-                    path = pathfinder.astar(mapper.get_grid_position(), goal)
-                    pathfinder.visualize_path(path, map_grid)
+                    cords = get_coordinates(stdscr)
+                    if cords:
+                        map_grid = mapper.generate_map_grid()
+                        mapper.save_map_grid_to_file(map_grid)
+                        pathfinder = AStarPathfinder(map_grid)
+                        path = pathfinder.astar(mapper.get_grid_position(), cords)
+                        pathfinder.visualize_path(path, map_grid)
+
                 elif key == ord('d'):
                     toggle_distance_reading(sensor)
                 elif key == ord('m'):

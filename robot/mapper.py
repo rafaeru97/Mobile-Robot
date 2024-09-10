@@ -255,9 +255,6 @@ class Mapper:
         if boundary.size > 0:
             plt.plot(boundary[:, 0], boundary[:, 1], 'r--', lw=2, label='Alpha Shape')
 
-        # Optional: Plot interpolated grid
-        plt.contour(grid_x, grid_y, grid_z, levels=10, linewidths=0.5, colors='blue')
-
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')
         plt.title('Map with Alpha Shape and Interpolated Points')

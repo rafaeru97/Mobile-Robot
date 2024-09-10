@@ -143,14 +143,14 @@ class AStarPathfinder:
         :param gyro: Gyroscope object to track current orientation.
         :param segment_length_cm: Length of each segment in centimeters.
         """
-        current_position = path[0]  # Start from the initial position
+        current_position = self.mapper.get_pos()  # Get the current position from the mapper
         logging.debug(f'Starting at position: {current_position}')
 
         # Convert segment_length_cm to meters
         segment_length_m = segment_length_cm * 0.01
         logging.debug(f'Segment length (m): {segment_length_m}')
 
-        for target_position in path[1:]:  # Move towards each point in the path
+        for target_position in path:  # Move towards each point in the path
             # Calculate angle and distance to the next point
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
             logging.debug(f'Target position: {target_position}')
@@ -160,44 +160,25 @@ class AStarPathfinder:
             current_angle = gyro.get_angle_z()
             logging.debug(f'Current angle: {current_angle}')
 
-            # Calculate the shortest angle to rotate
+            # Calculate the rotation required to face the target angle
             angle_to_rotate = (target_angle - current_angle + 180) % 360 - 180
             logging.debug(f'Angle to rotate: {angle_to_rotate}')
 
-            # Choose the direction of rotation
-            direction = 'left' if angle_to_rotate < 0 else 'right'
-            logging.debug(f'Rotation direction: {direction}')
-
             # Rotate the robot to face the target angle
-            motor_controller.rotate_to_angle(gyro, target_angle=target_angle, direction=direction)
+            motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
 
             # Move forward the calculated distance in segments
             while target_distance > 0:
                 segment_distance = min(segment_length_m, target_distance)
                 logging.debug(f'Moving forward segment distance: {segment_distance}')
-
-                # Move forward
                 motor_controller.forward_with_encoders(segment_distance)
-
-                # Update position and remaining distance
                 target_distance -= segment_distance
                 logging.debug(f'Remaining distance to move: {target_distance}')
 
-                # Check current angle and correct if necessary
-                current_angle = gyro.get_angle_z()
-                logging.debug(f'Updated angle: {current_angle}')
-                target_angle, _ = self.calculate_angle_and_distance(current_position, target_position)
-                angle_to_rotate = (target_angle - current_angle + 180) % 360 - 180
-                direction = 'left' if angle_to_rotate < 0 else 'right'
-                logging.debug(f'Updated angle to rotate: {angle_to_rotate}')
+            # Update current position
+            current_position = self.mapper.get_pos()
+            logging.debug(f'Updated current position: {current_position}')
 
-                # If the robot is significantly off course, rotate it to adjust
-                if abs(angle_to_rotate) > 1:  # Threshold can be adjusted
-                    motor_controller.rotate_to_angle(gyro, target_angle=target_angle, direction=direction)
+            # Small delay to simulate real robot movement
+            time.sleep(0.5)
 
-                # Update current position
-                current_position = self.mapper.update_position()
-                logging.debug(f'Updated current position: {current_position}')
-
-                # Small delay to simulate real robot movement
-                time.sleep(0.5)

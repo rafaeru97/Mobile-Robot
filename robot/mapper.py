@@ -299,7 +299,7 @@ class Mapper:
 
         # Sprawdzenie czy detected_array jest dwuwymiarowa
         if detected_array.ndim != 2 or detected_array.shape[1] != 2:
-            raise ValueError("Detected points should be a 2D array with shape (N, 2).")
+            return 0, 0
 
         min_x, max_x = detected_array[:, 0].min(), detected_array[:, 0].max()
         min_y, max_y = detected_array[:, 1].min(), detected_array[:, 1].max()

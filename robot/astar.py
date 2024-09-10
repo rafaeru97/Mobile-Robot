@@ -34,7 +34,7 @@ class AStarPathfinder:
                     g_score[neighbor] = tentative_g_score
                     f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal)
 
-                    if neighbor not in [i[1] for i in open_list]:
+                    if neighbor not in dict(open_list):
                         heapq.heappush(open_list, (f_score[neighbor], neighbor))
 
         return []  # Nie znaleziono ścieżki

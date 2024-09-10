@@ -29,30 +29,26 @@ class DistanceSensor:
 
                 # Ensure that the trigger pin is set low
                 GPIO.output(self.trigger_pin, False)
-                time.sleep(0.1)
+                time.sleep(0.01)  # Reduced sleep time
 
                 # Send a 10µs pulse to the trigger pin
                 GPIO.output(self.trigger_pin, True)
                 time.sleep(0.00001)
                 GPIO.output(self.trigger_pin, False)
 
-                # Initialize variables
-                pulse_start = None
-                pulse_end = None
-
-                # Wait for the echo pin to go high and record the start time
-                start_time = time.time()
+                # Record the start time
+                pulse_start = time.time()
                 while GPIO.input(self.echo_pin) == 0:
                     pulse_start = time.time()
-                    if pulse_start - start_time > self.timeout:
+                    if pulse_start - time.time() > self.timeout:
                         logging.error("Timeout while waiting for echo pin to go high.")
                         return None  # Return None if timeout occurs
 
-                # Wait for the echo pin to go low and record the end time
-                start_time = time.time()
+                # Record the end time
+                pulse_end = time.time()
                 while GPIO.input(self.echo_pin) == 1:
                     pulse_end = time.time()
-                    if pulse_end - start_time > self.timeout:
+                    if pulse_end - time.time() > self.timeout:
                         logging.error("Timeout while waiting for echo pin to go low.")
                         return None  # Return None if timeout occurs
 

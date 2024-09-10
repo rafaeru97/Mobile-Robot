@@ -181,7 +181,7 @@ class Mapper:
         dist_matrix = distance_matrix(points, points)
 
         # Threshold to consider a point as a neighbor
-        threshold = 10  # Adjust this value based on your data
+        threshold = 30  # Adjust this value based on your data
 
         # Filter points that are isolated
         filtered_points = []

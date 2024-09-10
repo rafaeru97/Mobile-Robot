@@ -233,10 +233,6 @@ class Mapper:
             logging.warning("Not enough points after filtering to compute Alpha Shape.")
             return
 
-        # Interpolate points to create a smooth grid
-        grid_x, grid_y, grid_z = interpolate_points(filtered_points, resolution=200)
-        logging.debug(f"Interpolated grid shape: {grid_x.shape}, {grid_y.shape}")
-
         # Generate Alpha Shape
         alpha = 0.01  # Adjust this value to control the level of detail
         alpha_shape = alphashape.alphashape(filtered_points, alpha)

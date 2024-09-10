@@ -78,9 +78,9 @@ class AStarPathfinder:
             path = np.array(path)
             robot_x, robot_y = robot_position
 
-            # Dodanie offsetu - odejmowanie współrzędnych robota pomniejszonych o 100
-            path[:, 0] += robot_x
-            path[:, 1] += robot_y
+            # Odjęcie współrzędnych robota od ścieżki, aby zcentrować na pozycji robota
+            path[:, 0] -= robot_y
+            path[:, 1] -= robot_x
 
             plt.plot(path[:, 1], path[:, 0], 'r-', lw=2, label='Path')
 
@@ -96,5 +96,6 @@ class AStarPathfinder:
         plt.grid(True)
         plt.savefig(filename)
         plt.close()
+
 
 

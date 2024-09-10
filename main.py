@@ -11,6 +11,7 @@ import logging
 logging.basicConfig(filename='app_errors.log', level=logging.ERROR,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
+
 def start_http_server():
     os.chdir("/home/pi/Desktop/Mobile-Robot")
 
@@ -25,10 +26,12 @@ def start_http_server():
     print(f"Server is running at http://localhost:{port}\n")
     httpd.serve_forever()
 
+
 def run_server():
     server_thread = threading.Thread(target=start_http_server, name="ServerThread")
     server_thread.daemon = True
     server_thread.start()
+
 
 run_server()  # Ręczne wywołanie funkcji
 
@@ -90,7 +93,7 @@ def gyro_thread(gyro):
             print(f"Gyro thread error: {e}")
 
 
-def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder, program_status = ""):
+def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder, program_status=""):
     try:
         stdscr.clear()
         height, width = stdscr.getmaxyx()
@@ -113,7 +116,6 @@ def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, e
     except Exception as e:
         stdscr.addstr(0, 0, f"Error: {str(e)}")
         stdscr.refresh()
-
 
 
 def main(stdscr):
@@ -142,8 +144,6 @@ def main(stdscr):
         stdscr.nodelay(1)
         stdscr.timeout(100)
 
-        program_status = "running"
-
         while True:
             try:
                 key = stdscr.getch()
@@ -165,15 +165,23 @@ def main(stdscr):
                     rotate = 0
                 elif key == ord('m'):
                     program_status = "refresh map"
+                    print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
+                                   program_status)
                     mapper.create_map()
                 elif key == ord('o'):
                     program_status = "post processing map"
+                    print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
+                                   program_status)
                     mapper.process_detected_points()
                 elif key == ord('s'):
                     program_status = "saving map"
+                    print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
+                                   program_status)
                     mapper.save_detected_points(filename="mapa.json")
                 elif key == ord('l'):
                     program_status = "loading map"
+                    print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
+                                   program_status)
                     mapper.process_saved_points("mapa.json", output_filename="mapa_test.png")
                 elif key == ord('q'):
                     break
@@ -183,7 +191,9 @@ def main(stdscr):
 
                 mapper.update_position()
 
-                print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance, program_status)
+                program_status = "running"
+                print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
+                               program_status)
 
                 time.sleep(0.1)
 
@@ -193,6 +203,7 @@ def main(stdscr):
     except Exception as e:
         logging.error("An error occurred", exc_info=True)
         raise  # Opcjonalnie ponownie zgłoś wyjątek, aby program zakończył działanie
+
 
 if __name__ == '__main__':
     curses.wrapper(main)

@@ -1,15 +1,37 @@
-from scipy.spatial import ConvexHull
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-import csv
 import json
 
-from scipy.spatial import Delaunay
 from scipy.spatial.distance import euclidean
 from collections import deque
 
+from scipy.spatial import Delaunay
+from shapely.geometry import Polygon, Point
+from sklearn.neighbors import NearestNeighbors
 
+
+class ConcaveHull:
+    def __init__(self, k=3):
+        self.k = k  # Number of nearest neighbors
+
+    def _knn(self, points):
+        nbrs = NearestNeighbors(n_neighbors=self.k).fit(points)
+        distances, indices = nbrs.kneighbors(points)
+        return indices
+
+    def fit(self, points):
+        indices = self._knn(points)
+        edge_points = set()
+
+        for i, neighbors in enumerate(indices):
+            for j in neighbors[1:]:  # Skip self (first neighbor is always the point itself)
+                edge_points.add(tuple(sorted([i, j])))
+
+        edges = [list(points[list(edge)]) for edge in edge_points]
+        polygon = Polygon(edges)
+
+        return polygon
 
 def alpha_shape(points, alpha):
     """
@@ -172,6 +194,8 @@ class Mapper:
         self.last_encoder_distance = 0
         self.detected_points = []  # Inicjalizacja atrybutu
 
+        self.concave_hull = ConcaveHull(k=5)  # Ustaw k-nn dla Concave Hull
+
     def save_detected_points(self, filename="mapa.json", format="json"):
         """
         Save detected points to a file in a specified format (e.g., JSON).
@@ -265,35 +289,35 @@ class Mapper:
             self.detected_points.append((detected_x, detected_y, distance_from_sensor_cm))
             self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
 
-    def process_detected_points(self, eps=5, min_samples=3, alpha=1.0, zoom_level=100, filename="output_map.png"):
+    def process_detected_points(self, zoom_level=100, filename="output_map.png"):
         """
-        Process the detected points by filtering noise, estimating boundaries, and detecting objects.
-        :param eps: Maximum distance between two samples for DBSCAN to cluster them.
-        :param min_samples: Minimum number of samples in a cluster for it not to be considered noise.
-        :param alpha: Alpha value for the alpha shape algorithm (for concave boundary estimation).
-        :param zoom_level: Zoom level for the map visualization.
-        :param filename: The name of the output image file.
-        :return: None (saves a visual map with boundaries and detected objects).
+        Process detected points and visualize the concave hull.
         """
         if len(self.detected_points) == 0:
+            print("Brak punktów do przetworzenia.")
             return
 
-        # Convert detected points to a numpy array and apply SimpleDBSCAN for filtering
-        detected_array = np.array(self.detected_points)
-        clustering = SimpleDBSCAN(eps=eps, min_samples=min_samples)
-        labels = clustering.fit(detected_array[:, :2])
+        # Konwersja punktów na numpy array
+        points = np.array(self.detected_points)
 
-        if len(labels) != len(detected_array):
-            return
+        # Stwórz Concave Hull
+        hull_polygon = self.concave_hull.fit(points)
 
-        # Filter out noise points (label = -1)
-        filtered_points = detected_array[np.array(labels) != -1]
+        # Rysowanie mapy
+        plt.figure(figsize=(8, 8))
+        plt.scatter(points[:, 0], points[:, 1], color='g', label="Detected Points", s=30)
 
-        if len(filtered_points) == 0:
-            return
+        if hull_polygon:
+            x, y = hull_polygon.exterior.xy
+            plt.plot(x, y, 'r--', label="Boundary (Concave Hull)")
 
-        # Estimate boundaries using Alpha Shape (instead of Convex Hull)
-        plot_alpha_shape(filtered_points[:, :2], alpha, filename=filename)
+        plt.title("Processed Map with Concave Hull")
+        plt.xlabel("X position (cm)")
+        plt.ylabel("Y position (cm)")
+        plt.grid(True)
+        plt.legend()
+        plt.savefig(filename)
+        plt.close()
 
     def get_bounding_boxes(self, points, labels):
         """

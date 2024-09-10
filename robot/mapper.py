@@ -250,14 +250,6 @@ class Mapper:
             logging.warning("Not enough points after filtering to compute Alpha Shape.")
             return
 
-        # Additional filtering to remove outliers
-        # filtered_points = filter_points(filtered_points, min_distance=0.5)
-        # logging.debug(f"Filtered Points after Outlier Removal: {filtered_points}")
-
-        if len(filtered_points) < 3:
-            logging.warning("Not enough points after outlier removal to compute Alpha Shape.")
-            return
-
         # Generate Alpha Shape
         alpha = 0.1  # Adjust this value to control the level of detail
         alpha_shape = alphashape.alphashape(filtered_points, alpha)

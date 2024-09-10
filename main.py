@@ -149,6 +149,7 @@ def get_coordinates(stdscr):
 
     stdscr.clear()
     stdscr.addstr(0, 0, "Pathfinding...")
+    stdscr.refresh()
 
     stdscr.nodelay(1)
     stdscr.timeout(100)

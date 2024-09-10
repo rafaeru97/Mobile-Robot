@@ -315,9 +315,15 @@ class MotorController:
 
         # Ustaw kierunek obrotu
         if direction == 'left':
-            self.turn_left(0)
+            GPIO.output(self.IN1, GPIO.LOW)
+            GPIO.output(self.IN2, GPIO.HIGH)
+            GPIO.output(self.IN3, GPIO.HIGH)
+            GPIO.output(self.IN4, GPIO.LOW)
         elif direction == 'right':
-            self.turn_right(0)
+            GPIO.output(self.IN1, GPIO.HIGH)
+            GPIO.output(self.IN2, GPIO.LOW)
+            GPIO.output(self.IN3, GPIO.LOW)
+            GPIO.output(self.IN4, GPIO.HIGH)
         else:
             raise ValueError("Invalid direction. Use 'left' or 'right'.")
 

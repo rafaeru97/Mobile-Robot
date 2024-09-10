@@ -263,16 +263,16 @@ class Mapper:
         # Determine grid dimensions and offset from center
         width = max(min_width, int(np.ceil((max_x - min_x) / resolution)))
         height = max(min_height, int(np.ceil((max_y - min_y) / resolution)))
-        offset_x = center_x - (width / 2) * resolution
-        offset_y = center_y - (height / 2) * resolution
+        offset_x = center_x + (width / 2) * resolution  # Adding offset for X
+        offset_y = center_y + (height / 2) * resolution  # Adding offset for Y
 
         # Create an empty grid
         map_grid = np.zeros((height, width), dtype=bool)
 
         # Fill the grid with obstacles
         for point in points:
-            grid_x = int((point[0] + offset_x) / resolution)
-            grid_y = int((point[1] + offset_y) / resolution)
+            grid_x = int((point[0] + offset_x) / resolution)  # Adding offset_x instead of subtracting
+            grid_y = int((point[1] + offset_y) / resolution)  # Adding offset_y instead of subtracting
             if 0 <= grid_x < width and 0 <= grid_y < height:
                 map_grid[grid_y, grid_x] = True
 
@@ -287,6 +287,7 @@ class Mapper:
         # Apply erosion to remove small noise
         map_grid = binary_erosion(map_grid, structure=erode_elem).astype(map_grid.dtype)
 
+        # Plot the grid map for visualization
         plt.imshow(map_grid, cmap='gray')
         plt.title('Generated Map Grid')
         plt.savefig("map_grid.png")

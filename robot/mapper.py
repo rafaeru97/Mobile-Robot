@@ -217,7 +217,7 @@ class Mapper:
         dist_matrix = distance_matrix(points, points)
 
         # Threshold to consider a point as a neighbor
-        threshold = 1  # Adjust this value based on your data
+        threshold = 4  # Adjust this value based on your data
 
         # Filter points that are isolated
         filtered_points = []
@@ -233,8 +233,12 @@ class Mapper:
             logging.warning("Not enough points after filtering to compute Alpha Shape.")
             return
 
+        # Interpolate points to create a smooth grid
+        grid_x, grid_y, grid_z = interpolate_points(filtered_points, resolution=200)
+        logging.debug(f"Interpolated grid shape: {grid_x.shape}, {grid_y.shape}")
+
         # Generate Alpha Shape
-        alpha = 0.01  # Adjust this value to control the level of detail
+        alpha = 0.1  # Adjust this value to control the level of detail
         alpha_shape = alphashape.alphashape(filtered_points, alpha)
 
         # Convert Alpha Shape to coordinates for plotting
@@ -249,4 +253,19 @@ class Mapper:
             boundary = np.array([])
             logging.warning("Alpha shape is not a polygon or multipolygon.")
 
+        # Plotting the results
+        plt.figure(figsize=(8, 8))
+        plt.plot(filtered_points[:, 0], filtered_points[:, 1], 'o', label='Filtered Points')
+        if boundary.size > 0:
+            plt.plot(boundary[:, 0], boundary[:, 1], 'r--', lw=2, label='Alpha Shape')
 
+        # Optional: Plot interpolated grid
+        plt.contour(grid_x, grid_y, grid_z, levels=10, linewidths=0.5, colors='blue')
+
+        plt.xlabel('X Coordinate')
+        plt.ylabel('Y Coordinate')
+        plt.title('Map with Alpha Shape and Interpolated Points')
+        plt.legend()
+        plt.grid()
+        plt.savefig(filename)
+        plt.show()

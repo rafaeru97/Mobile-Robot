@@ -43,6 +43,7 @@ GPIO.setwarnings(False)
 speed = 0
 rotate = 0
 distance = 0
+distance_reading = False
 orientation = 0
 encoder_distance = 0
 motor_status = ""
@@ -54,13 +55,17 @@ lock = threading.Lock()
 def sensor_thread(sensor):
     global distance
     while True:
-        try:
-            with lock:
-                distance = sensor.get_distance()
-            time.sleep(0.05)
-        except Exception as e:
-            print(f"Sensor thread error: {e}")
+        with lock:
+            if distance_reading:
+                try:
+                    distance = sensor.get_distance()
+                except Exception as e:
+                    print(f"Sensor thread error: {e}")
+        time.sleep(0.05)
 
+def toggle_distance_reading():
+    global distance_reading
+    distance_reading = not distance_reading
 
 def motor_control_thread(motor_controller):
     global speed, rotate, motor_status, encoder_distance
@@ -108,7 +113,12 @@ def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, e
         stdscr.addstr(height // 2 - 3, 2, f"Speed:        {speed:.2f} units")
         stdscr.addstr(height // 2 - 2, 2, f"Rotary Speed:  {rotate:.2f} units")
         stdscr.addstr(height // 2, 2, f"Motor Controller Status:  {motor_status}")
-        stdscr.addstr(height // 2 + 2, 2, f"Distance Sensor:     {distance:.2f} cm")
+
+        dist_status = "OFF"
+        if distance_reading:
+            dist_status = "ON"
+
+        stdscr.addstr(height // 2 + 2, 2, f"Distance Sensor:     {distance:.2f} cm ({dist_status})")
         stdscr.addstr(height // 2 + 3, 2, f"Gyroscope Orientation:  {orientation:.2f} degrees")
         stdscr.addstr(height // 2 + 4, 2, f"Encoder Distance:  {encoder:.2f} meters")
 
@@ -164,6 +174,8 @@ def main(stdscr):
                 elif key == ord(' '):
                     speed = 0
                     rotate = 0
+                elif key == ord('d'):
+                    toggle_distance_reading()
                 elif key == ord('m'):
                     program_status = "refresh map"
                     print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,

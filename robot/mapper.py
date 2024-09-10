@@ -271,8 +271,8 @@ class Mapper:
 
         # Fill the grid with obstacles
         for point in points:
-            grid_x = int((point[0] - offset_x) / resolution)
-            grid_y = int((point[1] - offset_y) / resolution)
+            grid_x = int((point[0] + offset_x) / resolution)
+            grid_y = int((point[1] + offset_y) / resolution)
             if 0 <= grid_x < width and 0 <= grid_y < height:
                 map_grid[grid_y, grid_x] = True
 

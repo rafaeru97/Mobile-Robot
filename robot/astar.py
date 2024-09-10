@@ -110,18 +110,18 @@ class AStarPathfinder:
         plt.savefig(filename)
         plt.close()
 
-    def calculate_angle_and_distance(self, start, end):
+    def calculate_angle_and_distance(self, current_position, target_position):
         """
-        Calculate the angle and distance between two points.
-        :param start: Tuple (x1, y1) representing the start position.
-        :param end: Tuple (x2, y2) representing the end position.
-        :return: Tuple (angle, distance) where angle is the direction to face and distance is the length to move.
+        Calculate the angle and distance to move from current position to target position.
+        :param current_position: Tuple (x, y) representing the current position.
+        :param target_position: Tuple (x, y) representing the target position.
+        :return: Tuple (angle, distance) where angle is the angle to rotate and distance is the distance to move.
         """
-        dx = end[0] - start[0]
-        dy = end[1] - start[1]
+        dx = target_position[0] - current_position[0]
+        dy = target_position[1] - current_position[1]
 
-        distance = np.sqrt(dx ** 2 + dy ** 2) * 0.01  # Convert from cm to meters
-        angle = np.degrees(np.arctan2(dy, dx))
+        distance = np.sqrt(dx ** 2 + dy ** 2)
+        angle = np.degrees(np.arctan2(dy, dx))  # Angle in degrees
 
         return angle, distance
 

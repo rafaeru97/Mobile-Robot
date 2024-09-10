@@ -178,6 +178,7 @@ def main(stdscr):
         gyro = Gyro(calib_value=-250)
         sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
         mapper = Mapper(motor_controller, gyro, sensor)
+        motor_controller.setMapper(mapper)
         mapper.create_map()
 
         # Tworzymy wątki dla różnych zadań

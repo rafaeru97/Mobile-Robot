@@ -72,7 +72,12 @@ class MotorController:
         self.last_left_distance = 0
         self.last_right_distance = 0
 
+        self.mapper = None
+
         self.status = "Initializing..."
+
+    def setMapper(self, mapper):
+        self.mapper = mapper
 
     def getStatus(self):
         return self.status

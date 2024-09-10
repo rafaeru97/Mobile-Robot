@@ -135,10 +135,13 @@ def get_coordinates(stdscr):
     stdscr.clear()
     stdscr.addstr(0, 0, "Enter X coordinate:")
     curses.echo()
+    stdscr.refresh()
     x_str = stdscr.getstr(1, 0).decode('utf-8')
     curses.noecho()
+
     stdscr.addstr(2, 0, "Enter Y coordinate:")
     curses.echo()
+    stdscr.refresh()
     y_str = stdscr.getstr(3, 0).decode('utf-8')
     curses.noecho()
 
@@ -148,7 +151,7 @@ def get_coordinates(stdscr):
     except ValueError:
         stdscr.addstr(5, 0, "Invalid input. Please enter integers.")
         stdscr.refresh()
-        stdscr.getch()
+        stdscr.getch()  # Wait for user to press a key to continue
         return None
 
     return (x, y)

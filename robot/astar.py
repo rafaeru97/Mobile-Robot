@@ -60,7 +60,7 @@ class AStarPathfinder:
 
     def visualize_path(self, path, map_grid, robot_position=None, filename="path_visualization.png"):
         """
-        Visualize the path on the map grid and optionally include the robot's position.
+        Visualize the path on the map grid and optionally include the robot's position, with the path offset by the robot position.
         :param path: The list of points representing the path.
         :param map_grid: The grid map array to overlay the path on.
         :param robot_position: A tuple (x, y) representing the robot's position in grid coordinates.
@@ -74,8 +74,14 @@ class AStarPathfinder:
         plt.imshow(map_grid, cmap='gray', origin='lower')
 
         # Rozpoczęcie i zakończenie ścieżki
-        if path:
+        if path and robot_position:
             path = np.array(path)
+            robot_x, robot_y = robot_position
+
+            # Dodanie offsetu - odejmowanie współrzędnych robota pomniejszonych o 100
+            path[:, 0] -= (robot_y - 100)
+            path[:, 1] -= (robot_x - 100)
+
             plt.plot(path[:, 1], path[:, 0], 'r-', lw=2, label='Path')
 
         # Dodanie pozycji robota jako kropki
@@ -90,4 +96,5 @@ class AStarPathfinder:
         plt.grid(True)
         plt.savefig(filename)
         plt.close()
+
 

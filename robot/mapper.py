@@ -5,6 +5,7 @@ import json
 
 from scipy.spatial import distance_matrix, ConvexHull
 from shapely.geometry import MultiPoint
+import alphashape
 
 class EKF_SLAM:
     def __init__(self):
@@ -163,11 +164,6 @@ class Mapper:
             self.detected_points.append((detected_x, detected_y, distance_from_sensor_cm))
             self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
 
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from shapely.geometry import MultiPoint
-    from scipy.spatial import distance_matrix
-
     def process_detected_points(self, zoom_level=100, filename="output_map.png"):
         """
         Process the detected points by filtering noise, estimating boundaries, and detecting objects.
@@ -200,49 +196,31 @@ class Mapper:
         print(filtered_points)
 
         if len(filtered_points) < 3:
-            print("Not enough points after filtering to compute Convex Hull.")
+            print("Not enough points after filtering to compute Alpha Shape.")
             return
 
-        # Additional filtering to remove outliers
-        def filter_outliers(points, distance_threshold):
-            filtered = []
-            for point in points:
-                # Calculate distances to all other points
-                distances = np.linalg.norm(points - point, axis=1)
-                # Remove points that are too far away
-                if np.all(distances < distance_threshold):
-                    filtered.append(point)
-            return np.array(filtered)
+        # Generate Alpha Shape
+        alpha = 0.1  # Adjust this value to control the level of detail
+        alpha_shape = alphashape.alphashape(filtered_points, alpha)
 
-        # Apply outlier filtering
-        filtered_points = filter_outliers(filtered_points, threshold)
-        print("Filtered Points after Outlier Removal:")
-        print(filtered_points)
-
-        if len(filtered_points) < 3:
-            print("Not enough points after outlier removal to compute Convex Hull.")
-            return
-
-        # Generate Convex Hull
-        multipoint = MultiPoint(filtered_points)
-        convex_hull = multipoint.convex_hull
-        print("Convex Hull Type:", convex_hull.geom_type)
-
-        # Convert Convex Hull to coordinates for plotting
-        if convex_hull.geom_type == 'Polygon':
-            boundary = np.array(convex_hull.exterior.coords)
+        # Convert Alpha Shape to coordinates for plotting
+        if alpha_shape.geom_type == 'Polygon':
+            boundary = np.array(alpha_shape.exterior.coords)
+        elif alpha_shape.geom_type == 'MultiPolygon':
+            # Handle MultiPolygon cases if needed
+            boundary = np.concatenate([np.array(p.exterior.coords) for p in alpha_shape], axis=0)
         else:
-            boundary = np.array([])  # Handle cases where the convex hull is not a polygon
+            boundary = np.array([])  # Handle cases where the shape is not a polygon
 
         # Plotting the results
         plt.figure(figsize=(8, 8))
         plt.plot(filtered_points[:, 0], filtered_points[:, 1], 'o', label='Filtered Points')
         if boundary.size > 0:
-            plt.plot(boundary[:, 0], boundary[:, 1], 'r--', lw=2, label='Convex Hull')
+            plt.plot(boundary[:, 0], boundary[:, 1], 'r--', lw=2, label='Alpha Shape')
 
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')
-        plt.title('Map with Convex Hull')
+        plt.title('Map with Alpha Shape')
         plt.legend()
         plt.grid()
         plt.savefig(filename)

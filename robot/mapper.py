@@ -3,10 +3,7 @@ import matplotlib.pyplot as plt
 import math
 import json
 
-from scipy.spatial.distance import euclidean
-from collections import deque
-
-from scipy.spatial import Delaunay, ConvexHull
+from scipy.spatial import distance_matrix, ConvexHull
 
 
 class EKF_SLAM:
@@ -177,33 +174,40 @@ class Mapper:
         detected_array = np.array(self.detected_points)
         points = detected_array[:, :2]
 
-        # Create a Delaunay triangulation of the points
-        delaunay = Delaunay(points)
+        # Compute distance matrix
+        dist_matrix = distance_matrix(points, points)
 
-        # Estimate boundaries using Convex Hull
-        if len(points) > 2:
-            hull = ConvexHull(points)
-            hull_points = points[hull.vertices]
+        # Threshold to consider a point as a neighbor
+        threshold = 10  # Adjust this value based on your data
 
-            plt.figure(figsize=(8, 8))
-            plt.plot(points[:, 0], points[:, 1], 'o', label="Detected Points")
-            plt.plot(hull_points[:, 0], hull_points[:, 1], 'r--', label="Convex Hull")
+        # Filter points that are isolated
+        filtered_points = []
+        for i, point in enumerate(points):
+            neighbors = np.sum(dist_matrix[i] < threshold)
+            if neighbors > 1:  # If more than one neighbor, keep the point
+                filtered_points.append(point)
 
-            # Plot the triangulation
-            for simplex in delaunay.simplices:
-                plt.plot(points[simplex, 0], points[simplex, 1], 'k-', alpha=0.5)
+        filtered_points = np.array(filtered_points)
+        if len(filtered_points) < 3:
+            print("Not enough points after filtering to compute Convex Hull.")
+            return
 
-            center_x, center_y = self.positions[-1]
-            plt.xlim(center_x - zoom_level, center_x + zoom_level)
-            plt.ylim(center_y - zoom_level, center_y + zoom_level)
+        # Generate Convex Hull
+        hull = ConvexHull(filtered_points)
 
-            plt.title("Processed Map")
-            plt.xlabel("X position (cm)")
-            plt.ylabel("Y position (cm)")
-            plt.grid(True)
-            plt.legend()
-            plt.savefig(filename)
-            plt.close()
+        # Plotting the results
+        plt.figure(figsize=(8, 8))
+        plt.plot(filtered_points[:, 0], filtered_points[:, 1], 'o', label='Filtered Points')
+        for simplex in hull.simplices:
+            plt.plot(filtered_points[simplex, 0], filtered_points[simplex, 1], 'r--', lw=2, label='Convex Hull')
+
+        plt.xlabel('X Coordinate')
+        plt.ylabel('Y Coordinate')
+        plt.title('Map with Convex Hull')
+        plt.legend()
+        plt.grid()
+        plt.savefig(filename)
+        plt.show()
 
     def get_bounding_boxes(self, points, labels):
         """

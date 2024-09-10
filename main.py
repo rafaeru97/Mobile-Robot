@@ -166,7 +166,7 @@ def get_coordinates(stdscr):
         stdscr.getch()  # Wait for user to press a key to continue
         return None
 
-    return (x, y)
+    return x, y
 
 
 def main(stdscr):
@@ -223,7 +223,7 @@ def main(stdscr):
                         map_grid = mapper.generate_map_grid()
                         mapper.save_map_grid_to_file(map_grid)
                         pathfinder = AStarPathfinder(map_grid)
-                        path = pathfinder.astar(mapper.get_grid_position(), cords)
+                        path = pathfinder.astar(mapper.get_robot_grid_position(), cords)
                         pathfinder.visualize_path(path, map_grid)
                 elif key == ord('d'):
                     toggle_distance_reading(sensor)
@@ -257,7 +257,7 @@ def main(stdscr):
 
                 program_status = "running"
                 print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
-                               program_status, mapper.get_pos(), mapper.get_grid_position())
+                               program_status, mapper.get_pos(), mapper.get_robot_grid_position())
 
                 time.sleep(0.1)
 

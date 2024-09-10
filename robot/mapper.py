@@ -254,7 +254,7 @@ class Mapper:
         min_y, max_y = points[:, 1].min(), points[:, 1].max()
 
         # Include robot's position to adjust the grid center if necessary
-        robot_x, robot_y = self.get_pos()
+        robot_x, robot_y = self.get_robot_grid_position(resolution)
         min_x = min(min_x, robot_x)
         max_x = max(max_x, robot_x)
         min_y = min(min_y, robot_y)
@@ -296,23 +296,13 @@ class Mapper:
         """
         np.savetxt(filename, map_grid, fmt='%d', delimiter=' ')
 
-    def get_grid_position(self, resolution=1.0):
+    def get_robot_grid_position(self, resolution=1.0):
         """
         Get the current position of the robot in grid coordinates.
         :param resolution: The resolution of the grid in the same units as the detected points.
         :return: A tuple (grid_x, grid_y) representing the position in grid coordinates.
         """
-        detected_array = np.array(self.detected_points)
-
-        # Sprawdzenie czy detected_array jest dwuwymiarowa
-        if detected_array.ndim != 2 or detected_array.shape[1] != 2:
-            return 100, 100
-
-        min_x, max_x = detected_array[:, 0].min(), detected_array[:, 0].max()
-        min_y, max_y = detected_array[:, 1].min(), detected_array[:, 1].max()
-
-        # Obliczanie aktualnej pozycji robota w siatce
-        grid_x = int((self.x - min_x) / resolution)
-        grid_y = int((self.y - min_y) / resolution)
-
+        # Convert the robot's position from real-world coordinates to grid coordinates
+        grid_x = int(self.x / resolution)
+        grid_y = int(self.y / resolution)
         return grid_x, grid_y

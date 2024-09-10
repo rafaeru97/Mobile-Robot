@@ -1,6 +1,5 @@
 import RPi.GPIO as GPIO
 import time
-from robot.mapper import Mapper
 
 class PID:
     def __init__(self, kp, ki, kd, dt=0.02):

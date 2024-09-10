@@ -7,6 +7,47 @@ from scipy.spatial import distance_matrix, ConvexHull
 from shapely.geometry import MultiPoint
 import alphashape
 
+from shapely.geometry import LineString
+from scipy.interpolate import griddata
+
+def interpolate_points(points, resolution=100):
+    """
+    Interpolates points to create a smooth grid.
+    :param points: Array of detected points.
+    :param resolution: The resolution of the interpolated grid.
+    :return: Interpolated grid points.
+    """
+    x = points[:, 0]
+    y = points[:, 1]
+    grid_x, grid_y = np.mgrid[x.min():x.max():resolution*1j, y.min():y.max():resolution*1j]
+    grid_z = griddata((x, y), np.ones(len(x)), (grid_x, grid_y), method='cubic')
+    return grid_x, grid_y, grid_z
+
+def smooth_boundary(boundary, smoothing_factor=0.01):
+    """
+    Smooth the boundary using a smoothing factor.
+    :param boundary: Array of boundary coordinates.
+    :param smoothing_factor: Smoothing factor for the boundary.
+    :return: Smoothed boundary.
+    """
+    line = LineString(boundary)
+    smoothed = line.simplify(smoothing_factor)
+    return np.array(smoothed.xy).T
+
+def filter_points(points, min_distance=1.0):
+    """
+    Filter points based on minimum distance between them.
+    :param points: Array of detected points.
+    :param min_distance: Minimum distance to keep a point.
+    :return: Filtered points.
+    """
+    filtered = []
+    for point in points:
+        distances = np.linalg.norm(points - point, axis=1)
+        if np.all(distances >= min_distance):
+            filtered.append(point)
+    return np.array(filtered)
+
 class EKF_SLAM:
     def __init__(self):
         # Stan robota i mapy (początkowo tylko robot)
@@ -199,6 +240,15 @@ class Mapper:
             print("Not enough points after filtering to compute Alpha Shape.")
             return
 
+        # Additional filtering to remove outliers
+        filtered_points = filter_points(filtered_points, min_distance=1.0)
+        print("Filtered Points after Outlier Removal:")
+        print(filtered_points)
+
+        if len(filtered_points) < 3:
+            print("Not enough points after outlier removal to compute Alpha Shape.")
+            return
+
         # Generate Alpha Shape
         alpha = 0.1  # Adjust this value to control the level of detail
         alpha_shape = alphashape.alphashape(filtered_points, alpha)
@@ -211,6 +261,10 @@ class Mapper:
             boundary = np.concatenate([np.array(p.exterior.coords) for p in alpha_shape], axis=0)
         else:
             boundary = np.array([])  # Handle cases where the shape is not a polygon
+
+        # Smooth the boundary if needed
+        if boundary.size > 0:
+            boundary = smooth_boundary(boundary)
 
         # Plotting the results
         plt.figure(figsize=(8, 8))

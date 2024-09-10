@@ -56,11 +56,10 @@ def sensor_thread(sensor):
     global distance
     while True:
         with lock:
-            if distance_reading:
-                try:
-                    distance = sensor.get_distance()
-                except Exception as e:
-                    print(f"Sensor thread error: {e}")
+            try:
+                distance = sensor.get_distance()
+            except Exception as e:
+                print(f"Sensor thread error: {e}")
         time.sleep(0.05)
 
 def toggle_distance_reading(sensor):
@@ -119,9 +118,10 @@ def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, e
         if distance_reading:
             dist_status = "ON"
 
-        stdscr.addstr(height // 2 + 2, 2, f"Distance Sensor:     {distance:.2f} cm ({dist_status})")
-        stdscr.addstr(height // 2 + 3, 2, f"Gyroscope Orientation:  {orientation:.2f} degrees")
-        stdscr.addstr(height // 2 + 4, 2, f"Encoder Distance:  {encoder:.2f} meters")
+        stdscr.addstr(height // 2 + 3, 2, f"Mapping:     {dist_status}")
+        stdscr.addstr(height // 2 + 3, 2, f"Distance Sensor:     {distance:.2f} cm (MAPPING: {dist_status})")
+        stdscr.addstr(height // 2 + 4, 2, f"Gyroscope Orientation:  {orientation:.2f} degrees")
+        stdscr.addstr(height // 2 + 5, 2, f"Encoder Distance:  {encoder:.2f} meters")
 
         stdscr.addstr(height - 1, 2, "Press Ctrl+C to exit.")
         stdscr.refresh()

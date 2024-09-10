@@ -79,8 +79,8 @@ class AStarPathfinder:
             robot_x, robot_y = robot_position
 
             # Dodanie offsetu - odejmowanie współrzędnych robota pomniejszonych o 100
-            path[:, 0] -= robot_y
-            path[:, 1] -= robot_x
+            path[:, 0] -= robot_x
+            path[:, 1] -= robot_y
 
             plt.plot(path[:, 1], path[:, 0], 'r-', lw=2, label='Path')
 

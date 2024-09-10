@@ -146,6 +146,10 @@ def get_coordinates(stdscr):
     stdscr.refresh()
     y_str = stdscr.getstr(3, 0).decode('utf-8')
     curses.noecho()
+
+    stdscr.clear()
+    stdscr.addstr(0, 0, "Pathfinding...")
+
     stdscr.nodelay(1)
     stdscr.timeout(100)
 

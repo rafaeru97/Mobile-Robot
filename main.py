@@ -227,6 +227,8 @@ def main(stdscr):
                         print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
                                        program_status, mapper.get_pos())
                         pathfinder.move_robot_along_path(motor_controller, path, gyro)
+                elif key == ord('w'):
+                    motor_controller.forward_with_encoders(0.1)
                 elif key == ord('d'):
                     toggle_distance_reading(sensor)
                 elif key == ord('m'):

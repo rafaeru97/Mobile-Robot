@@ -61,10 +61,10 @@ class Mapper:
         self.gyro = gyro
         self.distance_sensor = distance_sensor
         self.slam = EKF_SLAM()
-        self.positions = [(0, 0)]
+        self.positions = [(100, 100)]
         self.current_angle = 0
-        self.x = 0
-        self.y = 0
+        self.x = 100
+        self.y = 100
         self.last_encoder_distance = 0
         self.detected_points = []  # Inicjalizacja atrybutu
 
@@ -299,7 +299,7 @@ class Mapper:
 
         # Sprawdzenie czy detected_array jest dwuwymiarowa
         if detected_array.ndim != 2 or detected_array.shape[1] != 2:
-            return 0, 0
+            return 100, 100
 
         min_x, max_x = detected_array[:, 0].min(), detected_array[:, 0].max()
         min_y, max_y = detected_array[:, 1].min(), detected_array[:, 1].max()

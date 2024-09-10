@@ -3,43 +3,10 @@ import matplotlib.pyplot as plt
 import math
 import json
 
-import logging
-
-# Konfiguracja logowania do pliku
-logging.basicConfig(filename='mapper_log.txt', level=logging.DEBUG,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-
 from scipy.spatial import distance_matrix, ConvexHull
-from shapely.geometry import MultiPoint
 import alphashape
 from scipy.stats import zscore
 
-from shapely.geometry import LineString
-from scipy.interpolate import griddata
-
-def interpolate_points(points, resolution=100):
-    """
-    Interpolates points to create a smooth grid.
-    :param points: Array of detected points.
-    :param resolution: The resolution of the interpolated grid.
-    :return: Interpolated grid points.
-    """
-    x = points[:, 0]
-    y = points[:, 1]
-    grid_x, grid_y = np.mgrid[x.min():x.max():resolution*1j, y.min():y.max():resolution*1j]
-    grid_z = griddata((x, y), np.ones(len(x)), (grid_x, grid_y), method='cubic')
-    return grid_x, grid_y, grid_z
-
-def smooth_boundary(boundary, smoothing_factor=0.01):
-    """
-    Smooth the boundary using a smoothing factor.
-    :param boundary: Array of boundary coordinates.
-    :param smoothing_factor: Smoothing factor for the boundary.
-    :return: Smoothed boundary.
-    """
-    line = LineString(boundary)
-    smoothed = line.simplify(smoothing_factor)
-    return np.array(smoothed.xy).T
 
 class EKF_SLAM:
     def __init__(self):
@@ -199,7 +166,6 @@ class Mapper:
                 self.detected_points.append((detected_x, detected_y, distance_from_sensor_cm))
                 self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
 
-    from scipy.stats import zscore
 
     def process_detected_points(self, zoom_level=100, filename="output_map.png"):
         """
@@ -209,7 +175,6 @@ class Mapper:
         :return: None (saves a visual map with boundaries and detected objects).
         """
         if len(self.detected_points) == 0:
-            logging.info("No detected_points")
             return
 
         # Convert detected points to a numpy array
@@ -230,19 +195,15 @@ class Mapper:
                 filtered_points.append(point)
 
         filtered_points = np.array(filtered_points)
-        logging.debug(f"Filtered Points: {filtered_points}")
 
         if len(filtered_points) < 3:
-            logging.warning("Not enough points after filtering to compute Alpha Shape.")
             return
 
         # Apply Z-score for statistical filtering
         z_scores = np.abs(zscore(filtered_points, axis=0))
         filtered_points = filtered_points[(z_scores < 2).all(axis=1)]
-        logging.debug(f"Filtered Points after Z-score filtering: {filtered_points}")
 
         if len(filtered_points) < 3:
-            logging.warning("Not enough points after statistical filtering to compute Alpha Shape.")
             return
 
         # Generate Alpha Shape
@@ -252,13 +213,10 @@ class Mapper:
         # Convert Alpha Shape to coordinates for plotting
         if alpha_shape.geom_type == 'Polygon':
             boundary = np.array(alpha_shape.exterior.coords)
-            logging.debug(f"Alpha Shape boundary (Polygon): {boundary}")
         elif alpha_shape.geom_type == 'MultiPolygon':
             boundary = np.concatenate([np.array(p.exterior.coords) for p in alpha_shape.geoms], axis=0)
-            logging.debug(f"Alpha Shape boundary (MultiPolygon): {boundary}")
         else:
             boundary = np.array([])
-            logging.warning("Alpha shape is not a polygon or multipolygon.")
 
         # Plotting the results
         plt.figure(figsize=(8, 8))

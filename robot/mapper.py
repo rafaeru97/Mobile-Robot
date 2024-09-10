@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import json
+import cv2
 
 from scipy.spatial import distance_matrix, ConvexHull
 import alphashape
@@ -232,10 +233,14 @@ class Mapper:
         plt.savefig(filename)
         plt.show()
 
-    def generate_map_grid(self, resolution=1.0):
+    import cv2
+    import numpy as np
+
+    def generate_map_grid(self, resolution=1.0, kernel_size=3):
         """
-        Generate a grid map from detected points.
+        Generate a grid map from detected points with morphological operations to fill gaps.
         :param resolution: The resolution of the grid in the same units as the detected points.
+        :param kernel_size: The size of the kernel for morphological operations.
         :return: A numpy array representing the grid map.
         """
         if len(self.detected_points) == 0:
@@ -254,7 +259,7 @@ class Mapper:
         height = int(np.ceil((max_y - min_y) / resolution))
 
         # Create an empty grid
-        map_grid = np.zeros((height, width), dtype=int)
+        map_grid = np.zeros((height, width), dtype=np.uint8)
 
         # Fill the grid with obstacles
         for point in points:
@@ -262,6 +267,11 @@ class Mapper:
             grid_y = int((point[1] - min_y) / resolution)
             if 0 <= grid_x < width and 0 <= grid_y < height:
                 map_grid[grid_y, grid_x] = 1
+
+        # Apply morphological operations
+        kernel = np.ones((kernel_size, kernel_size), np.uint8)
+        map_grid = cv2.dilate(map_grid, kernel, iterations=1)  # Fill gaps
+        map_grid = cv2.erode(map_grid, kernel, iterations=1)  # Remove small noise
 
         return map_grid
 

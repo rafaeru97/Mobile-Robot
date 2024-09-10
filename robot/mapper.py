@@ -252,15 +252,19 @@ class Mapper:
         detected_array = np.array(self.detected_points)
         points = detected_array[:, :2]
 
-        # Determine the bounds of the grid
+        # Determine the bounds of the grid in map coordinates
         min_x, max_x = points[:, 0].min(), points[:, 0].max()
         min_y, max_y = points[:, 1].min(), points[:, 1].max()
 
-        # Calculate grid dimensions and offset
+        # Calculate center of the map
+        center_x = (min_x + max_x) / 2
+        center_y = (min_y + max_y) / 2
+
+        # Determine grid dimensions and offset from center
         width = max(min_width, int(np.ceil((max_x - min_x) / resolution)))
         height = max(min_height, int(np.ceil((max_y - min_y) / resolution)))
-        offset_x = min_x
-        offset_y = min_y
+        offset_x = center_x - (width / 2) * resolution
+        offset_y = center_y - (height / 2) * resolution
 
         # Create an empty grid
         map_grid = np.zeros((height, width), dtype=bool)

@@ -264,7 +264,7 @@ class Mapper:
         width = max(min_width, int(np.ceil((max_x - min_x) / resolution)))
         height = max(min_height, int(np.ceil((max_y - min_y) / resolution)))
         offset_x = center_x - (width / 2) * resolution
-        offset_y = center_y - (height / 2) * resolution
+        offset_y = center_y - (height / 2) * resolution - 20
 
         # Create an empty grid
         map_grid = np.zeros((height, width), dtype=bool)

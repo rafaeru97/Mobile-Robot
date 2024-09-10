@@ -220,6 +220,7 @@ class MotorController:
         start_time = time.time()
         try:
             while True:
+                print(f"target_distance: {target_distance}")
                 # Oblicz dystans od ostatniego pomiaru
                 left_distance = abs(self.leftEncoder.get_distance() - self.last_left_distance)
                 right_distance = abs(self.rightEncoder.get_distance() - self.last_right_distance)

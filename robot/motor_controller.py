@@ -288,28 +288,29 @@ class MotorController:
         finally:
             self.stop()
 
-    def rotate_to_angle(self, gyro, target_angle, speed=50, direction='left'):
+    def rotate_to_angle(self, gyro, target_angle, speed=50):
         """
-        Obrót robota o określony kąt za pomocą żyroskopu z debugowaniem.
+        Obrót robota o określony kąt za pomocą żyroskopu, decydując najkrótszą drogę do kąt docelowego.
 
         :param gyro: Obiekt klasy Gyro
         :param target_angle: Kąt docelowy w stopniach
         :param speed: Prędkość obrotu (0-100%)
-        :param direction: Kierunek obrotu ('left' lub 'right')
-        :param timeout: Maksymalny czas obrotu w sekundach
         """
 
         try:
             while True:
                 current_angle = gyro.get_angle_z() % 360
+                angle_difference = (target_angle - current_angle + 180) % 360 - 180
 
-                if direction == 'left':
-                    self.turn_left(speed)
-                elif direction == 'right':
-                    self.turn_right(speed)
-
-                if abs(current_angle - target_angle) < 1:
+                # Sprawdzenie, czy osiągnięto kąt docelowy
+                if abs(angle_difference) < 1:
                     break
+
+                # Decyzja o kierunku obrotu
+                if angle_difference > 0:
+                    self.turn_right(speed)
+                else:
+                    self.turn_left(speed)
 
                 time.sleep(0.02)
 

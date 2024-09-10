@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 import math
 import json
 
-from scipy.spatial import distance_matrix, ConvexHull, alpha_shape
-
+from scipy.spatial import distance_matrix, ConvexHull
+import alphashape
+from shapely.geometry import MultiPoint
 
 class EKF_SLAM:
     def __init__(self):
@@ -197,12 +198,19 @@ class Mapper:
 
         # Generate Alpha Shape
         alpha = 1.0  # Adjust this value based on your data
-        alpha_shape = alpha_shape(filtered_points, alpha)
+        alpha_shape = alphashape.alphashape(filtered_points, alpha)
+
+        # Convert Alpha Shape to coordinates for plotting
+        if alpha_shape.geom_type == 'Polygon':
+            boundary = np.array(alpha_shape.exterior.coords)
+        else:
+            boundary = np.array([])  # Handle cases where the alpha shape is not a polygon
 
         # Plotting the results
         plt.figure(figsize=(8, 8))
         plt.plot(filtered_points[:, 0], filtered_points[:, 1], 'o', label='Filtered Points')
-        plt.plot(alpha_shape[:, 0], alpha_shape[:, 1], 'r--', lw=2, label='Alpha Shape')
+        if boundary.size > 0:
+            plt.plot(boundary[:, 0], boundary[:, 1], 'r--', lw=2, label='Alpha Shape')
 
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')

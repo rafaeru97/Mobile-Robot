@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import json
-import cv2
 
 from scipy.spatial import distance_matrix, ConvexHull
 import alphashape
@@ -233,14 +232,14 @@ class Mapper:
         plt.savefig(filename)
         plt.show()
 
-    import cv2
     import numpy as np
+    from scipy.ndimage import binary_dilation, binary_erosion
 
-    def generate_map_grid(self, resolution=1.0, kernel_size=3):
+    def generate_map_grid(self, resolution=1.0, dilation_radius=1):
         """
         Generate a grid map from detected points with morphological operations to fill gaps.
         :param resolution: The resolution of the grid in the same units as the detected points.
-        :param kernel_size: The size of the kernel for morphological operations.
+        :param dilation_radius: The radius of the dilation operation.
         :return: A numpy array representing the grid map.
         """
         if len(self.detected_points) == 0:
@@ -259,19 +258,23 @@ class Mapper:
         height = int(np.ceil((max_y - min_y) / resolution))
 
         # Create an empty grid
-        map_grid = np.zeros((height, width), dtype=np.uint8)
+        map_grid = np.zeros((height, width), dtype=bool)
 
         # Fill the grid with obstacles
         for point in points:
             grid_x = int((point[0] - min_x) / resolution)
             grid_y = int((point[1] - min_y) / resolution)
             if 0 <= grid_x < width and 0 <= grid_y < height:
-                map_grid[grid_y, grid_x] = 1
+                map_grid[grid_y, grid_x] = True
 
-        # Apply morphological operations
-        kernel = np.ones((kernel_size, kernel_size), np.uint8)
-        map_grid = cv2.dilate(map_grid, kernel, iterations=1)  # Fill gaps
-        map_grid = cv2.erode(map_grid, kernel, iterations=1)  # Remove small noise
+        # Create a structuring element for dilation
+        struct_elem = np.ones((2 * dilation_radius + 1, 2 * dilation_radius + 1), dtype=bool)
+
+        # Apply dilation to fill gaps
+        map_grid = binary_dilation(map_grid, structure=struct_elem).astype(map_grid.dtype)
+
+        # Apply erosion to remove small noise
+        map_grid = binary_erosion(map_grid, structure=struct_elem).astype(map_grid.dtype)
 
         return map_grid
 

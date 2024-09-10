@@ -239,7 +239,7 @@ class Mapper:
         :return: A numpy array representing the grid map.
         """
         if len(self.detected_points) == 0:
-            raise ValueError("No detected points available to generate a map.")
+            return
 
         # Convert detected points to a numpy array
         detected_array = np.array(self.detected_points)
@@ -273,4 +273,3 @@ class Mapper:
         :return: None
         """
         np.savetxt(filename, map_grid, fmt='%d', delimiter=' ')
-        print(f"Map grid saved to {filename}")

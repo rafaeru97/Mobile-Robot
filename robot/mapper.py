@@ -234,16 +234,19 @@ class Mapper:
         plt.savefig(filename)
         plt.show()
 
-    def generate_map_grid(self, resolution=1.0, dilation_radius=2, erosion_radius=2):
+    def generate_map_grid(self, resolution=1.0, dilation_radius=2, erosion_radius=2, min_width=200, min_height=200):
         """
         Generate a grid map from detected points with enhanced morphological operations to fill gaps.
         :param resolution: The resolution of the grid in the same units as the detected points.
         :param dilation_radius: The radius of the dilation operation.
         :param erosion_radius: The radius of the erosion operation.
+        :param min_width: Minimum width of the grid (in cells).
+        :param min_height: Minimum height of the grid (in cells).
         :return: A numpy array representing the grid map.
         """
         if len(self.detected_points) == 0:
-            return
+            # Return a grid of minimum size if no points are detected
+            return np.zeros((min_height, min_width), dtype=bool)
 
         # Convert detected points to a numpy array
         detected_array = np.array(self.detected_points)
@@ -254,8 +257,8 @@ class Mapper:
         min_y, max_y = points[:, 1].min(), points[:, 1].max()
 
         # Determine grid dimensions
-        width = int(np.ceil((max_x - min_x) / resolution))
-        height = int(np.ceil((max_y - min_y) / resolution))
+        width = max(min_width, int(np.ceil((max_x - min_x) / resolution)))
+        height = max(min_height, int(np.ceil((max_y - min_y) / resolution)))
 
         # Create an empty grid
         map_grid = np.zeros((height, width), dtype=bool)

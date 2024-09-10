@@ -70,8 +70,11 @@ class Mapper:
         Save detected points to a file in a specified format (e.g., JSON).
         """
         if format == "json":
+            # Konwersja numpy array do listy
+            detected_points_list = [list(point) for point in self.detected_points]
+
             with open(filename, "w") as f:
-                json.dump(self.detected_points, f)
+                json.dump(detected_points_list, f)
 
     def process_saved_points(self, filename, format="json", output_filename="output_map.png", zoom_level=100):
         """

@@ -7,7 +7,14 @@ import time
 import logging
 
 # Skonfiguruj logger, jeśli jeszcze tego nie zrobiłeś
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('robot_debug.log'),
+        logging.StreamHandler()
+    ]
+)
 
 class AStarPathfinder:
     def __init__(self, map_grid):

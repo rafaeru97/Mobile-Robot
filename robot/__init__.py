@@ -4,4 +4,5 @@ from .encoder import Encoder
 from .gyro import Gyro
 from .distance_sensor import DistanceSensor
 from .mapper import Mapper
+from .astar import AStarPathfinder
 from .utils import calculate_new_position, angle_to_radians

@@ -1,4 +1,4 @@
-from robot import MotorController, Encoder, Gyro, DistanceSensor, Mapper
+from robot import MotorController, Encoder, Gyro, DistanceSensor, Mapper, AStarPathfinder
 import time
 import RPi.GPIO as GPIO
 import sys
@@ -181,6 +181,10 @@ def main(stdscr):
                                    program_status)
                     map_grid = mapper.generate_map_grid()
                     mapper.save_map_grid_to_file(map_grid)
+                    pathfinder = AStarPathfinder(map_grid)
+                    goal = (20, 20)
+                    path = pathfinder.astar(mapper.get_grid_position(), goal)
+                    pathfinder.visualize_path(path)
                 elif key == ord('d'):
                     toggle_distance_reading(sensor)
                 elif key == ord('m'):

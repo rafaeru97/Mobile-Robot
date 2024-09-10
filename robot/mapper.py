@@ -273,3 +273,85 @@ class Mapper:
         :return: None
         """
         np.savetxt(filename, map_grid, fmt='%d', delimiter=' ')
+
+    class Mapper:
+        def __init__(self, motor_controller, gyro, distance_sensor):
+            self.motor_controller = motor_controller
+            self.gyro = gyro
+            self.distance_sensor = distance_sensor
+            self.slam = EKF_SLAM()
+            self.positions = [(0, 0)]
+            self.current_angle = 0
+            self.x = 0
+            self.y = 0
+            self.last_encoder_distance = 0
+            self.detected_points = []  # Inicjalizacja atrybutu
+
+        def generate_map_grid(self, resolution=1.0):
+            """
+            Generate a grid map from detected points.
+            :param resolution: The resolution of the grid in the same units as the detected points.
+            :return: A numpy array representing the grid map.
+            """
+            if len(self.detected_points) == 0:
+                return
+
+            # Convert detected points to a numpy array
+            detected_array = np.array(self.detected_points)
+            points = detected_array[:, :2]
+
+            # Determine the bounds of the grid
+            min_x, max_x = points[:, 0].min(), points[:, 0].max()
+            min_y, max_y = points[:, 1].min(), points[:, 1].max()
+
+            # Calculate grid dimensions
+            width = int(np.ceil((max_x - min_x) / resolution))
+            height = int(np.ceil((max_y - min_y) / resolution))
+
+            # Create an empty grid
+            map_grid = np.zeros((height, width), dtype=int)
+
+            # Calculate the offset from the center
+            offset_x = min_x
+            offset_y = min_y
+
+            # Fill the grid with obstacles
+            for point in points:
+                grid_x = int((point[0] - offset_x) / resolution)
+                grid_y = int((point[1] - offset_y) / resolution)
+                if 0 <= grid_x < width and 0 <= grid_y < height:
+                    map_grid[grid_y, grid_x] = 1
+
+            return map_grid
+
+        def save_map_grid_to_file(self, map_grid, filename="map_grid.txt"):
+            """
+            Save the map grid to a text file.
+            :param map_grid: The grid map array to save.
+            :param filename: The name of the output text file.
+            :return: None
+            """
+            np.savetxt(filename, map_grid, fmt='%d', delimiter=' ')
+
+        def get_grid_position(self, x, y, resolution=1.0):
+            """
+            Convert robot position to grid coordinates.
+            :param x: The X coordinate of the robot's position.
+            :param y: The Y coordinate of the robot's position.
+            :param resolution: The resolution of the grid in the same units as the detected points.
+            :return: Tuple of (grid_x, grid_y)
+            """
+            # Generate map grid to get the bounds
+            map_grid = self.generate_map_grid(resolution=resolution)
+            if map_grid is None:
+                return None
+
+            # Get the grid offset
+            detected_array = np.array(self.detected_points)
+            min_x, min_y = detected_array[:, 0].min(), detected_array[:, 1].min()
+
+            # Convert robot position to grid coordinates
+            grid_x = int((x - min_x) / resolution)
+            grid_y = int((y - min_y) / resolution)
+
+            return grid_x, grid_y

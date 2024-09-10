@@ -1,5 +1,6 @@
 import numpy as np
 import heapq
+import matplotlib.pyplot as plt
 
 
 class AStarPathfinder:
@@ -56,3 +57,38 @@ class AStarPathfinder:
             current = came_from[current]
             path.append(current)
         return path[::-1]
+
+    def visualize_path(self, path, filename="path_visualization.png", resolution=1.0):
+        """
+        Visualize the path on the map grid and save the result to a file.
+        :param path: List of tuples representing the path as [(x1, y1), (x2, y2), ...]
+        :param filename: The name of the output image file.
+        :param resolution: The resolution of the grid in the same units as the detected points.
+        :return: None
+        """
+        # Generate the map grid
+        map_grid = self.generate_map_grid(resolution=resolution)
+
+        if map_grid is None:
+            print("Brak danych do wizualizacji.")
+            return
+
+        # Plot the map grid
+        plt.figure(figsize=(8, 8))
+        plt.imshow(map_grid, cmap='Greys', origin='lower', interpolation='none')
+
+        # Extract path coordinates
+        path = np.array(path)
+        if len(path) > 0:
+            x_path, y_path = path[:, 0], path[:, 1]
+
+            # Plot the path
+            plt.plot(x_path, y_path, 'r-', marker='o', markersize=5, label='Path')
+
+        plt.xlabel('X Coordinate')
+        plt.ylabel('Y Coordinate')
+        plt.title('Path Visualization on Map Grid')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig(filename)
+        plt.show()

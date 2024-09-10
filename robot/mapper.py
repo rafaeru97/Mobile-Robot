@@ -187,7 +187,7 @@ class Mapper:
         dist_matrix = distance_matrix(points, points)
 
         # Threshold to consider a point as a neighbor
-        threshold = 4  # Adjust this value based on your data
+        threshold = 3  # Adjust this value based on your data
 
         # Filter points that are isolated
         filtered_points = []
@@ -209,7 +209,7 @@ class Mapper:
             return
 
         # Generate Alpha Shape
-        alpha = 0.2  # Adjust this value to control the level of detail
+        alpha = 0.05  # Adjust this value to control the level of detail
         alpha_shape = alphashape.alphashape(filtered_points, alpha)
 
         # Convert Alpha Shape to coordinates for plotting

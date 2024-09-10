@@ -260,7 +260,7 @@ class Mapper:
             boundary = np.array(alpha_shape.exterior.coords)
             logging.debug(f"Alpha Shape boundary (Polygon): {boundary}")
         elif alpha_shape.geom_type == 'MultiPolygon':
-            boundary = np.concatenate([np.array(p.exterior.coords) for p in alpha_shape], axis=0)
+            boundary = np.concatenate([np.array(p.exterior.coords) for p in alpha_shape.geoms], axis=0)
             logging.debug(f"Alpha Shape boundary (MultiPolygon): {boundary}")
         else:
             boundary = np.array([])

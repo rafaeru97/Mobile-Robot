@@ -123,7 +123,7 @@ def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, e
         stdscr.addstr(height // 2 + 4, 2, f"Gyroscope Orientation:  {orientation:.2f} degrees")
         stdscr.addstr(height // 2 + 5, 2, f"Encoder Distance:  {encoder:.2f} meters")
 
-        stdscr.addstr(height // 2 + 7, 2, f"Robot Position:  ({robot_pos[0]}, {robot_pos[1]})")
+        stdscr.addstr(height // 2 + 7, 2, f"Robot Position:  ({robot_pos[0]:.2f}, {robot_pos[1]:.2f})")
 
         stdscr.addstr(height - 1, 2, "Press Ctrl+C to exit.")
         stdscr.refresh()

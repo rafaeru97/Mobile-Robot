@@ -3,6 +3,12 @@ import matplotlib.pyplot as plt
 import math
 import json
 
+import logging
+
+# Konfiguracja logowania do pliku
+logging.basicConfig(filename='mapper_log.txt', level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 from scipy.spatial import distance_matrix, ConvexHull
 from shapely.geometry import MultiPoint
 import alphashape
@@ -213,13 +219,16 @@ class Mapper:
         :param filename: The name of the output image file.
         :return: None (saves a visual map with boundaries and detected objects).
         """
+        logging.info("Start processing detected points")
+
         if len(self.detected_points) == 0:
-            print("No detected_points")
+            logging.warning("No detected points")
             return
 
         # Convert detected points to a numpy array
         detected_array = np.array(self.detected_points)
         points = detected_array[:, :2]
+        logging.debug(f"Detected points: {points}")
 
         # Compute distance matrix
         dist_matrix = distance_matrix(points, points)
@@ -235,52 +244,60 @@ class Mapper:
                 filtered_points.append(point)
 
         filtered_points = np.array(filtered_points)
-        print("Filtered Points:")
-        print(filtered_points)
+        logging.debug(f"Filtered Points: {filtered_points}")
 
         if len(filtered_points) < 3:
-            print("Not enough points after filtering to compute Alpha Shape.")
+            logging.warning("Not enough points after filtering to compute Alpha Shape.")
             return
 
         # Additional filtering to remove outliers
         filtered_points = filter_points(filtered_points, min_distance=1.0)
-        print("Filtered Points after Outlier Removal:")
-        print(filtered_points)
+        logging.debug(f"Filtered Points after Outlier Removal: {filtered_points}")
 
         if len(filtered_points) < 3:
-            print("Not enough points after outlier removal to compute Alpha Shape.")
+            logging.warning("Not enough points after outlier removal to compute Alpha Shape.")
             return
 
         # Generate Alpha Shape
         alpha = 0.1  # Adjust this value to control the level of detail
         alpha_shape = alphashape.alphashape(filtered_points, alpha)
+        logging.debug(f"Alpha Shape generated: {alpha_shape}")
 
         # Convert Alpha Shape to coordinates for plotting
         if alpha_shape.geom_type == 'Polygon':
             boundary = np.array(alpha_shape.exterior.coords)
+            logging.debug(f"Alpha Shape boundary (Polygon): {boundary}")
         elif alpha_shape.geom_type == 'MultiPolygon':
-            # Handle MultiPolygon cases if needed
             boundary = np.concatenate([np.array(p.exterior.coords) for p in alpha_shape], axis=0)
+            logging.debug(f"Alpha Shape boundary (MultiPolygon): {boundary}")
         else:
-            boundary = np.array([])  # Handle cases where the shape is not a polygon
+            boundary = np.array([])
+            logging.warning("Alpha shape is not a polygon or multipolygon.")
 
         # Smooth the boundary if needed
         if boundary.size > 0:
             boundary = smooth_boundary(boundary)
+            logging.debug(f"Smoothed boundary: {boundary}")
 
         # Plotting the results
-        plt.figure(figsize=(8, 8))
-        plt.plot(filtered_points[:, 0], filtered_points[:, 1], 'o', label='Filtered Points')
-        if boundary.size > 0:
-            plt.plot(boundary[:, 0], boundary[:, 1], 'r--', lw=2, label='Alpha Shape')
+        try:
+            plt.figure(figsize=(8, 8))
+            plt.plot(filtered_points[:, 0], filtered_points[:, 1], 'o', label='Filtered Points')
+            if boundary.size > 0:
+                plt.plot(boundary[:, 0], boundary[:, 1], 'r--', lw=2, label='Alpha Shape')
 
-        plt.xlabel('X Coordinate')
-        plt.ylabel('Y Coordinate')
-        plt.title('Map with Alpha Shape')
-        plt.legend()
-        plt.grid()
-        plt.savefig(filename)
-        plt.show()
+            plt.xlabel('X Coordinate')
+            plt.ylabel('Y Coordinate')
+            plt.title('Map with Alpha Shape')
+            plt.legend()
+            plt.grid()
+            plt.savefig(filename)
+            plt.show()
+            logging.info(f"Map saved as {filename}")
+        except Exception as e:
+            logging.error(f"Error during plotting or saving: {e}")
+
+        logging.info("Finished processing detected points")
 
     def get_bounding_boxes(self, points, labels):
         """

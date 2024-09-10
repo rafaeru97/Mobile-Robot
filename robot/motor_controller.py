@@ -212,9 +212,6 @@ class MotorController:
         self.forward()
 
         start_time = time.time()
-        self.left_encoder.reset_position()
-        self.right_encoder.reset_position()
-
         try:
             while True:
                 left_distance = abs(self.left_encoder.get_distance())

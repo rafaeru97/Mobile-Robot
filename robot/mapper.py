@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import math
 import json
 
-from scipy.spatial import distance_matrix, ConvexHull
+from scipy.spatial import distance_matrix, ConvexHull, alpha_shape
 
 
 class EKF_SLAM:
@@ -192,21 +192,21 @@ class Mapper:
 
         filtered_points = np.array(filtered_points)
         if len(filtered_points) < 3:
-            print("Not enough points after filtering to compute Convex Hull.")
+            print("Not enough points after filtering to compute Alpha Shape.")
             return
 
-        # Generate Convex Hull
-        hull = ConvexHull(filtered_points)
+        # Generate Alpha Shape
+        alpha = 1.0  # Adjust this value based on your data
+        alpha_shape = alpha_shape(filtered_points, alpha)
 
         # Plotting the results
         plt.figure(figsize=(8, 8))
         plt.plot(filtered_points[:, 0], filtered_points[:, 1], 'o', label='Filtered Points')
-        for simplex in hull.simplices:
-            plt.plot(filtered_points[simplex, 0], filtered_points[simplex, 1], 'r--', lw=2, label='Convex Hull')
+        plt.plot(alpha_shape[:, 0], alpha_shape[:, 1], 'r--', lw=2, label='Alpha Shape')
 
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')
-        plt.title('Map with Convex Hull')
+        plt.title('Map with Alpha Shape')
         plt.legend()
         plt.grid()
         plt.savefig(filename)

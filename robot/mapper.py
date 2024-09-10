@@ -163,6 +163,11 @@ class Mapper:
             self.detected_points.append((detected_x, detected_y, distance_from_sensor_cm))
             self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
 
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from shapely.geometry import MultiPoint
+    from scipy.spatial import distance_matrix
+
     def process_detected_points(self, zoom_level=100, filename="output_map.png"):
         """
         Process the detected points by filtering noise, estimating boundaries, and detecting objects.
@@ -196,6 +201,26 @@ class Mapper:
 
         if len(filtered_points) < 3:
             print("Not enough points after filtering to compute Convex Hull.")
+            return
+
+        # Additional filtering to remove outliers
+        def filter_outliers(points, distance_threshold):
+            filtered = []
+            for point in points:
+                # Calculate distances to all other points
+                distances = np.linalg.norm(points - point, axis=1)
+                # Remove points that are too far away
+                if np.all(distances < distance_threshold):
+                    filtered.append(point)
+            return np.array(filtered)
+
+        # Apply outlier filtering
+        filtered_points = filter_outliers(filtered_points, threshold)
+        print("Filtered Points after Outlier Removal:")
+        print(filtered_points)
+
+        if len(filtered_points) < 3:
+            print("Not enough points after outlier removal to compute Convex Hull.")
             return
 
         # Generate Convex Hull

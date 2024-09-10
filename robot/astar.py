@@ -20,6 +20,10 @@ logging.getLogger('matplotlib').setLevel(logging.WARNING)
 class AStarPathfinder:
     def __init__(self, map_grid):
         self.map_grid = map_grid  # map_grid to dwuwymiarowa tablica, gdzie 1 oznacza przeszkodę, a 0 wolne miejsce
+        self.mapper = None
+
+    def set_mapper(self, mapper):
+        self.mapper = mapper
 
     def heuristic(self, a, b):
         # Odległość euklidesowa

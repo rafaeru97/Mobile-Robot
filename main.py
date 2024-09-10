@@ -221,6 +221,7 @@ def main(stdscr):
                         robot_position = mapper.get_robot_grid_position(map_grid)
                         mapper.save_map_grid_to_file(map_grid)
                         pathfinder = AStarPathfinder(map_grid)
+                        pathfinder.set_mapper(mapper)
                         path = pathfinder.astar(robot_position, cords)
                         pathfinder.visualize_path(path, map_grid, robot_position)
                         program_status = "pathfinding"

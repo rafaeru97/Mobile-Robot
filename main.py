@@ -164,6 +164,10 @@ def main(stdscr):
                     mapper.create_map()
                 elif key == ord('o'):
                     mapper.process_detected_points()
+                elif key == ord('s'):
+                    mapper.save_detected_points_to_json("mapa.json")
+                elif key == ord('l'):
+                    mapper.process_saved_points("mapa.json", format="json", output_filename="mapa_test.png")
                 elif key == ord('q'):
                     break
 

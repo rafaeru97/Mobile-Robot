@@ -2,9 +2,69 @@ from scipy.spatial import ConvexHull
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import csv
+import json
 
+from scipy.spatial import Delaunay
 from scipy.spatial.distance import euclidean
 from collections import deque
+
+
+
+def alpha_shape(points, alpha):
+    """
+    Calculate the alpha shape (concave hull) of a set of points.
+    :param points: np.array of shape (n, 2) points.
+    :param alpha: alpha value to control the shape of the hull.
+    :return: Set of edges representing the alpha shape.
+    """
+    if len(points) < 4:
+        # No alpha shape possible, return a convex hull.
+        return Delaunay(points).convex_hull
+
+    tri = Delaunay(points)
+    edges = set()
+    for ia, ib, ic in tri.simplices:
+        a = points[ia]
+        b = points[ib]
+        c = points[ic]
+        # Length of triangle edges
+        ab = np.linalg.norm(a - b)
+        bc = np.linalg.norm(b - c)
+        ca = np.linalg.norm(c - a)
+        # Circumradius of the triangle
+        s = (ab + bc + ca) / 2.0
+        area = max(s * (s - ab) * (s - bc) * (s - ca), 0.00001)
+        circum_r = ab * bc * ca / (4.0 * np.sqrt(area))
+        if circum_r < 1.0 / alpha:
+            edges.add((ia, ib))
+            edges.add((ib, ic))
+            edges.add((ic, ia))
+    return edges
+
+def plot_alpha_shape(points, alpha, filename="alpha_shape_map.png"):
+    """
+    Plot the alpha shape of the given points.
+    :param points: Array of detected points.
+    :param alpha: Alpha value for the shape.
+    :param filename: Output image file.
+    """
+    plt.figure(figsize=(8, 8))
+    # Plot points
+    plt.scatter(points[:, 0], points[:, 1], color='g', s=30, label="Detected Points")
+
+    # Compute and plot alpha shape
+    edges = alpha_shape(points, alpha)
+    for i, j in edges:
+        plt.plot([points[i, 0], points[j, 0]], [points[i, 1], points[j, 1]], 'k-')
+
+    plt.title("Alpha Shape Map")
+    plt.xlabel("X position (cm)")
+    plt.ylabel("Y position (cm)")
+    plt.grid(True)
+    plt.savefig(filename)
+    plt.close()
+
 
 class SimpleDBSCAN:
     def __init__(self, eps=5, min_samples=3):
@@ -112,6 +172,46 @@ class Mapper:
         self.last_encoder_distance = 0
         self.detected_points = []  # Inicjalizacja atrybutu
 
+    def save_detected_points_to_csv(self, filename="detected_points.csv"):
+        """
+        Save the detected points to a CSV file.
+        :param filename: Name of the output CSV file.
+        """
+        with open(filename, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["x", "y", "distance"])
+            for point in self.detected_points:
+                writer.writerow(point)
+
+    def save_detected_points_to_json(self, filename="detected_points.json"):
+        """
+        Save the detected points to a JSON file.
+        :param filename: Name of the output JSON file.
+        """
+        with open(filename, 'w') as file:
+            json.dump(self.detected_points, file)
+
+    def load_detected_points_from_csv(self, filename="detected_points.csv"):
+        """
+        Load detected points from a CSV file.
+        :param filename: Name of the input CSV file.
+        """
+        self.detected_points = []
+        with open(filename, mode='r') as file:
+            reader = csv.reader(file)
+            next(reader)  # Skip header
+            for row in reader:
+                x, y, distance = map(float, row)
+                self.detected_points.append((x, y, distance))
+
+    def load_detected_points_from_json(self, filename="detected_points.json"):
+        """
+        Load detected points from a JSON file.
+        :param filename: Name of the input JSON file.
+        """
+        with open(filename, 'r') as file:
+            self.detected_points = json.load(file)
+
     def create_map(self, filename="robot_map.png", zoom_level=100):
         positions = np.array(self.positions)
         x_positions = positions[:, 0]
@@ -173,11 +273,12 @@ class Mapper:
             self.detected_points.append((detected_x, detected_y, distance_from_sensor_cm))
             self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
 
-    def process_detected_points(self, eps=5, min_samples=3, zoom_level=100, filename="output_map.png"):
+    def process_detected_points(self, eps=5, min_samples=3, alpha=1.0, zoom_level=100, filename="output_map.png"):
         """
         Process the detected points by filtering noise, estimating boundaries, and detecting objects.
         :param eps: Maximum distance between two samples for DBSCAN to cluster them.
         :param min_samples: Minimum number of samples in a cluster for it not to be considered noise.
+        :param alpha: Alpha value for the alpha shape algorithm (for concave boundary estimation).
         :param zoom_level: Zoom level for the map visualization.
         :param filename: The name of the output image file.
         :return: None (saves a visual map with boundaries and detected objects).
@@ -197,17 +298,10 @@ class Mapper:
         filtered_points = detected_array[np.array(labels) != -1]
 
         if len(filtered_points) == 0:
-
             return
 
-        # Estimate boundaries using Convex Hull
-        hull = ConvexHull(filtered_points[:, :2])
-
-        # Detect objects by clustering points and generating bounding boxes
-        boxes = self.get_bounding_boxes(filtered_points, labels)
-
-        # Plot the map with boundaries and bounding boxes
-        self.plot_map_with_boundaries_and_boxes(filtered_points, hull, boxes, zoom_level, filename)
+        # Estimate boundaries using Alpha Shape (instead of Convex Hull)
+        plot_alpha_shape(filtered_points[:, :2], alpha, filename=filename)
 
     def get_bounding_boxes(self, points, labels):
         """

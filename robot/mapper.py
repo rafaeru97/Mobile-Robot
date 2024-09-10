@@ -287,6 +287,11 @@ class Mapper:
         # Apply erosion to remove small noise
         map_grid = binary_erosion(map_grid, structure=erode_elem).astype(map_grid.dtype)
 
+        plt.imshow(map_grid, cmap='gray')
+        plt.title('Generated Map Grid')
+        plt.savefig("map_grid.png")
+        plt.show()
+
         return map_grid
 
     def save_map_grid_to_file(self, map_grid, filename="map_grid.txt"):

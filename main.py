@@ -99,7 +99,7 @@ def gyro_thread(gyro):
             print(f"Gyro thread error: {e}")
 
 
-def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder, program_status=""):
+def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder, program_status="", robot_pos, grid_pos):
     try:
         stdscr.clear()
         height, width = stdscr.getmaxyx()
@@ -122,6 +122,9 @@ def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, e
         stdscr.addstr(height // 2 + 3, 2, f"Distance Sensor:     {distance:.2f} cm")
         stdscr.addstr(height // 2 + 4, 2, f"Gyroscope Orientation:  {orientation:.2f} degrees")
         stdscr.addstr(height // 2 + 5, 2, f"Encoder Distance:  {encoder:.2f} meters")
+
+        stdscr.addstr(height // 2 + 7, 2, f"Robot Position:  ({robot_pos[0]}, {robot_pos[1]})")
+        stdscr.addstr(height // 2 + 8, 2, f"Grid Robot Position:  ({grid_pos[0]}, {grid_pos[1]})")
 
         stdscr.addstr(height - 1, 2, "Press Ctrl+C to exit.")
         stdscr.refresh()
@@ -254,7 +257,7 @@ def main(stdscr):
 
                 program_status = "running"
                 print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
-                               program_status)
+                               program_status, mapper.get_pos(), mapper.get_grid_position())
 
                 time.sleep(0.1)
 

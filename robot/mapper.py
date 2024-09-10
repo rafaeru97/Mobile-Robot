@@ -68,6 +68,9 @@ class Mapper:
         self.last_encoder_distance = 0
         self.detected_points = []  # Inicjalizacja atrybutu
 
+    def get_pos(self):
+        return self.x, self.y
+
     def save_detected_points(self, filename="mapa.json", format="json"):
         """
         Save detected points to a file in a specified format (e.g., JSON).
@@ -303,4 +306,4 @@ class Mapper:
         grid_x = int((self.x - min_x) / resolution)
         grid_y = int((self.y - min_y) / resolution)
 
-        return (grid_x, grid_y)
+        return grid_x, grid_y

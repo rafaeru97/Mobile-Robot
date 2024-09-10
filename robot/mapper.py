@@ -40,20 +40,6 @@ def smooth_boundary(boundary, smoothing_factor=0.01):
     smoothed = line.simplify(smoothing_factor)
     return np.array(smoothed.xy).T
 
-def filter_points(points, min_distance=1.0):
-    """
-    Filter points based on minimum distance between them.
-    :param points: Array of detected points.
-    :param min_distance: Minimum distance to keep a point.
-    :return: Filtered points.
-    """
-    filtered = []
-    for point in points:
-        distances = np.linalg.norm(points - point, axis=1)
-        if np.all(distances >= min_distance):
-            filtered.append(point)
-    return np.array(filtered)
-
 class EKF_SLAM:
     def __init__(self):
         # Stan robota i mapy (początkowo tylko robot)
@@ -219,22 +205,19 @@ class Mapper:
         :param filename: The name of the output image file.
         :return: None (saves a visual map with boundaries and detected objects).
         """
-        logging.info("Start processing detected points")
-
         if len(self.detected_points) == 0:
-            logging.warning("No detected points")
+            logging.info("No detected_points")
             return
 
         # Convert detected points to a numpy array
         detected_array = np.array(self.detected_points)
         points = detected_array[:, :2]
-        logging.debug(f"Detected points: {points}")
 
         # Compute distance matrix
         dist_matrix = distance_matrix(points, points)
 
         # Threshold to consider a point as a neighbor
-        threshold = 2  # Adjust this value based on your data
+        threshold = 4  # Adjust this value based on your data
 
         # Filter points that are isolated
         filtered_points = []
@@ -250,109 +233,24 @@ class Mapper:
             logging.warning("Not enough points after filtering to compute Alpha Shape.")
             return
 
+        # Interpolate points to create a smooth grid
+        grid_x, grid_y, grid_z = interpolate_points(filtered_points, resolution=200)
+        logging.debug(f"Interpolated grid shape: {grid_x.shape}, {grid_y.shape}")
+
         # Generate Alpha Shape
-        alpha = 0.08  # Adjust this value to control the level of detail
+        alpha = 0.1  # Adjust this value to control the level of detail
         alpha_shape = alphashape.alphashape(filtered_points, alpha)
-        logging.debug(f"Alpha Shape generated: {alpha_shape}")
 
         # Convert Alpha Shape to coordinates for plotting
         if alpha_shape.geom_type == 'Polygon':
             boundary = np.array(alpha_shape.exterior.coords)
             logging.debug(f"Alpha Shape boundary (Polygon): {boundary}")
         elif alpha_shape.geom_type == 'MultiPolygon':
+            # Używamy .geoms do iteracji po pojedynczych poligonach w MultiPolygon
             boundary = np.concatenate([np.array(p.exterior.coords) for p in alpha_shape.geoms], axis=0)
             logging.debug(f"Alpha Shape boundary (MultiPolygon): {boundary}")
         else:
             boundary = np.array([])
             logging.warning("Alpha shape is not a polygon or multipolygon.")
 
-        # Smooth the boundary if needed
-        if boundary.size > 0:
-            boundary = smooth_boundary(boundary)
-            logging.debug(f"Smoothed boundary: {boundary}")
 
-        # Plotting the results
-        try:
-            plt.figure(figsize=(8, 8))
-            plt.plot(filtered_points[:, 0], filtered_points[:, 1], 'o', label='Filtered Points')
-            if boundary.size > 0:
-                plt.plot(boundary[:, 0], boundary[:, 1], 'r--', lw=2, label='Alpha Shape')
-
-            plt.xlabel('X Coordinate')
-            plt.ylabel('Y Coordinate')
-            plt.title('Map with Alpha Shape')
-            plt.legend()
-            plt.grid()
-            plt.savefig(filename)
-            plt.show()
-            logging.info(f"Map saved as {filename}")
-        except Exception as e:
-            logging.error(f"Error during plotting or saving: {e}")
-
-        logging.info("Finished processing detected points")
-
-    def get_bounding_boxes(self, points, labels):
-        """
-        Generate bounding boxes for clusters in the detected points.
-        :param points: List of (x, y) points.
-        :param labels: Array of cluster labels.
-        :return: List of bounding boxes.
-        """
-        unique_labels = set(labels)
-        boxes = []
-
-        for label in unique_labels:
-            if label == -1:
-                continue  # Skip noise
-
-            # Ensure labels and points have matching lengths
-            if len(points) != len(labels):
-                continue
-
-            # Create boolean index based on labels
-            boolean_index = np.array(labels) == label
-            if boolean_index.sum() == 0:
-                continue
-
-            # Filter points based on the boolean index
-            cluster_points = points[boolean_index]
-            min_x, min_y = np.min(cluster_points, axis=0)
-            max_x, max_y = np.max(cluster_points, axis=0)
-
-            boxes.append((min_x, min_y, max_x, max_y))
-
-        return boxes
-
-    def plot_map_with_boundaries_and_boxes(self, filtered_points, hull, boxes, zoom_level, filename):
-        """
-        Plot the map with boundaries and bounding boxes.
-        :param filtered_points: Points after noise filtering.
-        :param hull: Convex Hull object.
-        :param boxes: List of bounding boxes.
-        :param zoom_level: Zoom level for the map visualization.
-        :param filename: The name of the output image file.
-        """
-        plt.figure(figsize=(8, 8))
-        # plt.plot(filtered_points[:, 0], filtered_points[:, 1], marker="o", color="b", markersize=3, label="Filtered Points")
-
-        # Plot Convex Hull
-        for simplex in hull.simplices:
-            plt.plot(filtered_points[simplex, 0], filtered_points[simplex, 1], 'k--', label="Boundary")
-
-        # Plot bounding boxes
-        for (min_x, min_y, max_x, max_y) in boxes:
-            plt.plot([min_x, max_x], [min_y, min_y], 'r-', lw=2)
-            plt.plot([max_x, max_x], [min_y, max_y], 'r-', lw=2)
-            plt.plot([max_x, min_x], [max_y, max_y], 'r-', lw=2)
-            plt.plot([min_x, min_x], [max_y, min_y], 'r-', lw=2)
-
-        center_x, center_y = self.positions[-1]
-        plt.xlim(center_x - zoom_level, center_x + zoom_level)
-        plt.ylim(center_y - zoom_level, center_y + zoom_level)
-
-        plt.title("Processed Map")
-        plt.xlabel("X position (cm)")
-        plt.ylabel("Y position (cm)")
-        plt.grid(True)
-        plt.savefig(filename)
-        plt.close()

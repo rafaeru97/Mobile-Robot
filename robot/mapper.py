@@ -238,7 +238,7 @@ class Mapper:
 
         # Apply Z-score for statistical filtering
         z_scores = np.abs(zscore(filtered_points, axis=0))
-        filtered_points = filtered_points[(z_scores < 1.2).all(axis=1)]
+        filtered_points = filtered_points[(z_scores < 1.5).all(axis=1)]
         logging.debug(f"Filtered Points after Z-score filtering: {filtered_points}")
 
         if len(filtered_points) < 3:

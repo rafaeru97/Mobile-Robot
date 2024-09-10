@@ -52,6 +52,7 @@
                     mapElement.classList.remove('active');
                 }
             });
+            console.log(`Showing map: ${maps[currentMapIndex]}`); // Debugging log
         }
 
         function prevMap() {
@@ -63,17 +64,6 @@
             currentMapIndex = (currentMapIndex + 1) % maps.length;
             updateMapVisibility();
         }
-
-        function refreshImage() {
-            maps.forEach((mapId) => {
-                const img = document.getElementById(mapId);
-                const timestamp = new Date().getTime(); // Pobierz aktualny czas w milisekundach
-                img.src = `${mapId}.png?${timestamp}`; // Dodaj znacznik czasu do URL
-            });
-        }
-
-        // Ustaw interwał odświeżania co 1 sekundę (1000 ms)
-        setInterval(refreshImage, 1000);
 
         // Inicjalna konfiguracja map
         updateMapVisibility();

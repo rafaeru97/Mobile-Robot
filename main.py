@@ -230,6 +230,8 @@ def main(stdscr):
                         pathfinder.move_robot_along_path(motor_controller, path, gyro)
                 elif key == ord('w'):
                     motor_controller.forward_with_encoders(0.1)
+                elif key == ord('e'):
+                    motor_controller.rotate_to_angle(gyro, 180)
                 elif key == ord('d'):
                     toggle_distance_reading(sensor)
                 elif key == ord('m'):

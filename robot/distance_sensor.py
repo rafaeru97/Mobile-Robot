@@ -9,6 +9,7 @@ class DistanceSensor:
         self.echo_pin = echo_pin
         self.timeout = timeout  # Timeout in seconds
         self.sensor_offset = sensor_offset  # sensor distance from center
+        self.status = True
 
         # Setup trigger pin as output and echo pin as input
         GPIO.setup(self.trigger_pin, GPIO.OUT)
@@ -20,6 +21,9 @@ class DistanceSensor:
     def get_distance(self):
         with self.lock:  # Ensure thread-safe access to GPIO
             try:
+                if not self.status:
+                    return None
+
                 # Ensure that the trigger pin is set low
                 GPIO.output(self.trigger_pin, False)
                 time.sleep(0.1)

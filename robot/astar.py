@@ -142,7 +142,7 @@ class AStarPathfinder:
 
         # Wyświetlenie mapy siatki
         plt.imshow(map_grid, cmap='gray', origin='upper')
-        plt.ylim(200, 0)
+        plt.gca().invert_yaxis()
         # Rozpoczęcie i zakończenie ścieżki
         if path:
             path = np.array(path)
@@ -152,7 +152,7 @@ class AStarPathfinder:
         robot_x, robot_y = robot_position
         # Przesunięcie pozycji robota na ścieżce
         plt.plot(robot_x, robot_y, 'bo', markersize=10,
-                 label='Robot Position')  # (0,0) bo ścieżka jest przesunięta o robot_position
+                 label='Robot Position')
 
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')

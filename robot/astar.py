@@ -85,7 +85,7 @@ def rdp(points: List[Tuple[float, float]], epsilon: float) -> List[Tuple[float, 
     return rdp_rec(points, epsilon)
 
 class AStarPathfinder:
-    def __init__(self, map_grid, resolution=1.0, safety_margin=2):
+    def __init__(self, map_grid, resolution=1.0, safety_margin=10):
         self.map_grid = map_grid
         self.resolution = resolution
         self.safety_margin = safety_margin

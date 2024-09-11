@@ -215,6 +215,7 @@ def main(stdscr):
                     speed = 0
                     rotate = 0
                 elif key == ord('a'):
+                    motor_controller.stop()
                     cords = get_coordinates(stdscr)
                     if cords:
                         map_grid = mapper.generate_map_grid()

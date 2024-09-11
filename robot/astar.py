@@ -4,19 +4,6 @@ import matplotlib.pyplot as plt
 import time
 from typing import List, Tuple
 
-import logging
-
-# Skonfiguruj logger, jeśli jeszcze tego nie zrobiłeś
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('robot_debug.log'),
-        logging.StreamHandler()
-    ]
-)
-logging.getLogger('matplotlib').setLevel(logging.WARNING)
-
 def interpolate_path(path: List[Tuple[float, float]], max_step_size: float = 10.0) -> List[Tuple[int, int]]:
     """
     Interpoluje ścieżkę, dodając dodatkowe punkty wzdłuż ścieżki na podstawie maksymalnego rozmiaru kroku.
@@ -100,15 +87,8 @@ class AStarPathfinder:
 
     def astar(self, start, goal):
         """Główna funkcja A* z uwzględnieniem odbicia Y, offsetu i marginesu bezpieczeństwa."""
-        logging.info(f"start: {start}")
-        logging.info(f"goal: {goal}")
-
         start_grid = self.world_to_grid(start)
         goal_grid = self.world_to_grid(goal)
-
-        logging.info(f"start_grid: {start_grid}")
-        logging.info(f"goal_grid: {goal_grid}")
-
         # Kolejka priorytetowa
         open_list = []
         heapq.heappush(open_list, (0, start_grid))

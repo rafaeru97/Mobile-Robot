@@ -99,7 +99,7 @@ class AStarPathfinder:
         """Oblicza odległość Manhattan pomiędzy dwoma punktami na siatce."""
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
-    def astar(self, start, goal, output_file='path.txt'):
+    def astar(self, start, goal):
         """Główna funkcja A* z uwzględnieniem odbicia Y i offsetu."""
         start_grid = self.world_to_grid(start)
         goal_grid = self.world_to_grid(goal)
@@ -116,14 +116,7 @@ class AStarPathfinder:
             current = heapq.heappop(open_list)[1]
 
             if current == goal_grid:
-                path = self.reconstruct_path(came_from, current)
-
-                # Zapisanie ścieżki do pliku
-                with open(output_file, 'w') as f:
-                    for point in path:
-                        f.write(f"{point[0]}, {point[1]}\n")
-
-                return path
+                return self.reconstruct_path(came_from, current)
 
             for neighbor in self.get_neighbors(current):
                 tentative_g_score = g_score[current] + self.distance(current, neighbor)

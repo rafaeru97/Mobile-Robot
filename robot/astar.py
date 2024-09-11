@@ -128,7 +128,7 @@ class AStarPathfinder:
 
         return angle, distance
 
-    def create_smoothed_path(path, segment_length_cm=100):
+    def create_smoothed_path(self, path, segment_length_cm=100):
         smoothed_path = []
         for i in range(len(path) - 1):
             start = np.array(path[i])
@@ -149,7 +149,7 @@ class AStarPathfinder:
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
         stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
 
-        smoothed_path = create_smoothed_path(path, segment_length_cm)
+        smoothed_path = self.create_smoothed_path(path, segment_length_cm)
         for target_position in smoothed_path:
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
             stdscr.addstr(3, 0, f'Target grid position: {target_position}')

@@ -156,7 +156,7 @@ class AStarPathfinder:
             target_distance_grid_units = target_distance / 10  # Dystans w siatce (kratki)
 
             # Get current robot angle
-            current_angle = gyro.get_current_angle()
+            current_angle = gyro.get_angle_z()
 
             # Calculate the angle difference
             angle_difference = abs((target_angle - current_angle + 180) % 360 - 180)  # Normalize to [-180, 180]

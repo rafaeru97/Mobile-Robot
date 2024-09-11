@@ -22,8 +22,11 @@ def start_http_server(stdscr):
 
     handler = SimpleHTTPRequestHandler
     httpd = HTTPServer(("0.0.0.0", port), handler)
+    stdscr.clear()
     stdscr.addstr(0, 0, f"Server is running at port: {port}\n")
     stdscr.addstr(1, 0, f"Check static ip by: hostname -I\n")
+    stdscr.refresh()
+    stdscr.clear()
     httpd.serve_forever()
 
 

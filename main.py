@@ -12,7 +12,7 @@ logging.basicConfig(filename='app_errors.log', level=logging.ERROR,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def start_http_server():
+def start_http_server(stdscr):
     os.chdir("/home/pi/Desktop/Mobile-Robot")
 
     # Uruchomienie serwera HTTP
@@ -22,19 +22,15 @@ def start_http_server():
 
     handler = SimpleHTTPRequestHandler
     httpd = HTTPServer(("0.0.0.0", port), handler)
-
-    print(f"Server is running at port: {port}\n")
-    print(f"Check static ip by: hostname -I\n")
+    stdscr.addstr(0, 0, f"Server is running at port: {port}\n")
+    stdscr.addstr(1, 0, f"Check static ip by: hostname -I\n")
     httpd.serve_forever()
 
 
-def run_server():
-    server_thread = threading.Thread(target=start_http_server, name="ServerThread")
+def run_server(stdscr):
+    server_thread = threading.Thread(target=start_http_server, args=(stdscr,), name="ServerThread")
     server_thread.daemon = True
     server_thread.start()
-
-
-run_server()  # Ręczne wywołanie funkcji
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -170,6 +166,8 @@ def get_coordinates(stdscr):
 
 def main(stdscr):
     try:
+        run_server(stdscr)
+
         global speed, rotate
         left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
         right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)

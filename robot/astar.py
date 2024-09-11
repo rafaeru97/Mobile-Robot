@@ -150,13 +150,13 @@ class AStarPathfinder:
         # Rozpoczęcie i zakończenie ścieżki
         if path:
             path = np.array(path)
-            path[:, 1] = 2 * ref_y - path[:, 1]  # Obrót wartości y
+            # path[:, 1] = 2 * ref_y - path[:, 1]  # Obrót wartości y
             path = path[::-1]  # Odwrócenie kolejności punktów w ścieżce
             plt.plot(path[:, 0], path[:, 1], 'r-', lw=2, label='Path')
 
         # Dodanie pozycji robota jako kropki
         robot_x, robot_y = robot_position
-        robot_y = 2 * ref_y - robot_y  # Obrót wartości y
+        # robot_y = 2 * ref_y - robot_y  # Obrót wartości y
         plt.plot(robot_x, robot_y, 'bo', markersize=10, label='Robot Position')
 
         plt.xlabel('X Coordinate')

@@ -25,6 +25,7 @@ def start_http_server(stdscr):
     stdscr.clear()
     stdscr.addstr(0, 0, f"Server is running at port: {port}\n")
     stdscr.addstr(1, 0, f"Check static ip by: hostname -I\n")
+    stdscr.addstr(2, 0, " ")
     stdscr.refresh()
     stdscr.clear()
     httpd.serve_forever()

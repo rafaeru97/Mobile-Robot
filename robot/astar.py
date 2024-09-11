@@ -140,7 +140,7 @@ class AStarPathfinder:
             plt.plot(path[:, 0], path[:, 1], 'g-', lw=2, label='Path')
 
         robot_x, robot_y = robot_position
-        plt.plot(robot_x, -robot_y, marker="s", color="r", markersize=25,
+        plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25,
                  label='Current Position')  # Odwrócenie wartości y
 
         plt.xlabel('X Coordinate')

@@ -70,17 +70,9 @@ def rdp(points: List[Tuple[float, float]], epsilon: float) -> List[Tuple[float, 
 
     return rdp_rec(points, epsilon)
 
-def dilate_obstacles(map_grid, robot_size):
-    # Rozmiar robota w cm, w przypadku 25 cm, używamy dylatacji o 12 cm (6 pikseli)
-    dilation_size = robot_size // 2  # Dylatacja w pikselach
-    structure = np.ones((dilation_size * 2 + 1, dilation_size * 2 + 1), dtype=bool)
-    dilated_map = binary_dilation(map_grid.astype(bool), structure=structure).astype(int)
-    return dilated_map
-
-
 class AStarPathfinder:
     def __init__(self, map_grid):
-        self.map_grid = dilate_obstacles(map_grid, 25)
+        self.map_grid = map_grid
         self.mapper = None
 
     def set_mapper(self, mapper):
@@ -125,7 +117,7 @@ class AStarPathfinder:
 
     def is_valid(self, node):
         x, y = node
-        return 0 <= x < self.map_grid.shape[0] and 0 <= y < self.map_grid.shape[1] and self.map_grid[x, y] == 0
+        return self.map_grid.shape[0] > x >= 0 == self.map_grid[x, y] and 0 <= y < self.map_grid.shape[1]
 
     def distance(self, a, b):
         return np.linalg.norm(np.array(a) - np.array(b))

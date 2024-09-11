@@ -143,16 +143,20 @@ class AStarPathfinder:
         # Wyświetlenie mapy siatki
         plt.imshow(map_grid, cmap='gray', origin='upper')
         plt.ylim(200, 0)
+
+        # Ustawienie wartości odniesienia
+        ref_y = 100
+
         # Rozpoczęcie i zakończenie ścieżki
         if path:
             path = np.array(path)
+            path[:, 1] = 2 * ref_y - path[:, 1]  # Obrót wartości y
             plt.plot(path[:, 0], path[:, 1], 'r-', lw=2, label='Path')
 
         # Dodanie pozycji robota jako kropki
         robot_x, robot_y = robot_position
-        # Przesunięcie pozycji robota na ścieżce
-        plt.plot(robot_x, robot_y, 'bo', markersize=10,
-                 label='Robot Position')
+        robot_y = 2 * ref_y - robot_y  # Obrót wartości y
+        plt.plot(robot_x, robot_y, 'bo', markersize=10, label='Robot Position')
 
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')

@@ -90,20 +90,21 @@ class AStarPathfinder:
         plt.imshow(map_grid, cmap='gray', origin='lower')
 
         # Rozpoczęcie i zakończenie ścieżki
-        if path and robot_position:
+        if path:
             path = np.array(path)
-            robot_x, robot_y = robot_position
 
-            # Odjęcie współrzędnych robota od ścieżki, aby zcentrować na pozycji robota
-            path[:, 0] -= robot_y
-            path[:, 1] -= robot_x
+            if robot_position:
+                robot_x, robot_y = robot_position
+                # Odjęcie współrzędnych robota od ścieżki, aby zcentrować na pozycji robota
+                path[:, 0] -= robot_y - 100
+                path[:, 1] -= robot_x - 100
 
-            plt.plot(path[:, 1], path[:, 0], 'r-', lw=2, label='Path')
+                plt.plot(path[:, 1], path[:, 0], 'r-', lw=2, label='Path')
 
         # Dodanie pozycji robota jako kropki
         if robot_position:
             robot_x, robot_y = robot_position
-            plt.plot(robot_y, robot_x, 'bo', markersize=10, label='Robot Position')
+            plt.plot(robot_x - 100, robot_y - 100, 'bo', markersize=10, label='Robot Position')
 
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')

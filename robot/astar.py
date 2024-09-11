@@ -103,7 +103,7 @@ class AStarPathfinder:
         # Dodanie pozycji robota jako kropki
         robot_x, robot_y = robot_position
         # Przesunięcie pozycji robota na ścieżce
-        plt.plot(0, 0, 'bo', markersize=10,
+        plt.plot(robot_x, robot_y, 'bo', markersize=10,
                  label='Robot Position')  # (0,0) bo ścieżka jest przesunięta o robot_position
 
         plt.xlabel('X Coordinate')

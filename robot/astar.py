@@ -162,15 +162,14 @@ class AStarPathfinder:
         return reduced_path
 
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, segment_length_cm=1,
-                              angle_tolerance=10):
+                              angle_tolerance=10, position_tolerance=1.1):
         stdscr.clear()
         stdscr.addstr(0, 0, "Pathfinding...")
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
         stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
 
-        # Reduce the number of points in the path to 8
         smoothed_path = self.create_smoothed_path(path, segment_length_cm)
-        reduced_path = self.reduce_path_points(smoothed_path, int(round(len(smoothed_path)/5)))
+        reduced_path = self.reduce_path_points(smoothed_path, int(round(len(smoothed_path) / 5)))
 
         for target_position in reduced_path:
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
@@ -185,8 +184,24 @@ class AStarPathfinder:
                 stdscr.refresh()
                 time.sleep(1)
 
-            motor_controller.forward_with_encoders(target_distance * 0.01)
-            current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
-            stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
-            stdscr.refresh()
-            time.sleep(0.5)
+            # Move forward with tolerance for distance
+            remaining_distance = target_distance
+            while remaining_distance > position_tolerance:
+                move_distance = min(position_tolerance, remaining_distance)
+                motor_controller.forward_with_encoders(move_distance * 0.01)
+                remaining_distance -= move_distance
+                current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
+                stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
+                stdscr.refresh()
+                time.sleep(0.5)
+
+            # Ensure that the robot reaches the exact target position
+            final_distance = np.linalg.norm(np.array(target_position) - np.array(current_position))
+            if final_distance > position_tolerance:
+                # Compensate for the final distance
+                motor_controller.forward_with_encoders(final_distance * 0.01)
+                current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
+                stdscr.addstr(8, 0, f"Final grid position after correction: {current_position}")
+                stdscr.refresh()
+                time.sleep(0.5)
+

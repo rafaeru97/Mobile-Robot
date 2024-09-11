@@ -224,9 +224,6 @@ def main(stdscr):
                         pathfinder.set_mapper(mapper)
                         path = pathfinder.astar(robot_position, cords)
                         pathfinder.visualize_path(path, map_grid, robot_position)
-                        program_status = "pathfinding"
-                        print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
-                                       program_status, mapper.get_pos())
                         pathfinder.move_robot_along_path(stdscr, motor_controller, path, gyro)
                 elif key == ord('w'):
                     motor_controller.forward_with_encoders(0.1)

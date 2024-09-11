@@ -17,6 +17,23 @@ logging.basicConfig(
 )
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
+def interpolate_path(points: List[Tuple[float, float]], max_step_size: float) -> List[Tuple[float, float]]:
+    """
+    Interpolate a path by adding intermediate points.
+    :param points: List of points representing the path.
+    :param max_step_size: Maximum distance between consecutive points.
+    :return: The interpolated path.
+    """
+    interpolated_points = []
+    for i in range(len(points) - 1):
+        start, end = np.array(points[i]), np.array(points[i + 1])
+        distance = np.linalg.norm(end - start)
+        num_steps = int(np.ceil(distance / max_step_size))
+        for j in range(num_steps):
+            ratio = j / num_steps
+            interpolated_points.append(tuple(start + ratio * (end - start)))
+    interpolated_points.append(points[-1])
+    return interpolated_points
 
 def rdp(points: List[Tuple[float, float]], epsilon: float) -> List[Tuple[float, float]]:
     """

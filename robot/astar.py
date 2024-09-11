@@ -121,11 +121,7 @@ class AStarPathfinder:
         :param target_position: Tuple (x, y) representing the target position.
         :return: Tuple (angle, distance) where angle is the direction to the target and distance is the straight-line distance.
         """
-        logging.debug(f'Current position: {current_position}')
-        logging.debug(f'Target position: {target_position}')
-
         if current_position is None or target_position is None:
-            logging.error('Current position or target position is None.')
             return None, None
 
         dx = target_position[0] - current_position[0]

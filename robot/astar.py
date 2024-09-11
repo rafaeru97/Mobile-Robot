@@ -79,8 +79,7 @@ class AStarPathfinder:
         self.mapper = mapper
 
     def heuristic(self, a, b):
-        # Odległość euklidesowa
-        return np.linalg.norm(np.array(a) - np.array(b))
+        return abs(a[0] - b[0]) + abs(a[1] - b[1])  # Odległość Manhattan
 
     def astar(self, start, goal):
         # Kolejka priorytetowa
@@ -112,7 +111,8 @@ class AStarPathfinder:
 
     def get_neighbors(self, node):
         x, y = node
-        neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]  # Ruchy w 4 kierunkach
+        neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1),
+                     (x + 1, y + 1), (x - 1, y - 1), (x + 1, y - 1), (x - 1, y + 1)]  # Ruchy również po skosie
         return [n for n in neighbors if self.is_valid(n)]
 
     def is_valid(self, node):

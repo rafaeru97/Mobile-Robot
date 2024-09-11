@@ -288,7 +288,7 @@ class MotorController:
         finally:
             self.stop()
 
-    def rotate_to_angle(self, gyro, target_angle, speed=45):
+    def rotate_to_angle(self, gyro, target_angle, speed=38):
         """
         Obrót robota o określony kąt za pomocą żyroskopu, decydując najkrótszą drogę do kąt docelowego.
 

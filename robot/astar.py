@@ -141,16 +141,14 @@ class AStarPathfinder:
         :param center_y: Y-coordinate of the center of the grid in visualization.
         """
         plt.figure(figsize=(8, 8))
-        plt.imshow(map_grid, cmap='gray', origin='lower')  # Origin is 'lower' to match (0,0) at bottom-left
+        plt.imshow(map_grid, cmap='gray', origin='upper')  # Origin is 'lower' to match (0,0) at bottom-left
 
         if path:
             path = np.array(path)
-            path[:, 0] += center_x
-            path[:, 1] += center_y
             plt.plot(path[:, 0], path[:, 1], 'g-', lw=2, label='Path')
 
         robot_x, robot_y = robot_position
-        plt.plot(robot_x + center_x, robot_y + center_y, marker="s", color="r", markersize=25, label='Current Position')
+        plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')
 
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')

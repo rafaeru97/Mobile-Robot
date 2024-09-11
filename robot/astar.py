@@ -117,7 +117,7 @@ class AStarPathfinder:
 
     def is_valid(self, node):
         x, y = node
-        return self.map_grid.shape[0] > x >= 0 == self.map_grid[x, y] and 0 <= y < self.map_grid.shape[1]
+        return 0 <= x < self.map_grid.shape[0] and 0 <= y < self.map_grid.shape[1] and self.map_grid[x, y] == 0
 
     def distance(self, a, b):
         return np.linalg.norm(np.array(a) - np.array(b))

@@ -83,7 +83,6 @@ class AStarPathfinder:
         :param robot_position: A tuple (x, y) representing the robot's position in grid coordinates.
         :param filename: The name of the output image file.
         """
-
         # Stworzenie wykresu
         plt.figure(figsize=(8, 8))
 
@@ -104,7 +103,7 @@ class AStarPathfinder:
         # Dodanie pozycji robota jako kropki
         if robot_position:
             robot_x, robot_y = robot_position
-            plt.plot(robot_x, robot_y, 'bo', markersize=10, label='Robot Position')
+            plt.plot(robot_y, robot_x, 'bo', markersize=10, label='Robot Position')
 
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')

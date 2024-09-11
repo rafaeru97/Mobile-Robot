@@ -173,12 +173,8 @@ class AStarPathfinder:
         grid_x, grid_y = point
 
         # Odbicie w osi Y
-        world_y = 100 - grid_y
-        world_x = grid_x - 100
-
-        # Zamiana siatki na współrzędne świata
-        world_x = world_x * self.resolution + self.offset_x
-        world_y = world_y * self.resolution + self.offset_y
+        world_y = 200 - grid_y
+        world_x = grid_x
 
         return world_x, world_y
 
@@ -218,7 +214,7 @@ class AStarPathfinder:
         return angle, distance
 
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=5,
-                              final_position_tolerance=1.15):
+                              final_position_tolerance=1):
         stdscr.clear()
         stdscr.addstr(0, 0, "Pathfinding...")
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)

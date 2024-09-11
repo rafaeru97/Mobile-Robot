@@ -143,7 +143,7 @@ class AStarPathfinder:
         :param resolution: Rozdzielczość siatki (np. 1.0 odpowiada 10 cm na kratkę).
         :param segment_length_cm: Length of each segment in centimeters.
         """
-        current_position = self.get_robot_grid_position(self.map_grid, resolution)  # Get the grid position of the robot
+        current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)  # Get the grid position of the robot
         logging.debug(f'Starting at grid position: {current_position}')
         print(f"Robot starting at grid position: {current_position}")
 
@@ -174,7 +174,7 @@ class AStarPathfinder:
                 print(f"Remaining distance: {target_distance:.2f} meters")
 
             # Update current grid position
-            current_position = self.get_robot_grid_position(self.map_grid, resolution)
+            current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
             logging.debug(f'Updated grid position: {current_position}')
             print(f"Updated grid position: {current_position}")
 

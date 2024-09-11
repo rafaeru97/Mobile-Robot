@@ -55,9 +55,13 @@ def rdp(points: List[Tuple[float, float]], epsilon: float) -> List[Tuple[float, 
             return np.linalg.norm(point_vec - proj_vec)
 
     def rdp_rec(points: List[Tuple[float, float]], epsilon: float) -> List[Tuple[float, float]]:
-        start, end = points[0], points[-1]
         if len(points) < 2:
-            return [start]
+            return points
+
+        start, end = points[0], points[-1]
+
+        if len(points) == 2:
+            return [start, end]
 
         distances = [perpendicular_distance(p, start, end) for p in points[1:-1]]
         max_distance = max(distances, default=0)

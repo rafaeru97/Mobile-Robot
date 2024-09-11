@@ -186,7 +186,7 @@ class AStarPathfinder:
         return angle, distance
 
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=20,
-                              position_tolerance=1.2):
+                              position_tolerance=1.1):
         stdscr.clear()
         stdscr.addstr(0, 0, "Pathfinding...")
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
@@ -194,7 +194,7 @@ class AStarPathfinder:
 
         # Wygładź i interpoluj ścieżkę
         simplified_path = rdp(path, epsilon=8.0)
-        smoothed_path = interpolate_path(simplified_path, max_step_size=8.0)
+        smoothed_path = interpolate_path(simplified_path, max_step_size=5.0)
 
         for target_position in smoothed_path:
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)

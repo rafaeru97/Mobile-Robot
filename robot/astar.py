@@ -122,6 +122,10 @@ class AStarPathfinder:
         dy = target_position[1] - current_position[1]
         distance = np.sqrt(dx ** 2 + dy ** 2)
         angle = np.degrees(np.arctan2(dy, dx))
+
+        # Normalize angle to [0, 360) degrees
+        angle = (angle + 360) % 360
+
         return angle, distance
 
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, segment_length_cm=100,
@@ -156,12 +160,14 @@ class AStarPathfinder:
             target_distance_grid_units = target_distance / 10  # Dystans w siatce (kratki)
 
             # Get current robot angle
-            current_angle = gyro.get_angle_z()
+            current_angle = gyro.get_current_angle()
 
-            # Calculate the angle difference
-            angle_difference = abs((target_angle - current_angle + 180) % 360 - 180)  # Normalize to [-180, 180]
+            # Calculate the shortest angle difference
+            angle_difference = (target_angle - current_angle + 360) % 360  # Normalize to 0-360
+            if angle_difference > 180:
+                angle_difference -= 360  # Adjust to [-180, 180]
 
-            if angle_difference > angle_tolerance:
+            if abs(angle_difference) > angle_tolerance:
                 stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}°")
                 motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
                 stdscr.refresh()
@@ -185,7 +191,3 @@ class AStarPathfinder:
 
             # Small delay to simulate real robot movement
             time.sleep(0.5)
-
-
-
-

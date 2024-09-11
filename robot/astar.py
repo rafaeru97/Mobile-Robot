@@ -158,8 +158,6 @@ class AStarPathfinder:
             target_distance_grid_units = target_distance / 2
             current_angle = gyro.get_angle_z()
             angle_difference = (target_angle - current_angle + 360) % 360
-            if angle_difference > 180:
-                angle_difference -= 360
             if abs(angle_difference) > angle_tolerance:
                 stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}°")
                 motor_controller.rotate_to_angle(gyro, target_angle=target_angle)

@@ -234,10 +234,12 @@ class Mapper:
         plt.savefig(filename)
         plt.show()
 
-    def generate_map_grid(self, resolution=1.0, dilation_radius=2, erosion_radius=2, min_width=200, min_height=200,
-                          center_x=100, center_y=100):
+    def generate_map_grid_for_astar(self, resolution=1.0, dilation_radius=2, erosion_radius=2, min_width=200,
+                                    min_height=200,
+                                    center_x=100, center_y=100):
         """
-        Generate a grid map from detected points with enhanced morphological operations to fill gaps.
+        Generate a grid map compatible with the A* algorithm by applying the same transformations
+        as in the visualization.
         :param resolution: The resolution of the grid in the same units as the detected points.
         :param dilation_radius: The radius of the dilation operation.
         :param erosion_radius: The radius of the erosion operation.
@@ -245,7 +247,7 @@ class Mapper:
         :param min_height: Minimum height of the grid (in cells).
         :param center_x: X-coordinate of the center of the grid.
         :param center_y: Y-coordinate of the center of the grid.
-        :return: A numpy array representing the grid map.
+        :return: A numpy array representing the grid map ready for A*.
         """
         detected_points = np.array(self.slam.get_map())
 
@@ -269,9 +271,14 @@ class Mapper:
         for point in points:
             grid_x = int((point[0] - offset_x) / resolution)
             grid_y = int((point[1] - offset_y) / resolution)
-            if 0 <= grid_x < width and 0 <= grid_y < height:
-                map_grid[height - 1 - grid_y, grid_x] = True  # Adjust for bottom-left origin
 
+            # Adjust y-coordinate (reflection across the Y-axis)
+            grid_y = height - 1 - grid_y  # Przekształcenie tak jak w wizualizacji
+
+            if 0 <= grid_x < width and 0 <= grid_y < height:
+                map_grid[grid_y, grid_x] = True
+
+        # Dilation and erosion operations to clean up the map
         dilate_elem = np.ones((2 * dilation_radius + 1, 2 * dilation_radius + 1), dtype=bool)
         erode_elem = np.ones((2 * erosion_radius + 1, 2 * erosion_radius + 1), dtype=bool)
 

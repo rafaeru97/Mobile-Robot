@@ -3,7 +3,6 @@ import heapq
 import matplotlib.pyplot as plt
 import time
 from typing import List, Tuple
-from scipy.ndimage import binary_dilation
 
 import logging
 
@@ -18,7 +17,16 @@ logging.basicConfig(
 )
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
-def interpolate_path(path, max_step_size=10.0):
+def interpolate_path(path: List[Tuple[float, float]], max_step_size: float = 10.0) -> List[Tuple[int, int]]:
+    """
+    Interpoluje ścieżkę, dodając dodatkowe punkty wzdłuż ścieżki na podstawie maksymalnego rozmiaru kroku.
+    :param path: Lista punktów reprezentujących ścieżkę.
+    :param max_step_size: Maksymalny rozmiar kroku między punktami interpolowanymi.
+    :return: Lista punktów z interpolowaną ścieżką.
+    """
+    if len(path) < 2:
+        return path  # Zwraca ścieżkę bez zmian, jeśli ma mniej niż 2 punkty
+
     interpolated_path = []
     for i in range(len(path) - 1):
         start = np.array(path[i])
@@ -30,7 +38,9 @@ def interpolate_path(path, max_step_size=10.0):
             new_point = start + ratio * (end - start)
             interpolated_path.append(tuple(np.round(new_point).astype(int)))  # Zaokrąglenie do najbliższej liczby całkowitej
     interpolated_path.append(path[-1])  # Dodanie ostatniego punktu
+
     return interpolated_path
+
 
 
 def rdp(points: List[Tuple[float, float]], epsilon: float) -> List[Tuple[float, float]]:

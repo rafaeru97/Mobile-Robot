@@ -142,25 +142,6 @@ class AStarPathfinder:
         smoothed_path.append(path[-1])
         return smoothed_path
 
-    def reduce_path_points(self, path, num_steps):
-        """
-        Reduce the number of points in the path to num_steps.
-        :param path: List of path points.
-        :param num_steps: Desired number of steps.
-        :return: Reduced list of path points.
-        """
-        if num_steps >= len(path):
-            return path
-
-        step = len(path) // num_steps
-        reduced_path = [path[i] for i in range(0, len(path), step)]
-
-        # Ensure the last point is included
-        if reduced_path[-1] != path[-1]:
-            reduced_path.append(path[-1])
-
-        return reduced_path
-
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, segment_length_cm=1000,
                               angle_tolerance=10, position_tolerance=1.1):
         stdscr.clear()
@@ -169,9 +150,8 @@ class AStarPathfinder:
         stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
 
         smoothed_path = self.create_smoothed_path(path, segment_length_cm)
-        reduced_path = self.reduce_path_points(smoothed_path, int(round(len(smoothed_path) / 5)))
 
-        for target_position in reduced_path:
+        for target_position in smoothed_path:
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
             stdscr.addstr(3, 0, f'Target grid position: {target_position}')
             stdscr.addstr(4, 0, f'Calculated angle: {target_angle:.2f}, distance: {target_distance:.2f}')

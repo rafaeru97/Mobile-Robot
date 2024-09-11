@@ -187,7 +187,7 @@ class AStarPathfinder:
                 time.sleep(1)
 
             stdscr.addstr(6, 0, f'Moving forward segment distance (grid units): {target_distance_grid_units:.2f}')
-            motor_controller.forward_with_encoders(target_distance_grid_units * 0.1)
+            motor_controller.forward_with_encoders(target_distance_grid_units * 0.01)
             current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
             stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
             stdscr.refresh()

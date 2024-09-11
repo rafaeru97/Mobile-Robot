@@ -92,7 +92,7 @@ class AStarPathfinder:
         # Rozpoczęcie i zakończenie ścieżki
         if path:
             path = np.array(path)
-            plt.plot(path[:, 1], path[:, 0], 'r-', lw=2, label='Path')
+            plt.plot(path[:, 0], path[:, 1], 'r-', lw=2, label='Path')
 
         # Dodanie pozycji robota jako kropki
         robot_x, robot_y = robot_position

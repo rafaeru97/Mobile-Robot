@@ -12,14 +12,23 @@
             text-align: center;
             margin-top: 50px;
             margin-bottom: 100px; /* Zwiększenie dolnego marginesu dla stopki */
+            background-color: #1e1e1e; /* Ciemne tło */
+            color: #f5f5f5; /* Jasny kolor tekstu */
         }
         .map-container {
             display: flex;
             justify-content: center;
             margin-bottom: 20px;
         }
+        .map-frame {
+            border: 5px solid #333; /* Ciemna ramka */
+            border-radius: 10px; /* Zaokrąglone rogi */
+            padding: 10px; /* Odstęp wewnętrzny */
+            background-color: #2e2e2e; /* Ciemniejszy kolor tła dla map */
+            box-shadow: 0 0 10px rgba(0,0,0,0.5); /* Cień dla lepszego efektu */
+        }
         .map-container img {
-            max-width: 30%;
+            max-width: 100%; /* Dopasowanie szerokości do kontenera */
             height: auto;
             display: none; /* Domyślnie ukryte */
         }
@@ -36,12 +45,13 @@
             position: fixed;
             bottom: 0;
             width: 100%;
-            background-color: #f1f1f1;
+            background-color: #333; /* Ciemna stopka */
             padding: 10px;
             text-align: center;
+            color: #f5f5f5; /* Jasny tekst w stopce */
         }
         .footer a {
-            color: #333;
+            color: #f5f5f5;
             text-decoration: none;
         }
         .footer img {
@@ -61,9 +71,15 @@
         </div>
     </div>
     <div class="map-container">
-        <img id="map1" src="robot_map.png" alt="Robot Map" class="active">
-        <img id="map2" src="output_map.png" alt="Output Map">
-        <img id="map3" src="path_visualization.png" alt="Path Visualization">
+        <div class="map-frame">
+            <img id="map1" src="robot_map.png" alt="Robot Map" class="active">
+        </div>
+        <div class="map-frame">
+            <img id="map2" src="output_map.png" alt="Output Map">
+        </div>
+        <div class="map-frame">
+            <img id="map3" src="path_visualization.png" alt="Path Visualization">
+        </div>
     </div>
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -107,7 +123,7 @@
     <!-- Footer -->
     <div class="footer">
         <span>Project Repository:</span>
-        <a href="https://github.com/your-username/your-repo" target="_blank">
+        <a href="https://github.com/rafaeru97/Mobile-Robot" target="_blank">
             <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Logo">
         </a>
     </div>

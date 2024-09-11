@@ -165,7 +165,7 @@ class AStarPathfinder:
         """Konwertuje współrzędne świata na współrzędne siatki z uwzględnieniem odbicia Y i offsetu."""
         x, y = world_coords
         x_grid = int(np.round(x))  # Offset X
-        y_grid = int(np.round(200 - y))  # Offset Y i odbicie (200 = 2 * 100)
+        y_grid = int(np.round(100 - y))  # Offset Y i odbicie (200 = 2 * 100)
         return (x_grid, y_grid)
 
     def grid_to_world(self, point):

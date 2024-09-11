@@ -256,7 +256,7 @@ class Mapper:
             grid_x = int((point[0] - offset_x) / resolution)
             grid_y = int((point[1] - offset_y) / resolution)
             if 0 <= grid_x < width and 0 <= grid_y < height:
-                map_grid[grid_y, grid_x] = True  # Odpowiednie ustawienie Y w stosunku do osi
+                map_grid[height - 1 - grid_y, grid_x] = True  # Odpowiednie ustawienie Y
 
         dilate_elem = np.ones((2 * dilation_radius + 1, 2 * dilation_radius + 1), dtype=bool)
         erode_elem = np.ones((2 * erosion_radius + 1, 2 * erosion_radius + 1), dtype=bool)

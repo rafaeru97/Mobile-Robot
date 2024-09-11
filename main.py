@@ -157,8 +157,8 @@ def get_coordinates(stdscr):
     stdscr.timeout(100)
 
     try:
-        x = int(x_str)
-        y = int(y_str)
+        x = int(y_str)
+        y = int(x_str)
     except ValueError:
         stdscr.addstr(5, 0, "Invalid input. Please enter integers.")
         stdscr.refresh()

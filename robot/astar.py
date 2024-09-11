@@ -164,16 +164,10 @@ class AStarPathfinder:
                 stdscr.refresh()
                 time.sleep(0.2)
 
-            # Move forward with tolerance for distance
-            remaining_distance = target_distance
-            while remaining_distance > position_tolerance:
-                move_distance = remaining_distance
-                stdscr.addstr(6, 0, f"move_distance: {move_distance}:.2f")
-                motor_controller.forward_with_encoders(move_distance * 0.01)
-                remaining_distance -= move_distance
-                current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
-                stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
-                stdscr.refresh()
+            motor_controller.forward_with_encoders(target_distance * 0.01)
+            current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
+            stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
+            stdscr.refresh()
 
             # Ensure that the robot reaches the exact target position
             final_distance = np.linalg.norm(np.array(target_position) - np.array(current_position))

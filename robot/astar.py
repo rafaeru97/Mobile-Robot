@@ -186,7 +186,7 @@ class AStarPathfinder:
         return angle, distance
 
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=5,
-                              position_tolerance=1.15):
+                              position_tolerance=1.15, final_position_tolerance=0.5):
         stdscr.clear()
         stdscr.addstr(0, 0, "Pathfinding...")
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
@@ -196,7 +196,7 @@ class AStarPathfinder:
         simplified_path = rdp(path, epsilon=8.0)
         smoothed_path = interpolate_path(simplified_path, max_step_size=20.0)
 
-        for target_position in smoothed_path:
+        for i, target_position in enumerate(smoothed_path):
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
             stdscr.addstr(3, 0, f'Target grid position: {target_position}')
             stdscr.addstr(4, 0, f'Calculated angle: {target_angle:.2f}, distance: {target_distance:.2f}')
@@ -216,15 +216,11 @@ class AStarPathfinder:
             stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
             stdscr.refresh()
 
-            final_distance = np.linalg.norm(np.array(target_position) - np.array(current_position))
-            if final_distance > position_tolerance:
-                stdscr.addstr(9, 0, f"Compensating for final distance: {final_distance:.2f} cm")
-                motor_controller.forward_with_encoders(final_distance * 0.01)
-                stdscr.refresh()
-                time.sleep(0.5)
-
-            stdscr.refresh()
-
-
-
-
+            # Jeśli to ostatni punkt w ścieżce, zastosuj mniejszą tolerancję
+            if i == len(smoothed_path) - 1:
+                final_distance = np.linalg.norm(np.array(target_position) - np.array(current_position))
+                if final_distance > final_position_tolerance:
+                    stdscr.addstr(9, 0, f"Compensating for final distance: {final_distance:.2f} cm")
+                    motor_controller.forward_with_encoders(final_distance * 0.01)
+                    stdscr.refresh()
+                    time.sleep(0.5)

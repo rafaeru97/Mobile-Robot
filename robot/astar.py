@@ -129,18 +129,28 @@ class AStarPathfinder:
             path.append(current)
         return path[::-1]
 
-    def visualize_path(self, path, map_grid, robot_position=(100, 100), filename="path_visualization.png"):
+    def visualize_path(self, path, map_grid, robot_position=(100, 100), filename="path_visualization.png", center_x=100,
+                       center_y=100):
+        """
+        Visualize the path on the map grid and optionally include the robot's position.
+        :param path: The list of points representing the path.
+        :param map_grid: The grid map array to overlay the path on.
+        :param robot_position: A tuple (x, y) representing the robot's position in grid coordinates.
+        :param filename: The name of the output image file.
+        :param center_x: X-coordinate of the center of the grid in visualization.
+        :param center_y: Y-coordinate of the center of the grid in visualization.
+        """
         plt.figure(figsize=(8, 8))
-
-        plt.imshow(map_grid, cmap='gray', origin='upper')  # Ustawienie 'lower' dla poprawnego umiejscowienia (0,0)
+        plt.imshow(map_grid, cmap='gray', origin='lower')  # Origin is 'lower' to match (0,0) at bottom-left
 
         if path:
             path = np.array(path)
+            path[:, 0] += center_x
+            path[:, 1] += center_y
             plt.plot(path[:, 0], path[:, 1], 'g-', lw=2, label='Path')
 
         robot_x, robot_y = robot_position
-        plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25,
-                 label='Current Position')  # Odwrócenie wartości y
+        plt.plot(robot_x + center_x, robot_y + center_y, marker="s", color="r", markersize=25, label='Current Position')
 
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')

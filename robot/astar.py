@@ -177,7 +177,6 @@ class AStarPathfinder:
             stdscr.addstr(3, 0, f'Target grid position: {target_position}')
             stdscr.addstr(4, 0, f'Calculated angle: {target_angle:.2f}, distance: {target_distance:.2f}')
 
-            target_distance_grid_units = target_distance
             current_angle = gyro.get_angle_z()
             angle_difference = (target_angle - current_angle + 360) % 360
             if abs(angle_difference) > angle_tolerance:
@@ -186,8 +185,7 @@ class AStarPathfinder:
                 stdscr.refresh()
                 time.sleep(1)
 
-            stdscr.addstr(6, 0, f'Moving forward segment distance (grid units): {target_distance_grid_units:.2f}')
-            motor_controller.forward_with_encoders(target_distance_grid_units * 0.01)
+            motor_controller.forward_with_encoders(target_distance * 0.01)
             current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
             stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
             stdscr.refresh()

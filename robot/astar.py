@@ -71,29 +71,38 @@ def rdp(points: List[Tuple[float, float]], epsilon: float) -> List[Tuple[float, 
     return rdp_rec(points, epsilon)
 
 class AStarPathfinder:
-    def __init__(self, map_grid):
+    def __init__(self, map_grid, resolution=1.0, offset_x=100, offset_y=100):
         self.map_grid = map_grid
+        self.resolution = resolution
+        self.offset_x = offset_x
+        self.offset_y = offset_y
         self.mapper = None
 
     def set_mapper(self, mapper):
         self.mapper = mapper
 
     def heuristic(self, a, b):
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])  # Odległość Manhattan
+        """Oblicza odległość Manhattan pomiędzy dwoma punktami na siatce."""
+        return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def astar(self, start, goal):
+        """Główna funkcja A* z uwzględnieniem odbicia Y i offsetu."""
+        # Przesuwanie współrzędnych startowych i docelowych według offsetu i skali
+        start_grid = self.world_to_grid(start)
+        goal_grid = self.world_to_grid(goal)
+
         # Kolejka priorytetowa
         open_list = []
-        heapq.heappush(open_list, (0, start))
+        heapq.heappush(open_list, (0, start_grid))
 
         came_from = {}
-        g_score = {start: 0}
-        f_score = {start: self.heuristic(start, goal)}
+        g_score = {start_grid: 0}
+        f_score = {start_grid: self.heuristic(start_grid, goal_grid)}
 
         while open_list:
             current = heapq.heappop(open_list)[1]
 
-            if current == goal:
+            if current == goal_grid:
                 return self.reconstruct_path(came_from, current)
 
             for neighbor in self.get_neighbors(current):
@@ -102,7 +111,7 @@ class AStarPathfinder:
                 if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
                     came_from[neighbor] = current
                     g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal)
+                    f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal_grid)
 
                     if neighbor not in dict(open_list):
                         heapq.heappush(open_list, (f_score[neighbor], neighbor))
@@ -110,24 +119,53 @@ class AStarPathfinder:
         return []  # Nie znaleziono ścieżki
 
     def get_neighbors(self, node):
+        """Znajduje sąsiadów danego węzła, uwzględniając ruch po skosie."""
         x, y = node
         neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1),
-                     (x + 1, y + 1), (x - 1, y - 1), (x + 1, y - 1), (x - 1, y + 1)]  # Ruchy również po skosie
+                     (x + 1, y + 1), (x - 1, y - 1), (x + 1, y - 1), (x - 1, y + 1)]  # Ruchy po skosie
         return [n for n in neighbors if self.is_valid(n)]
 
     def is_valid(self, node):
+        """Sprawdza, czy dany węzeł jest w granicach mapy i nie jest przeszkodą."""
         x, y = node
-        return 0 <= x < self.map_grid.shape[0] and 0 <= y < self.map_grid.shape[1] and self.map_grid[x, y] == 0
+        return 0 <= x < self.map_grid.shape[1] and 0 <= y < self.map_grid.shape[0] and self.map_grid[y, x] == 0
 
     def distance(self, a, b):
+        """Oblicza odległość Euklidesową pomiędzy dwoma punktami."""
         return np.linalg.norm(np.array(a) - np.array(b))
 
     def reconstruct_path(self, came_from, current):
+        """Odtwarza ścieżkę na podstawie odwiedzonych węzłów."""
         path = [current]
         while current in came_from:
             current = came_from[current]
             path.append(current)
-        return path[::-1]
+        return [self.grid_to_world(p) for p in path[::-1]]
+
+    def world_to_grid(self, point):
+        """Przekształca współrzędne świata na współrzędne siatki, uwzględniając offset i skalę."""
+        world_x, world_y = point
+        grid_x = int((world_x - self.offset_x) / self.resolution)
+        grid_y = int((world_y - self.offset_y) / self.resolution)
+
+        # Odbicie w osi Y (w stosunku do siatki)
+        grid_y = self.map_grid.shape[0] - 1 - grid_y
+
+        return grid_x, grid_y
+
+    def grid_to_world(self, point):
+        """Przekształca współrzędne siatki z powrotem na współrzędne świata."""
+        grid_x, grid_y = point
+
+        # Odbicie w osi Y
+        world_y = self.map_grid.shape[0] - 1 - grid_y
+        world_x = grid_x
+
+        # Zamiana siatki na współrzędne świata
+        world_x = world_x * self.resolution + self.offset_x
+        world_y = world_y * self.resolution + self.offset_y
+
+        return world_x, world_y
 
     def visualize_path(self, path, map_grid, robot_position=(100, 100), filename="path_visualization.png", center_x=100,
                        center_y=100):

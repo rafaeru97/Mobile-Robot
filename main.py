@@ -226,6 +226,7 @@ def main(stdscr):
                         path = pathfinder.astar(robot_position, cords)
                         pathfinder.visualize_path(path, map_grid, robot_position)
                         pathfinder.move_robot_along_path(stdscr, motor_controller, path, gyro)
+                        mapper.create_map()
                 elif key == ord('w'):
                     motor_controller.forward_with_encoders(0.1)
                 elif key == ord('e'):

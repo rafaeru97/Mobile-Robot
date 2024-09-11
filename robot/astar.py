@@ -142,6 +142,25 @@ class AStarPathfinder:
         smoothed_path.append(path[-1])
         return smoothed_path
 
+    def reduce_path_points(self, path, num_steps):
+        """
+        Reduce the number of points in the path to num_steps.
+        :param path: List of path points.
+        :param num_steps: Desired number of steps.
+        :return: Reduced list of path points.
+        """
+        if num_steps >= len(path):
+            return path
+
+        step = len(path) // num_steps
+        reduced_path = [path[i] for i in range(0, len(path), step)]
+
+        # Ensure the last point is included
+        if reduced_path[-1] != path[-1]:
+            reduced_path.append(path[-1])
+
+        return reduced_path
+
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, segment_length_cm=1,
                               angle_tolerance=10):
         stdscr.clear()
@@ -149,23 +168,25 @@ class AStarPathfinder:
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
         stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
 
+        # Reduce the number of points in the path to 8
         smoothed_path = self.create_smoothed_path(path, segment_length_cm)
-        stdscr.addstr(3, 0, f'Smoothed path value: {len(smoothed_path)}')
-        for target_position in smoothed_path:
+        reduced_path = self.reduce_path_points(smoothed_path, len(smoothed_path)/5)
+
+        for target_position in reduced_path:
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
-            stdscr.addstr(4, 0, f'Target grid position: {target_position}')
-            stdscr.addstr(5, 0, f'Calculated angle: {target_angle:.2f}, distance: {target_distance:.2f}')
+            stdscr.addstr(3, 0, f'Target grid position: {target_position}')
+            stdscr.addstr(4, 0, f'Calculated angle: {target_angle:.2f}, distance: {target_distance:.2f}')
 
             target_distance_grid_units = target_distance
             current_angle = gyro.get_angle_z()
             angle_difference = (target_angle - current_angle + 360) % 360
             if abs(angle_difference) > angle_tolerance:
-                stdscr.addstr(6, 0, f"Rotating to {target_angle:.2f}°")
+                stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}°")
                 motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
                 stdscr.refresh()
                 time.sleep(1)
 
-            stdscr.addstr(7, 0, f'Moving forward segment distance (grid units): {target_distance_grid_units:.2f}')
+            stdscr.addstr(6, 0, f'Moving forward segment distance (grid units): {target_distance_grid_units:.2f}')
             motor_controller.forward_with_encoders(target_distance_grid_units * 0.1)
             current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
             stdscr.addstr(8, 0, f"Updated grid position: {current_position}")

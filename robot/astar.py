@@ -130,33 +130,18 @@ class AStarPathfinder:
         return path[::-1]
 
     def visualize_path(self, path, map_grid, robot_position=(100, 100), filename="path_visualization.png"):
-        """
-        Visualize the path on the map grid and optionally include the robot's position, with the path offset by the robot position.
-        :param path: The list of points representing the path.
-        :param map_grid: The grid map array to overlay the path on.
-        :param robot_position: A tuple (x, y) representing the robot's position in grid coordinates.
-        :param filename: The name of the output image file.
-        """
-        # Stworzenie wykresu
         plt.figure(figsize=(8, 8))
 
-        # Wyświetlenie mapy siatki
-        plt.imshow(map_grid, cmap='gray', origin='upper')
+        plt.imshow(map_grid, cmap='gray', origin='lower')  # Ustawienie 'lower' dla poprawnego umiejscowienia (0,0)
 
-        # Ustawienie wartości odniesienia
-        ref_y = 100
-
-        # Rozpoczęcie i zakończenie ścieżki
         if path:
             path = np.array(path)
-            # path[:, 1] = 2 * ref_y - path[:, 1]  # Obrót wartości y
-            path = path[::-1]  # Odwrócenie kolejności punktów w ścieżce
-            plt.plot(path[:, 0], path[:, 1], 'r-', lw=2, label='Path')
+            path[:, 1] = -path[:, 1]  # Odwrócenie wartości y
+            plt.plot(path[:, 0], path[:, 1], 'g-', lw=2, label='Path')
 
-        # Dodanie pozycji robota jako kropki
         robot_x, robot_y = robot_position
-        # robot_y = 2 * ref_y - robot_y  # Obrót wartości y
-        plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')
+        plt.plot(robot_x, -robot_y, marker="s", color="r", markersize=25,
+                 label='Current Position')  # Odwrócenie wartości y
 
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')

@@ -235,56 +235,35 @@ class Mapper:
         plt.show()
 
     def generate_map_grid(self, resolution=1.0, dilation_radius=2, erosion_radius=5, min_width=200, min_height=200):
-        """
-        Generate a grid map from detected points with enhanced morphological operations to fill gaps.
-        :param resolution: The resolution of the grid in the same units as the detected points.
-        :param dilation_radius: The radius of the dilation operation.
-        :param erosion_radius: The radius of the erosion operation.
-        :param min_width: Minimum width of the grid (in cells).
-        :param min_height: Minimum height of the grid (in cells).
-        :return: A numpy array representing the grid map.
-        """
         if len(self.detected_points) == 0:
-            # Return a grid of minimum size if no points are detected
             return np.zeros((min_height, min_width), dtype=bool)
 
-        # Convert detected points to a numpy array
         detected_array = np.array(self.detected_points)
         points = detected_array[:, :2]
 
-        # Determine the bounds of the grid in map coordinates
         min_x, max_x = points[:, 0].min(), points[:, 0].max()
         min_y, max_y = points[:, 1].min(), points[:, 1].max()
 
-        # Calculate center of the map
-        center_x = (min_x + max_x) / 2
-        center_y = (min_y + max_y) / 2
-
-        # Determine grid dimensions and offset from center
         width = max(min_width, int(np.ceil((max_x - min_x) / resolution)))
         height = max(min_height, int(np.ceil((max_y - min_y) / resolution)))
-        offset_x = center_x - (width / 2) * resolution  # Offset X
-        offset_y = center_y - (height / 2) * resolution  # Offset Y
 
-        # Create an empty grid
+        offset_x = min_x
+        offset_y = min_y
+
         map_grid = np.zeros((height, width), dtype=bool)
 
-        # Fill the grid with obstacles
         for point in points:
-            grid_x = int((point[0] - offset_x) / resolution)  # Offset X
-            grid_y = int((point[1] - offset_y) / resolution)  # Offset Y
+            grid_x = int((point[0] - offset_x) / resolution)
+            grid_y = int((point[1] - offset_y) / resolution)
             if 0 <= grid_x < width and 0 <= grid_y < height:
-                map_grid[height - 1 - grid_y, grid_x] = True  # Reflection relative to the Y-axis
+                map_grid[grid_y, grid_x] = True  # Odpowiednie ustawienie Y w stosunku do osi
 
-        # Create structuring elements for dilation and erosion
         dilate_elem = np.ones((2 * dilation_radius + 1, 2 * dilation_radius + 1), dtype=bool)
         erode_elem = np.ones((2 * erosion_radius + 1, 2 * erosion_radius + 1), dtype=bool)
 
-        # Apply multiple dilation to fill larger gaps
-        for _ in range(3):  # Apply dilation 3 times
+        for _ in range(3):
             map_grid = binary_dilation(map_grid, structure=dilate_elem).astype(map_grid.dtype)
 
-        # Apply erosion to remove small noise
         map_grid = binary_erosion(map_grid, structure=erode_elem).astype(map_grid.dtype)
 
         return map_grid

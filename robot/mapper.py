@@ -234,7 +234,7 @@ class Mapper:
         plt.savefig(filename)
         plt.show()
 
-    def generate_map_grid_for_astar(self, resolution=1.0, dilation_radius=2, erosion_radius=2, min_width=200,
+    def generate_map_grid_for_astar(self, resolution=1.0, dilation_radius=2, erosion_radius=1, min_width=200,
                                     min_height=200,
                                     center_x=100, center_y=100):
         """

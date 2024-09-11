@@ -148,35 +148,34 @@ class AStarPathfinder:
 
         # Convert segment_length_cm to units of the grid (kratki)
         segment_length_grid_units = segment_length_cm / 10  # 1 kratka = 10 cm, więc segment_length_cm to liczba kratek
-        stdscr.addstr(4, 0, f'Starting at grid position: {current_position}')
 
         for target_position in path:  # Move towards each point in the path
             # Calculate angle and distance to the next point
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
-            stdscr.addstr(6, 0, f'Target grid position: {target_position}')
-            stdscr.addstr(8, 0, f'Calculated angle: {target_angle}, distance: {target_distance}')
+            stdscr.addstr(3, 0, f'Target grid position: {target_position}')
+            stdscr.addstr(4, 0, f'Calculated angle: {target_angle}, distance: {target_distance}')
 
             # Przelicz dystans z metrów na jednostki siatki
             target_distance_grid_units = target_distance / 10  # Dystans w siatce (kratki)
 
             # Rotate the robot to face the target angle
-            stdscr.addstr(10, 0, f"Rotating to {target_angle:.2f}°")
+            stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}°")
             motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
             stdscr.refresh()
 
             # Move forward the calculated distance in segments, ale w jednostkach siatki
             while target_distance_grid_units > 0:
                 segment_distance_grid_units = min(segment_length_grid_units, target_distance_grid_units)
-                stdscr.addstr(12, 0, f'Moving forward segment distance (grid units): {segment_distance_grid_units}')
+                stdscr.addstr(6, 0, f'Moving forward segment distance (grid units): {segment_distance_grid_units}')
                 motor_controller.forward_with_encoders(
                     segment_distance_grid_units * 0.1)  # Przesuń o segment_length_cm na mapie
                 target_distance_grid_units -= segment_distance_grid_units
-                stdscr.addstr(14, 0, f'Remaining distance to move (grid units): {target_distance_grid_units}')
+                stdscr.addstr(7, 0, f'Remaining distance to move (grid units): {target_distance_grid_units}')
                 stdscr.refresh()
 
             # Update current grid position
             current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
-            stdscr.addstr(16, 0, f"Updated grid position: {current_position}")
+            stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
             stdscr.refresh()
 
             # Small delay to simulate real robot movement

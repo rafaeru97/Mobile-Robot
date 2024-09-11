@@ -202,9 +202,9 @@ class AStarPathfinder:
         robot_y = 2 * 100 - robot_y
         plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')
 
-        plt.xlabel('X Coordinate')
-        plt.ylabel('Y Coordinate')
-        plt.title('Path Visualization')
+        plt.xlabel('X position')
+        plt.ylabel('Y position')
+        plt.title('A* Path Visualization')
         plt.legend()
         plt.grid(True)
         plt.savefig(filename)

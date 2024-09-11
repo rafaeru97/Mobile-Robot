@@ -226,9 +226,9 @@ class Mapper:
         if boundary.size > 0:
             plt.plot(boundary[:, 0], boundary[:, 1], 'r--', lw=2, label='Alpha Shape')
 
-        plt.xlabel('X Coordinate')
-        plt.ylabel('Y Coordinate')
-        plt.title('Map with Alpha Shape and Interpolated Points')
+        plt.xlabel('X position (cm)')
+        plt.ylabel('Y position (cm)')
+        plt.title('Map with Alpha Shape')
         plt.legend()
         plt.grid()
         plt.savefig(filename)

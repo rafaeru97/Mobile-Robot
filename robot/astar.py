@@ -129,7 +129,7 @@ class AStarPathfinder:
         return angle, distance
 
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=10,
-                              position_tolerance=1.1):
+                              position_tolerance=1.5):
         """
         Move the robot along the specified path by navigating to each target position.
         :param stdscr: The curses screen object for updating the terminal interface.

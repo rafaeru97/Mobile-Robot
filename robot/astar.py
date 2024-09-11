@@ -149,6 +149,7 @@ class AStarPathfinder:
             plt.plot(path[:, 0], path[:, 1], 'y-', lw=2, label='Path')
 
         robot_x, robot_y = robot_position
+        robot_y = 2 * 100 - robot_y
         plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')
 
         plt.xlabel('X Coordinate')

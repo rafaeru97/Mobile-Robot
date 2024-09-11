@@ -104,18 +104,24 @@ class AStarPathfinder:
         logging.info(f"start: {start}")
         logging.info(f"goal: {goal}")
 
+        start_grid = self.world_to_grid(start)
+        goal_grid = self.world_to_grid(goal)
+
+        logging.info(f"start_grid: {start_grid}")
+        logging.info(f"goal_grid: {goal_grid}")
+
         # Kolejka priorytetowa
         open_list = []
-        heapq.heappush(open_list, (0, start))
+        heapq.heappush(open_list, (0, start_grid))
 
         came_from = {}
-        g_score = {start: 0}
-        f_score = {goal: self.heuristic(start, goal)}
+        g_score = {start_grid: 0}
+        f_score = {start_grid: self.heuristic(start_grid, goal_grid)}
 
         while open_list:
             current = heapq.heappop(open_list)[1]
 
-            if current == goal:
+            if current == goal_grid:
                 return self.reconstruct_path(came_from, current)
 
             for neighbor in self.get_neighbors(current):
@@ -124,7 +130,7 @@ class AStarPathfinder:
                 if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
                     came_from[neighbor] = current
                     g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal)
+                    f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal_grid)
 
                     if neighbor not in dict(open_list):
                         heapq.heappush(open_list, (f_score[neighbor], neighbor))

@@ -155,16 +155,12 @@ class AStarPathfinder:
             path.append(current)
         return [self.grid_to_world(p) for p in path[::-1]]
 
-    def world_to_grid(self, point):
-        """Przekształca współrzędne świata na współrzędne siatki, uwzględniając offset i skalę."""
-        world_x, world_y = point
-        grid_x = int((world_x - self.offset_x) / self.resolution)
-        grid_y = int((world_y - self.offset_y) / self.resolution)
-
-        # Odbicie w osi Y (w stosunku do siatki)
-        grid_y = self.map_grid.shape[0] - 1 - grid_y
-
-        return grid_x, grid_y
+    def world_to_grid(self, world_coords):
+        """Konwertuje współrzędne świata na współrzędne siatki z uwzględnieniem odbicia Y i offsetu."""
+        x, y = world_coords
+        x_grid = int(np.round(x - 100))  # Offset X
+        y_grid = int(np.round(200 - y))  # Offset Y i odbicie (200 = 2 * 100)
+        return (x_grid, y_grid)
 
     def grid_to_world(self, point):
         """Przekształca współrzędne siatki z powrotem na współrzędne świata."""

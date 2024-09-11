@@ -156,7 +156,7 @@ class AStarPathfinder:
         # Dodanie pozycji robota jako kropki
         robot_x, robot_y = robot_position
         # robot_y = 2 * ref_y - robot_y  # Obrót wartości y
-        plt.plot(robot_x, robot_y, 'bo', markersize=10, label='Robot Position')
+        plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')
 
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')

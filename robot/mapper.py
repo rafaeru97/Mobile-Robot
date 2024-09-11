@@ -125,7 +125,7 @@ class Mapper:
 
         plt.figure(figsize=(8, 8))
         plt.plot(x_positions, y_positions, marker="o", color="b", markersize=3)
-        plt.plot(x_positions[-1], y_positions[-1], marker="o", color="r", markersize=10, label="Current Position")
+        plt.plot(x_positions[-1], y_positions[-1], marker="s", color="r", markersize=25, label="Current Position")
         plt.arrow(x_positions[-1], y_positions[-1], dx_arrow, dy_arrow, head_width=2, head_length=2, fc='k', ec='k',
                   label="Orientation")
 

@@ -101,8 +101,12 @@ class AStarPathfinder:
 
     def astar(self, start, goal):
         """Główna funkcja A* z uwzględnieniem odbicia Y i offsetu."""
+        logging.info(f"start: {start}")
+        logging.info(f"goal: {goal}")
         start_grid = self.world_to_grid(start)
         goal_grid = self.world_to_grid(goal)
+        logging.info(f"start_grid: {start_grid}")
+        logging.info(f"goal_grid: {goal_grid}")
 
         # Kolejka priorytetowa
         open_list = []

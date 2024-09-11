@@ -263,18 +263,18 @@ class Mapper:
         # Determine grid dimensions and offset from center
         width = max(min_width, int(np.ceil((max_x - min_x) / resolution)))
         height = max(min_height, int(np.ceil((max_y - min_y) / resolution)))
-        offset_x = center_x - (width / 2) * resolution  # Dodanie offsetu X
-        offset_y = center_y - (height / 2) * resolution  # Dodanie offsetu Y
+        offset_x = center_x - (width / 2) * resolution  # Offset X
+        offset_y = center_y - (height / 2) * resolution  # Offset Y
 
         # Create an empty grid
         map_grid = np.zeros((height, width), dtype=bool)
 
         # Fill the grid with obstacles
         for point in points:
-            grid_x = int((point[0] - offset_x) / resolution)  # Dodanie offset_x
-            grid_y = int((point[1] - offset_y) / resolution)  # Dodanie offset_y
+            grid_x = int((point[0] - offset_x) / resolution)  # Offset X
+            grid_y = int((point[1] - offset_y) / resolution)  # Offset Y
             if 0 <= grid_x < width and 0 <= grid_y < height:
-                map_grid[height - 1 - grid_y, grid_x] = True  # Refleksja względem osi x
+                map_grid[height - 1 - grid_y, grid_x] = True  # Reflection relative to the Y-axis
 
         # Create structuring elements for dilation and erosion
         dilate_elem = np.ones((2 * dilation_radius + 1, 2 * dilation_radius + 1), dtype=bool)
@@ -286,12 +286,6 @@ class Mapper:
 
         # Apply erosion to remove small noise
         map_grid = binary_erosion(map_grid, structure=erode_elem).astype(map_grid.dtype)
-
-        # Plot the grid map for visualization
-        plt.imshow(map_grid, cmap='gray')
-        plt.title('Generated Map Grid')
-        plt.savefig("map_grid.png")
-        plt.show()
 
         return map_grid
 

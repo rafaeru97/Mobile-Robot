@@ -204,8 +204,8 @@ class AStarPathfinder:
             angle_difference = (target_angle - current_angle + 360) % 360
             if abs(angle_difference) > angle_tolerance:
                 stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}°")
-                motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
                 stdscr.refresh()
+                motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
                 time.sleep(0.5)
 
             stdscr.addstr(6, 0, f"Moving forward {target_distance:.2f} cm")

@@ -219,8 +219,8 @@ class AStarPathfinder:
             target_position = tuple(
                 map(int, target_position))  # Upewnij się, że target_position to tuple z liczbami całkowitymi
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
-            stdscr.addstr(3, 0, f'Target grid position: {target_position}')
-            stdscr.addstr(4, 0, f'Calculated angle: {target_angle:.2f}, distance: {target_distance:.2f}')
+            stdscr.addstr(3, 0, f'Previous grid position: {current_position}')
+            stdscr.addstr(4, 0, f'Target grid position: {target_position}')
 
             current_angle = gyro.get_angle_z()
             angle_difference = (target_angle - current_angle + 360) % 360

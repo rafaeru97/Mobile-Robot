@@ -304,6 +304,7 @@ class MotorController:
 
                 # Sprawdzenie, czy osiągnięto kąt docelowy
                 if abs(angle_difference) < 1:
+                    self.mapper.update_position()
                     break
 
                 # Decyzja o kierunku obrotu

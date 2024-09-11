@@ -141,7 +141,7 @@ class AStarPathfinder:
         plt.figure(figsize=(8, 8))
 
         # Wyświetlenie mapy siatki
-        plt.imshow(map_grid, cmap='gray', origin='upper')
+        plt.imshow(map_grid, cmap='gray', origin='lower')
         plt.gca().invert_yaxis()
         # Rozpoczęcie i zakończenie ścieżki
         if path:

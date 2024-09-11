@@ -144,6 +144,7 @@ class AStarPathfinder:
         """
         current_position = self.mapper.get_pos()  # Get the current position from the mapper
         logging.debug(f'Starting at position: {current_position}')
+        print(f"Robot starting at position: {current_position}")
 
         # Convert segment_length_cm to meters
         segment_length_m = segment_length_cm * 0.01
@@ -154,22 +155,29 @@ class AStarPathfinder:
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
             logging.debug(f'Target position: {target_position}')
             logging.debug(f'Calculated angle: {target_angle}, distance: {target_distance}')
+            print(
+                f"Next target position: {target_position}, Angle: {target_angle:.2f}°, Distance: {target_distance:.2f} meters")
 
             # Rotate the robot to face the target angle
+            print(f"Rotating to {target_angle:.2f}°")
             motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
 
             # Move forward the calculated distance in segments
             while target_distance > 0:
                 segment_distance = min(segment_length_m, target_distance)
                 logging.debug(f'Moving forward segment distance: {segment_distance}')
+                print(f"Moving forward: {segment_distance:.2f} meters")
                 motor_controller.forward_with_encoders(segment_distance)
                 target_distance -= segment_distance
                 logging.debug(f'Remaining distance to move: {target_distance}')
+                print(f"Remaining distance: {target_distance:.2f} meters")
 
             # Update current position
             current_position = self.mapper.get_pos()
             logging.debug(f'Updated current position: {current_position}')
+            print(f"Updated current position: {current_position}")
 
             # Small delay to simulate real robot movement
             time.sleep(0.5)
+
 

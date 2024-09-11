@@ -142,7 +142,7 @@ class AStarPathfinder:
 
         # Wyświetlenie mapy siatki
         plt.imshow(map_grid, cmap='gray', origin='upper')
-        plt.ylim(200, 0)
+        plt.ylim(0, 200)
 
         # Ustawienie wartości odniesienia
         ref_y = 100

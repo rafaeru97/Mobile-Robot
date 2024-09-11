@@ -174,7 +174,6 @@ class AStarPathfinder:
                 current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
                 stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
                 stdscr.refresh()
-                time.sleep(0.5)
 
             # Ensure that the robot reaches the exact target position
             final_distance = np.linalg.norm(np.array(target_position) - np.array(current_position))

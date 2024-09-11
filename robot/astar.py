@@ -193,8 +193,8 @@ class AStarPathfinder:
         stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
 
         # Wygładź i interpoluj ścieżkę
-        simplified_path = rdp(path, epsilon=5.0)
-        smoothed_path = interpolate_path(simplified_path, max_step_size=10.0)
+        simplified_path = rdp(path, epsilon=2.5)
+        smoothed_path = interpolate_path(simplified_path, max_step_size=5.0)
 
         for target_position in smoothed_path:
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)

@@ -303,7 +303,7 @@ class MotorController:
                 angle_difference = (target_angle - current_angle + 180) % 360 - 180
 
                 # Sprawdzenie, czy osiągnięto kąt docelowy
-                if abs(angle_difference) < 1:
+                if abs(angle_difference) <= 1:
                     self.mapper.update_position()
                     break
 

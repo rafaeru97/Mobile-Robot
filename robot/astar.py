@@ -186,7 +186,7 @@ class AStarPathfinder:
         return angle, distance
 
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=5,
-                              position_tolerance=1.25):
+                              position_tolerance=1.15):
         stdscr.clear()
         stdscr.addstr(0, 0, "Pathfinding...")
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)

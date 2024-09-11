@@ -311,6 +311,8 @@ class Mapper:
         :param resolution: The resolution of the grid in the same units as the robot position.
         :return: A tuple (grid_x, grid_y) representing the robot's position in grid coordinates.
         """
+        self.update_position()
+
         # Check the dimensions of the map grid
         height, width = map_grid.shape
 

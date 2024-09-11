@@ -234,7 +234,7 @@ class Mapper:
         plt.savefig(filename)
         plt.show()
 
-    def generate_map_grid(self, resolution=1.0, dilation_radius=2, erosion_radius=5, min_width=200, min_height=200):
+    def generate_map_grid(self, resolution=1.0, dilation_radius=1, erosion_radius=8, min_width=200, min_height=200):
         """
         Generate a grid map from detected points with enhanced morphological operations to fill gaps.
         :param resolution: The resolution of the grid in the same units as the detected points.

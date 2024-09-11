@@ -92,12 +92,6 @@ class AStarPathfinder:
         # Rozpoczęcie i zakończenie ścieżki
         if path:
             path = np.array(path)
-            robot_x, robot_y = robot_position
-
-            # Odjęcie współrzędnych robota od ścieżki, aby zcentrować na pozycji robota
-            path[:, 0] -= robot_x
-            path[:, 1] -= robot_y
-
             plt.plot(path[:, 1], path[:, 0], 'r-', lw=2, label='Path')
 
         # Dodanie pozycji robota jako kropki

@@ -3,6 +3,7 @@ import heapq
 import matplotlib.pyplot as plt
 import time
 from typing import List, Tuple
+from scipy.ndimage import binary_dilation
 
 import logging
 
@@ -69,10 +70,17 @@ def rdp(points: List[Tuple[float, float]], epsilon: float) -> List[Tuple[float, 
 
     return rdp_rec(points, epsilon)
 
+def dilate_obstacles(map_grid, robot_size):
+    # Rozmiar robota w cm, w przypadku 25 cm, używamy dylatacji o 12 cm (6 pikseli)
+    dilation_size = robot_size // 2  # Dylatacja w pikselach
+    structure = np.ones((dilation_size * 2 + 1, dilation_size * 2 + 1), dtype=bool)
+    dilated_map = binary_dilation(map_grid.astype(bool), structure=structure).astype(int)
+    return dilated_map
+
 
 class AStarPathfinder:
     def __init__(self, map_grid):
-        self.map_grid = map_grid  # map_grid to dwuwymiarowa tablica, gdzie 1 oznacza przeszkodę, a 0 wolne miejsce
+        self.map_grid = dilate_obstacles(map_grid, 25)
         self.mapper = None
 
     def set_mapper(self, mapper):
@@ -112,34 +120,12 @@ class AStarPathfinder:
 
     def get_neighbors(self, node):
         x, y = node
-        neighbors = []
-        robot_size = 6  # Rozmiar robota w cm
-        buffer = robot_size // 2
-
-        for i in range(-buffer, buffer + 1):
-            for j in range(-buffer, buffer + 1):
-                if i == 0 and j == 0:
-                    continue  # Pomijamy obecny węzeł
-
-                nx, ny = x + i, y + j
-                if self.is_valid((nx, ny)):
-                    neighbors.append((nx, ny))
-
-        return neighbors
+        neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]  # Ruchy w 4 kierunkach
+        return [n for n in neighbors if self.is_valid(n)]
 
     def is_valid(self, node):
         x, y = node
-        robot_size = 6  # Rozmiar robota w cm
-        buffer = robot_size // 2  # Bufor wokół robota, aby upewnić się, że jest wystarczająco dużo miejsca
-
-        # Sprawdź, czy wszystkie punkty w obszarze robota są wolne
-        for i in range(-buffer, buffer + 1):
-            for j in range(-buffer, buffer + 1):
-                nx, ny = x + i, y + j
-                if not (0 <= nx < self.map_grid.shape[0] and 0 <= ny < self.map_grid.shape[1]) or self.map_grid[
-                    nx, ny] != 0:
-                    return False
-        return True
+        return 0 <= x < self.map_grid.shape[0] and 0 <= y < self.map_grid.shape[1] and self.map_grid[x, y] == 0
 
     def distance(self, a, b):
         return np.linalg.norm(np.array(a) - np.array(b))

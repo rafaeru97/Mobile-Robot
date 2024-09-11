@@ -19,21 +19,22 @@
             display: flex;
             justify-content: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         .map-frame {
-            border: 5px solid #333; /* Ciemna ramka */
+            border: 3px solid #333; /* Ciemna ramka */
             border-radius: 10px; /* Zaokrąglone rogi */
-            padding: 10px; /* Odstęp wewnętrzny */
+            padding: 5px; /* Odstęp wewnętrzny */
             background-color: #2e2e2e; /* Ciemniejszy kolor tła dla map */
-            box-shadow: 0 0 10px rgba(0,0,0,0.5); /* Cień dla lepszego efektu */
+            box-shadow: 0 0 5px rgba(0,0,0,0.5); /* Cień dla lepszego efektu */
+            display: none; /* Domyślnie ukryte */
+        }
+        .map-frame.active {
+            display: block; /* Pokazanie aktywnej mapy */
         }
         .map-container img {
             max-width: 100%; /* Dopasowanie szerokości do kontenera */
             height: auto;
-            display: none; /* Domyślnie ukryte */
-        }
-        .map-container img.active {
-            display: block; /* Pokazanie aktywnej mapy */
         }
         .button-container {
             margin: 20px;
@@ -71,13 +72,13 @@
         </div>
     </div>
     <div class="map-container">
-        <div class="map-frame">
-            <img id="map1" src="robot_map.png" alt="Robot Map" class="active">
+        <div id="map-frame1" class="map-frame">
+            <img id="map1" src="robot_map.png" alt="Robot Map">
         </div>
-        <div class="map-frame">
+        <div id="map-frame2" class="map-frame">
             <img id="map2" src="output_map.png" alt="Output Map">
         </div>
-        <div class="map-frame">
+        <div id="map-frame3" class="map-frame">
             <img id="map3" src="path_visualization.png" alt="Path Visualization">
         </div>
     </div>
@@ -86,19 +87,19 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        const maps = ['map1', 'map2', 'map3'];
+        const mapFrames = ['map-frame1', 'map-frame2', 'map-frame3'];
         let currentMapIndex = 0;
 
         function updateMapVisibility() {
-            maps.forEach((mapId, index) => {
-                const mapElement = document.getElementById(mapId);
+            mapFrames.forEach((frameId, index) => {
+                const frameElement = document.getElementById(frameId);
                 if (index === currentMapIndex) {
-                    mapElement.classList.add('active');
+                    frameElement.classList.add('active');
                 } else {
-                    mapElement.classList.remove('active');
+                    frameElement.classList.remove('active');
                 }
             });
-            console.log(`Showing map: ${maps[currentMapIndex]}`); // Debugging log
+            console.log(`Showing map: ${mapFrames[currentMapIndex]}`); // Debugging log
         }
 
         function showMap(index) {
@@ -107,10 +108,11 @@
         }
 
         function refreshImages() {
-            maps.forEach((mapId) => {
-                const mapElement = document.getElementById(mapId);
-                const src = mapElement.src.split('?')[0]; // Remove any existing query string
-                mapElement.src = `${src}?${new Date().getTime()}`; // Add a timestamp to avoid caching
+            mapFrames.forEach((frameId) => {
+                const mapFrameElement = document.getElementById(frameId);
+                const imgElement = mapFrameElement.querySelector('img');
+                const src = imgElement.src.split('?')[0]; // Remove any existing query string
+                imgElement.src = `${src}?${new Date().getTime()}`; // Add a timestamp to avoid caching
             });
         }
 

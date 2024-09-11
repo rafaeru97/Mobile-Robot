@@ -155,7 +155,7 @@ class AStarPathfinder:
             stdscr.addstr(3, 0, f'Target grid position: {target_position}')
             stdscr.addstr(4, 0, f'Calculated angle: {target_angle}, distance: {target_distance}')
 
-            target_distance_grid_units = target_distance / 10
+            target_distance_grid_units = target_distance
             current_angle = gyro.get_angle_z()
             angle_difference = (target_angle - current_angle + 360) % 360
             if angle_difference > 180:

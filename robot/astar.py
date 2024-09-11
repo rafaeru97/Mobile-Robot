@@ -128,30 +128,24 @@ class AStarPathfinder:
 
         return angle, distance
 
-    def create_smoothed_path(self, path, segment_length_cm=100000):
-        smoothed_path = []
-        for i in range(len(path) - 1):
-            start = np.array(path[i])
-            end = np.array(path[i + 1])
-            segment_distance = np.linalg.norm(end - start)
-            num_segments = int(np.ceil(segment_distance / segment_length_cm))
-            for j in range(num_segments):
-                ratio = j / num_segments
-                new_point = start + ratio * (end - start)
-                smoothed_path.append(tuple(new_point))
-        smoothed_path.append(path[-1])
-        return smoothed_path
-
-    def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, segment_length_cm=100000,
-                              angle_tolerance=10, position_tolerance=1.1):
+    def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=10,
+                              position_tolerance=1.1):
+        """
+        Move the robot along the specified path by navigating to each target position.
+        :param stdscr: The curses screen object for updating the terminal interface.
+        :param motor_controller: The motor controller for moving the robot.
+        :param path: List of points representing the path.
+        :param gyro: Gyroscope object for angle measurement.
+        :param resolution: The resolution for grid position retrieval.
+        :param angle_tolerance: The tolerance for angle adjustment.
+        :param position_tolerance: The tolerance for position accuracy.
+        """
         stdscr.clear()
         stdscr.addstr(0, 0, "Pathfinding...")
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
         stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
 
-        smoothed_path = self.create_smoothed_path(path, segment_length_cm)
-
-        for target_position in smoothed_path:
+        for target_position in path:
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
             stdscr.addstr(3, 0, f'Target grid position: {target_position}')
             stdscr.addstr(4, 0, f'Calculated angle: {target_angle:.2f}, distance: {target_distance:.2f}')
@@ -177,4 +171,5 @@ class AStarPathfinder:
                 current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
                 stdscr.refresh()
                 time.sleep(0.5)
+
 

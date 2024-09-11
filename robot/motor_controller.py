@@ -313,8 +313,6 @@ class MotorController:
                 else:
                     self.turn_left(speed)
 
-                time.sleep(0.02)
-
         finally:
             self.stop()
 

@@ -151,6 +151,7 @@ class AStarPathfinder:
         if path:
             path = np.array(path)
             path[:, 1] = 2 * ref_y - path[:, 1]  # Obrót wartości y
+            path = path[::-1]  # Odwrócenie kolejności punktów w ścieżce
             plt.plot(path[:, 0], path[:, 1], 'r-', lw=2, label='Path')
 
         # Dodanie pozycji robota jako kropki

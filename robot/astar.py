@@ -128,7 +128,7 @@ class AStarPathfinder:
 
         return angle, distance
 
-    def create_smoothed_path(self, path, segment_length_cm=1000):
+    def create_smoothed_path(self, path, segment_length_cm=100000):
         smoothed_path = []
         for i in range(len(path) - 1):
             start = np.array(path[i])
@@ -142,7 +142,7 @@ class AStarPathfinder:
         smoothed_path.append(path[-1])
         return smoothed_path
 
-    def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, segment_length_cm=1000,
+    def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, segment_length_cm=100000,
                               angle_tolerance=10, position_tolerance=1.1):
         stdscr.clear()
         stdscr.addstr(0, 0, "Pathfinding...")

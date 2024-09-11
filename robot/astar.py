@@ -113,7 +113,7 @@ class AStarPathfinder:
     def get_neighbors(self, node):
         x, y = node
         neighbors = []
-        robot_size = 25  # Rozmiar robota w cm
+        robot_size = 6  # Rozmiar robota w cm
         buffer = robot_size // 2
 
         for i in range(-buffer, buffer + 1):

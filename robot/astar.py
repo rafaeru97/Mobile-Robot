@@ -113,7 +113,7 @@ class AStarPathfinder:
     def get_neighbors(self, node):
         x, y = node
         neighbors = []
-        robot_size = 25  # Rozmiar robota w cm
+        robot_size = 6  # Rozmiar robota w cm
         buffer = robot_size // 2
 
         for i in range(-buffer, buffer + 1):
@@ -129,7 +129,7 @@ class AStarPathfinder:
 
     def is_valid(self, node):
         x, y = node
-        robot_size = 25  # Rozmiar robota w cm
+        robot_size = 6  # Rozmiar robota w cm
         buffer = robot_size // 2  # Bufor wokół robota, aby upewnić się, że jest wystarczająco dużo miejsca
 
         # Sprawdź, czy wszystkie punkty w obszarze robota są wolne

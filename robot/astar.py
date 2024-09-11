@@ -136,7 +136,6 @@ class AStarPathfinder:
 
         if path:
             path = np.array(path)
-            path[:, 1] = -path[:, 1]  # Odwrócenie wartości y
             plt.plot(path[:, 0], path[:, 1], 'g-', lw=2, label='Path')
 
         robot_x, robot_y = robot_position

@@ -150,15 +150,23 @@ class AStarPathfinder:
             stdscr.addstr(3, 0, f'Target grid position: {target_position}')
             stdscr.addstr(4, 0, f'Calculated angle: {target_angle:.2f}, distance: {target_distance:.2f}')
 
+            # Get the current angle from the gyroscope
             current_angle = gyro.get_angle_z()
+
+            # Calculate the angle difference and determine the shortest rotation direction
             angle_difference = (target_angle - current_angle + 360) % 360
             if abs(angle_difference) > angle_tolerance:
+                # Adjust the angle to the target angle
                 stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}°")
                 motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
                 stdscr.refresh()
-                time.sleep(0.2)
+                time.sleep(0.5)  # Allow some time for the rotation to complete
 
+            # Move forward to the target position
+            stdscr.addstr(6, 0, f"Moving forward {target_distance:.2f} cm")
             motor_controller.forward_with_encoders(target_distance * 0.01)
+
+            # Update the current position
             current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
             stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
             stdscr.refresh()
@@ -167,9 +175,12 @@ class AStarPathfinder:
             final_distance = np.linalg.norm(np.array(target_position) - np.array(current_position))
             if final_distance > position_tolerance:
                 # Compensate for the final distance
+                stdscr.addstr(9, 0, f"Compensating for final distance: {final_distance:.2f} cm")
                 motor_controller.forward_with_encoders(final_distance * 0.01)
-                current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
                 stdscr.refresh()
-                time.sleep(0.5)
+                time.sleep(0.5)  # Allow some time for the compensation movement
+
+            stdscr.refresh()
+
 
 

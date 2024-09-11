@@ -170,7 +170,7 @@ class AStarPathfinder:
 
         # Reduce the number of points in the path to 8
         smoothed_path = self.create_smoothed_path(path, segment_length_cm)
-        reduced_path = self.reduce_path_points(smoothed_path, len(smoothed_path)/5)
+        reduced_path = self.reduce_path_points(smoothed_path, int(round(len(smoothed_path)/5)))
 
         for target_position in reduced_path:
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)

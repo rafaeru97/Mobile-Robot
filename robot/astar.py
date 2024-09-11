@@ -75,7 +75,7 @@ class AStarPathfinder:
             path.append(current)
         return path[::-1]
 
-    def visualize_path(self, path, map_grid, robot_position=None, filename="path_visualization.png"):
+    def visualize_path(self, path, map_grid, robot_position=(100, 100), filename="path_visualization.png"):
         """
         Visualize the path on the map grid and optionally include the robot's position, with the path offset by the robot position.
         :param path: The list of points representing the path.
@@ -83,25 +83,28 @@ class AStarPathfinder:
         :param robot_position: A tuple (x, y) representing the robot's position in grid coordinates.
         :param filename: The name of the output image file.
         """
+        # Stworzenie wykresu
         plt.figure(figsize=(8, 8))
 
         # Wyświetlenie mapy siatki
         plt.imshow(map_grid, cmap='gray', origin='lower')
 
+        # Rozpoczęcie i zakończenie ścieżki
         if path:
             path = np.array(path)
+            robot_x, robot_y = robot_position
 
-            if robot_position:
-                robot_x, robot_y = robot_position
+            # Odjęcie współrzędnych robota od ścieżki, aby zcentrować na pozycji robota
+            path[:, 0] -= robot_x
+            path[:, 1] -= robot_y
 
-                # Odjęcie pozycji robota, aby centrować ścieżkę na pozycji robota
-                path[:, 0] -= robot_y
-                path[:, 1] -= robot_x
+            plt.plot(path[:, 1], path[:, 0], 'r-', lw=2, label='Path')
 
-                plt.plot(path[:, 1], path[:, 0], 'r-', lw=2, label='Path')
-
-                # Dodanie pozycji robota jako kropki
-                plt.plot(0, 0, 'bo', markersize=10, label='Robot Position')
+        # Dodanie pozycji robota jako kropki
+        robot_x, robot_y = robot_position
+        # Przesunięcie pozycji robota na ścieżce
+        plt.plot(0, 0, 'bo', markersize=10,
+                 label='Robot Position')  # (0,0) bo ścieżka jest przesunięta o robot_position
 
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')

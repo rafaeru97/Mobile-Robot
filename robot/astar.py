@@ -142,7 +142,7 @@ class AStarPathfinder:
         smoothed_path.append(path[-1])
         return smoothed_path
 
-    def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, segment_length_cm=100,
+    def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, segment_length_cm=10,
                               angle_tolerance=10):
         stdscr.clear()
         stdscr.addstr(0, 0, "Pathfinding...")
@@ -155,7 +155,7 @@ class AStarPathfinder:
             stdscr.addstr(3, 0, f'Target grid position: {target_position}')
             stdscr.addstr(4, 0, f'Calculated angle: {target_angle:.2f}, distance: {target_distance:.2f}')
 
-            target_distance_grid_units = target_distance / 2
+            target_distance_grid_units = target_distance
             current_angle = gyro.get_angle_z()
             angle_difference = (target_angle - current_angle + 360) % 360
             if abs(angle_difference) > angle_tolerance:

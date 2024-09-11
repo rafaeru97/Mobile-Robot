@@ -165,7 +165,7 @@ def get_coordinates(stdscr):
         stdscr.getch()  # Wait for user to press a key to continue
         return None
 
-    return y, x
+    return x, y
 
 
 def main(stdscr):

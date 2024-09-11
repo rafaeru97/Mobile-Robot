@@ -132,7 +132,7 @@ class AStarPathfinder:
     def visualize_path(self, path, map_grid, robot_position=(100, 100), filename="path_visualization.png"):
         plt.figure(figsize=(8, 8))
 
-        plt.imshow(map_grid, cmap='gray', origin='lower')  # Ustawienie 'lower' dla poprawnego umiejscowienia (0,0)
+        plt.imshow(map_grid, cmap='gray', origin='upper')  # Ustawienie 'lower' dla poprawnego umiejscowienia (0,0)
 
         if path:
             path = np.array(path)

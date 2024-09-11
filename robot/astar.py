@@ -182,17 +182,7 @@ class AStarPathfinder:
 
         return world_x, world_y
 
-    def visualize_path(self, path, map_grid, robot_position=(100, 100), filename="path_visualization.png", center_x=100,
-                       center_y=100):
-        """
-        Visualize the path on the map grid and optionally include the robot's position.
-        :param path: The list of points representing the path.
-        :param map_grid: The grid map array to overlay the path on.
-        :param robot_position: A tuple (x, y) representing the robot's position in grid coordinates.
-        :param filename: The name of the output image file.
-        :param center_x: X-coordinate of the center of the grid in visualization.
-        :param center_y: Y-coordinate of the center of the grid in visualization.
-        """
+    def visualize_path(self, path, map_grid, robot_position=(100, 100), filename="path_visualization.png"):
         plt.figure(figsize=(8, 8))
         plt.imshow(map_grid, cmap='gray', origin='upper')  # Origin is 'lower' to match (0,0) at bottom-left
 
@@ -214,12 +204,6 @@ class AStarPathfinder:
         plt.close()
 
     def calculate_angle_and_distance(self, current_position, target_position):
-        """
-        Calculate the angle and distance from the current position to the target position.
-        :param current_position: Tuple (x, y) representing the current position.
-        :param target_position: Tuple (x, y) representing the target position.
-        :return: Tuple (angle, distance) where angle is the direction to the target and distance is the straight-line distance.
-        """
         if current_position is None or target_position is None:
             return None, None
 
@@ -234,14 +218,14 @@ class AStarPathfinder:
         return angle, distance
 
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=5,
-                              position_tolerance=1.15, final_position_tolerance=0.5):
+                              final_position_tolerance=1.15):
         stdscr.clear()
         stdscr.addstr(0, 0, "Pathfinding...")
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
         stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
 
         # Wygładź i interpoluj ścieżkę
-        simplified_path = rdp(path, epsilon=8.0)
+        simplified_path = rdp(path, epsilon=6.0)
         smoothed_path = interpolate_path(simplified_path, max_step_size=20.0)
 
         for i, target_position in enumerate(smoothed_path):
@@ -257,7 +241,7 @@ class AStarPathfinder:
                 stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}°")
                 stdscr.refresh()
                 motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
-                time.sleep(0.5)
+                time.sleep(0.2)
 
             stdscr.addstr(6, 0, f"Moving forward {target_distance:.2f} cm")
             motor_controller.forward_with_encoders(target_distance * 0.01)
@@ -273,4 +257,4 @@ class AStarPathfinder:
                     stdscr.addstr(9, 0, f"Compensating for final distance: {final_distance:.2f} cm")
                     motor_controller.forward_with_encoders(final_distance * 0.01)
                     stdscr.refresh()
-                    time.sleep(0.5)
+                    time.sleep(0.2)

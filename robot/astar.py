@@ -142,7 +142,7 @@ class AStarPathfinder:
 
         # Wyświetlenie mapy siatki
         plt.imshow(map_grid, cmap='gray', origin='upper')
-
+        plt.ylim(200, 0)
         # Rozpoczęcie i zakończenie ścieżki
         if path:
             path = np.array(path)

@@ -27,14 +27,16 @@
             padding: 5px; /* Odstęp wewnętrzny */
             background-color: #2e2e2e; /* Ciemniejszy kolor tła dla map */
             box-shadow: 0 0 5px rgba(0,0,0,0.5); /* Cień dla lepszego efektu */
+            max-width: 90%; /* Ograniczenie maksymalnej szerokości ramki */
+            margin: 0 auto; /* Wyśrodkowanie */
             display: none; /* Domyślnie ukryte */
         }
         .map-frame.active {
             display: block; /* Pokazanie aktywnej mapy */
         }
-        .map-container img {
-            max-width: 100%; /* Dopasowanie szerokości do kontenera */
-            height: auto;
+        .map-frame img {
+            width: 100%; /* Dopasowanie szerokości obrazka do kontenera */
+            height: auto; /* Zachowanie proporcji */
         }
         .button-container {
             margin: 20px;

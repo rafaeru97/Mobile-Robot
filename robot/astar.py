@@ -89,6 +89,13 @@ class AStarPathfinder:
         """Główna funkcja A* z uwzględnieniem odbicia Y, offsetu i marginesu bezpieczeństwa."""
         start_grid = self.world_to_grid(start)
         goal_grid = self.world_to_grid(goal)
+
+        # Ustawienie limitu czasu w sekundach
+        TIME_LIMIT = 60
+
+        # Rozpoczęcie pomiaru czasu
+        start_time = time.time()
+
         # Kolejka priorytetowa
         open_list = []
         heapq.heappush(open_list, (0, start_grid))
@@ -98,6 +105,9 @@ class AStarPathfinder:
         f_score = {start_grid: self.heuristic(start_grid, goal_grid)}
 
         while open_list:
+            if time.time() - start_time > TIME_LIMIT:
+                return []  # Nie znaleziono ścieżki
+
             current = heapq.heappop(open_list)[1]
 
             if current == goal_grid:

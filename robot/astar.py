@@ -168,10 +168,10 @@ class AStarPathfinder:
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
         stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
 
-        smoothed_path = self.create_smoothed_path(path, segment_length_cm)
-        reduced_path = self.reduce_path_points(smoothed_path, int(round(len(smoothed_path) / 5)))
+        # smoothed_path = self.create_smoothed_path(path, segment_length_cm)
+        # reduced_path = self.reduce_path_points(smoothed_path, int(round(len(smoothed_path) / 5)))
 
-        for target_position in reduced_path:
+        for target_position in path:
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
             stdscr.addstr(3, 0, f'Target grid position: {target_position}')
             stdscr.addstr(4, 0, f'Calculated angle: {target_angle:.2f}, distance: {target_distance:.2f}')

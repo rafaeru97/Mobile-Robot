@@ -159,7 +159,7 @@ class AStarPathfinder:
         while current in came_from:
             current = came_from[current]
             path.append(current)
-        return path[::-1]  # Zwraca ścieżkę w odwrotnej kolejności
+        return [self.grid_to_world(p) for p in path[::-1]]
 
     def world_to_grid(self, world_coords):
         """Konwertuje współrzędne świata na współrzędne siatki z uwzględnieniem odbicia Y i offsetu."""
@@ -173,7 +173,7 @@ class AStarPathfinder:
         grid_x, grid_y = point
 
         # Odbicie w osi Y
-        world_y = self.map_grid.shape[0] - 1 - grid_y
+        world_y = 200 - grid_y
         world_x = grid_x
 
         # Zamiana siatki na współrzędne świata

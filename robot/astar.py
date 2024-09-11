@@ -112,12 +112,34 @@ class AStarPathfinder:
 
     def get_neighbors(self, node):
         x, y = node
-        neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]  # Ruchy w 4 kierunkach
-        return [n for n in neighbors if self.is_valid(n)]
+        neighbors = []
+        robot_size = 25  # Rozmiar robota w cm
+        buffer = robot_size // 2
+
+        for i in range(-buffer, buffer + 1):
+            for j in range(-buffer, buffer + 1):
+                if i == 0 and j == 0:
+                    continue  # Pomijamy obecny węzeł
+
+                nx, ny = x + i, y + j
+                if self.is_valid((nx, ny)):
+                    neighbors.append((nx, ny))
+
+        return neighbors
 
     def is_valid(self, node):
         x, y = node
-        return 0 <= x < self.map_grid.shape[0] and 0 <= y < self.map_grid.shape[1] and self.map_grid[x, y] == 0
+        robot_size = 25  # Rozmiar robota w cm
+        buffer = robot_size // 2  # Bufor wokół robota, aby upewnić się, że jest wystarczająco dużo miejsca
+
+        # Sprawdź, czy wszystkie punkty w obszarze robota są wolne
+        for i in range(-buffer, buffer + 1):
+            for j in range(-buffer, buffer + 1):
+                nx, ny = x + i, y + j
+                if not (0 <= nx < self.map_grid.shape[0] and 0 <= ny < self.map_grid.shape[1]) or self.map_grid[
+                    nx, ny] != 0:
+                    return False
+        return True
 
     def distance(self, a, b):
         return np.linalg.norm(np.array(a) - np.array(b))

@@ -2,6 +2,7 @@ import numpy as np
 import heapq
 import matplotlib.pyplot as plt
 import time
+from typing import List, Tuple
 
 import logging
 
@@ -15,6 +16,45 @@ logging.basicConfig(
     ]
 )
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
+
+
+def rdp(points: List[Tuple[float, float]], epsilon: float) -> List[Tuple[float, float]]:
+    """
+    Apply the Ramer-Douglas-Peucker algorithm to simplify a path.
+    :param points: List of points representing the path.
+    :param epsilon: The maximum distance between the original path and the simplified path.
+    :return: The simplified path.
+    """
+
+    def perpendicular_distance(point: Tuple[float, float], line_start: Tuple[float, float],
+                               line_end: Tuple[float, float]) -> float:
+        if line_start == line_end:
+            return np.linalg.norm(np.array(point) - np.array(line_start))
+        else:
+            line_vec = np.array(line_end) - np.array(line_start)
+            point_vec = np.array(point) - np.array(line_start)
+            line_len = np.linalg.norm(line_vec)
+            proj = np.dot(point_vec, line_vec) / line_len
+            proj = np.clip(proj, 0, line_len)
+            proj_vec = proj * (line_vec / line_len)
+            return np.linalg.norm(point_vec - proj_vec)
+
+    def rdp_rec(points: List[Tuple[float, float]], epsilon: float) -> List[Tuple[float, float]]:
+        start, end = points[0], points[-1]
+        if len(points) < 2:
+            return [start]
+
+        distances = [perpendicular_distance(p, start, end) for p in points[1:-1]]
+        max_distance = max(distances, default=0)
+
+        if max_distance > epsilon:
+            index = distances.index(max_distance) + 1
+            return rdp_rec(points[:index + 1], epsilon)[:-1] + rdp_rec(points[index:], epsilon)
+        else:
+            return [start, end]
+
+    return rdp_rec(points, epsilon)
+
 
 class AStarPathfinder:
     def __init__(self, map_grid):
@@ -128,59 +168,46 @@ class AStarPathfinder:
 
         return angle, distance
 
-    def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=10,
-                              position_tolerance=1.5):
-        """
-        Move the robot along the specified path by navigating to each target position.
-        :param stdscr: The curses screen object for updating the terminal interface.
-        :param motor_controller: The motor controller for moving the robot.
-        :param path: List of points representing the path.
-        :param gyro: Gyroscope object for angle measurement.
-        :param resolution: The resolution for grid position retrieval.
-        :param angle_tolerance: The tolerance for angle adjustment.
-        :param position_tolerance: The tolerance for position accuracy.
-        """
+    def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=20,
+                              position_tolerance=2.0):
         stdscr.clear()
         stdscr.addstr(0, 0, "Pathfinding...")
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
         stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
 
-        for target_position in path:
+        # Wygładź i interpoluj ścieżkę
+        simplified_path = rdp(path, epsilon=5.0)
+        smoothed_path = interpolate_path(simplified_path, max_step_size=10.0)
+
+        for target_position in smoothed_path:
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
             stdscr.addstr(3, 0, f'Target grid position: {target_position}')
             stdscr.addstr(4, 0, f'Calculated angle: {target_angle:.2f}, distance: {target_distance:.2f}')
 
-            # Get the current angle from the gyroscope
             current_angle = gyro.get_angle_z()
-
-            # Calculate the angle difference and determine the shortest rotation direction
             angle_difference = (target_angle - current_angle + 360) % 360
             if abs(angle_difference) > angle_tolerance:
-                # Adjust the angle to the target angle
                 stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}°")
                 motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
                 stdscr.refresh()
-                time.sleep(0.5)  # Allow some time for the rotation to complete
+                time.sleep(0.5)
 
-            # Move forward to the target position
             stdscr.addstr(6, 0, f"Moving forward {target_distance:.2f} cm")
             motor_controller.forward_with_encoders(target_distance * 0.01)
 
-            # Update the current position
             current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
             stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
             stdscr.refresh()
 
-            # Ensure that the robot reaches the exact target position
             final_distance = np.linalg.norm(np.array(target_position) - np.array(current_position))
             if final_distance > position_tolerance:
-                # Compensate for the final distance
                 stdscr.addstr(9, 0, f"Compensating for final distance: {final_distance:.2f} cm")
                 motor_controller.forward_with_encoders(final_distance * 0.01)
                 stdscr.refresh()
-                time.sleep(0.5)  # Allow some time for the compensation movement
+                time.sleep(0.5)
 
             stdscr.refresh()
+
 
 
 

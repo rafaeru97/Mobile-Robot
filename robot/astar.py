@@ -162,7 +162,7 @@ class AStarPathfinder:
                 stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}°")
                 motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
                 stdscr.refresh()
-                time.sleep(1)
+                time.sleep(0.2)
 
             # Move forward with tolerance for distance
             remaining_distance = target_distance

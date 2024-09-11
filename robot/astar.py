@@ -17,23 +17,20 @@ logging.basicConfig(
 )
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
-def interpolate_path(points: List[Tuple[float, float]], max_step_size: float) -> List[Tuple[float, float]]:
-    """
-    Interpolate a path by adding intermediate points.
-    :param points: List of points representing the path.
-    :param max_step_size: Maximum distance between consecutive points.
-    :return: The interpolated path.
-    """
-    interpolated_points = []
-    for i in range(len(points) - 1):
-        start, end = np.array(points[i]), np.array(points[i + 1])
-        distance = np.linalg.norm(end - start)
-        num_steps = int(np.ceil(distance / max_step_size))
-        for j in range(num_steps):
-            ratio = j / num_steps
-            interpolated_points.append(tuple(start + ratio * (end - start)))
-    interpolated_points.append(points[-1])
-    return interpolated_points
+def interpolate_path(path, max_step_size=10.0):
+    interpolated_path = []
+    for i in range(len(path) - 1):
+        start = np.array(path[i])
+        end = np.array(path[i + 1])
+        segment_distance = np.linalg.norm(end - start)
+        num_segments = int(np.ceil(segment_distance / max_step_size))
+        for j in range(num_segments):
+            ratio = j / num_segments
+            new_point = start + ratio * (end - start)
+            interpolated_path.append(tuple(np.round(new_point).astype(int)))  # Zaokrąglenie do najbliższej liczby całkowitej
+    interpolated_path.append(path[-1])  # Dodanie ostatniego punktu
+    return interpolated_path
+
 
 def rdp(points: List[Tuple[float, float]], epsilon: float) -> List[Tuple[float, float]]:
     """
@@ -197,6 +194,8 @@ class AStarPathfinder:
         smoothed_path = interpolate_path(simplified_path, max_step_size=20.0)
 
         for i, target_position in enumerate(smoothed_path):
+            target_position = tuple(
+                map(int, target_position))  # Upewnij się, że target_position to tuple z liczbami całkowitymi
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
             stdscr.addstr(3, 0, f'Target grid position: {target_position}')
             stdscr.addstr(4, 0, f'Calculated angle: {target_angle:.2f}, distance: {target_distance:.2f}')

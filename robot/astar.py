@@ -274,3 +274,4 @@ class AStarPathfinder:
             self.stdscr.addstr(9, 0, f"Updated grid position: ({current_position[0]:.2f}, {current_position[1]:.2f})")
             self.stdscr.refresh()
             self.mapper.create_map()
+            time.sleep(0.5)

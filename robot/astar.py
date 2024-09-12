@@ -59,7 +59,7 @@ class AStarPathfinder:
 
     def heuristic(self, a, b):
         """Calculate the Manhattan distance."""
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+        return np.linalg.norm(np.array(a) - np.array(b))
 
     def astar(self, start, goal):
         logging.info(f"Looking for path from {start} to {goal}")
@@ -128,15 +128,13 @@ class AStarPathfinder:
         """Calculates penalty for the given node near obstacles, considering axis reflection."""
         x, y = node
         penalty = 0
-        # Reflected Y-axis calculation
         reflected_y = 200 - y
         for dx in range(-self.safety_margin, self.safety_margin + 1):
             for dy in range(-self.safety_margin, self.safety_margin + 1):
                 nx, ny = x + dx, reflected_y + dy
                 if 0 <= nx < self.map_grid.shape[1] and 0 <= ny < self.map_grid.shape[0]:
                     if self.map_grid[ny, nx] == 1:
-                        penalty += 20
-        logging.debug(f"Penalty for node {node}: {penalty}")
+                        penalty += 1  # Można zmniejszyć wagę kary, jeśli jest za wysoka
         return penalty
 
     def reconstruct_path(self, came_from, current):

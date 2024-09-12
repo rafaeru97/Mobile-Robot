@@ -57,10 +57,11 @@ class AStarPathfinder:
         logging.info("Mapper set")
 
     def heuristic(self, a, b):
+        """Calculate the Manhattan distance."""
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def astar(self, start, goal):
-        """A* algorithm implementation."""
+        """A* algorithm implementation with diagonal movement."""
         open_list = []
         heapq.heappush(open_list, (0, start))
 
@@ -75,6 +76,7 @@ class AStarPathfinder:
                 return self.reconstruct_path(came_from, current)
 
             for neighbor in self.get_neighbors(current):
+                # Calculate the cost of moving to the neighbor
                 tentative_g_score = g_score[current] + self.distance(current, neighbor)
 
                 if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
@@ -87,9 +89,11 @@ class AStarPathfinder:
         return []
 
     def get_neighbors(self, node):
-        """Returns neighbors of the node."""
+        """Returns neighbors of the node, including diagonals."""
         x, y = node
-        neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+        neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1),
+                     (x + 1, y + 1), (x - 1, y - 1), (x + 1, y - 1), (x - 1, y + 1)]
+
         return [n for n in neighbors if self.is_valid(n)]
 
     def is_valid(self, node):
@@ -98,8 +102,13 @@ class AStarPathfinder:
         return 0 <= x < self.map_grid.shape[1] and 0 <= y < self.map_grid.shape[0] and self.map_grid[y, x] == 0
 
     def distance(self, a, b):
-        """Calculate Euclidean distance."""
-        return np.linalg.norm(np.array(a) - np.array(b))
+        """Calculate distance between two points."""
+        dx = abs(a[0] - b[0])
+        dy = abs(a[1] - b[1])
+        if dx + dy == 2:  # Diagonal move
+            return 1.414  # sqrt(2) for diagonal movement
+        else:
+            return 1.0  # Horizontal or vertical move
 
     def penalty(self, node):
         """Calculates penalty for the given node near obstacles."""

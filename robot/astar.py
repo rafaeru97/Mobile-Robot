@@ -242,8 +242,7 @@ class AStarPathfinder:
         logging.debug(f"Angle: {angle:.2f}°, Distance: {distance:.2f}cm")
         return angle, distance
 
-    def move_robot_along_path(self, motor_controller, path, gyro, resolution=1.0, angle_tolerance=5,
-                              final_position_tolerance=1):
+    def move_robot_along_path(self, motor_controller, path, gyro, angle_tolerance=5):
         path = rdp(path, epsilon=6.0)
         path = self.interpolate_path(path, max_step_size=10.0)
         self.stdscr.clear()

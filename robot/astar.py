@@ -45,6 +45,12 @@ def rdp(points, epsilon):
 
     return rdp_recursive(points, epsilon)
 
+import numpy as np
+import heapq
+import time
+import logging
+from queue import PriorityQueue
+
 class AStarPathfinder:
     def __init__(self, map_grid, resolution=1.0, safety_margin=12):
         self.map_grid = map_grid
@@ -58,8 +64,8 @@ class AStarPathfinder:
         logging.info("Mapper set")
 
     def heuristic(self, a, b):
-        """Oblicza odległość Euklidesową pomiędzy dwoma punktami na siatce."""
-        return np.linalg.norm(np.array(a) - np.array(b))
+        """Oblicza odległość Manhattan pomiędzy dwoma punktami na siatce."""
+        return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def astar(self, start, goal):
         """Główna funkcja A* z uwzględnieniem odbicia Y, offsetu i marginesu bezpieczeństwa."""
@@ -70,8 +76,8 @@ class AStarPathfinder:
         TIME_LIMIT = 60
         start_time = time.time()
 
-        open_list = []
-        heapq.heappush(open_list, (0, start_grid))
+        open_list = PriorityQueue()
+        open_list.put((0, start_grid))
 
         came_from = {}
         g_score = {start_grid: 0}
@@ -79,12 +85,12 @@ class AStarPathfinder:
 
         open_set = set([start_grid])
 
-        while open_list:
+        while not open_list.empty():
             if time.time() - start_time > TIME_LIMIT:
                 logging.warning("Time limit exceeded")
                 return []
 
-            _, current = heapq.heappop(open_list)
+            _, current = open_list.get()
             open_set.remove(current)
 
             if current == goal_grid:
@@ -101,17 +107,17 @@ class AStarPathfinder:
                     f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal_grid)
 
                     if neighbor not in open_set:
-                        heapq.heappush(open_list, (f_score[neighbor], neighbor))
+                        open_list.put((f_score[neighbor], neighbor))
                         open_set.add(neighbor)
 
         logging.info("No path found")
         return []
 
     def get_neighbors(self, node):
-        """Znajduje sąsiadów danego węzła, uwzględniając ruch po skosie."""
+        """Znajduje sąsiadów danego węzła, uwzględniając ruchy po skosie."""
         x, y = node
         neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1),
-                     (x + 1, y + 1), (x - 1, y - 1), (x + 1, y - 1), (x - 1, y + 1)]  # Ruchy po skosie
+                     (x + 1, y + 1), (x - 1, y - 1), (x + 1, y - 1), (x - 1, y + 1)]
         valid_neighbors = [n for n in neighbors if self.is_valid(n)]
         logging.debug(f"Neighbors of {node}: {valid_neighbors}")
         return valid_neighbors
@@ -164,6 +170,7 @@ class AStarPathfinder:
         world_y = 200 - grid_y
         world_x = grid_x
         return world_x, world_y
+
 
     def interpolate_path(self, path, max_step_size=10.0):
         """Interpoluje ścieżkę, aby zmniejszyć liczbę punktów i uzyskać płynniejsze przejście."""

@@ -272,11 +272,11 @@ class Mapper:
     def save_map_grid_to_file(self, filename="map_grid.txt"):
         np.savetxt(filename, self.map_grid, fmt='%d', delimiter=' ')
 
-    def get_grid_pos(self):
-        robot_x, robot_y = self.get_pos()
+    def get_grid_pos(self, pos):
+        pos_x, pos_y = pos
 
         grid_y = self.grid_size[1]
-        robot_y = grid_y - robot_y
+        pos_x = grid_y - pos_y
 
-        return int(robot_x), int(robot_y)
+        return int(pos_x), int(pos_y)
 

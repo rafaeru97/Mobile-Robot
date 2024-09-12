@@ -256,11 +256,11 @@ def main(stdscr):
                                        mapper, program_status)
                         robot.utils.save_path_to_file(path)
                 elif key == ord('l'):
+                    path = robot.utils.load_path_from_file()
                     if path:
                         program_status = "loading path"
                         print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
                                        mapper, program_status)
-                        path = robot.utils.load_path_from_file()
                         pathfinder.visualize_path(path)
                         pathfinder.move_robot_along_path(motor_controller, path, gyro)
                         mapper.create_map()

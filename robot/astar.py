@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-import heapq
+from sortedcontainers import SortedList
 import logging
 
 # Konfiguracja logowania
@@ -44,14 +44,19 @@ def rdp(points, epsilon):
 
     return rdp_recursive(points, epsilon)
 
-
 class AStarPathfinder:
-    def __init__(self, map_grid, resolution=1.0):
+    def __init__(self, map_grid, resolution=1.0, safety_margin=12):
         self.map_grid = map_grid
         self.resolution = resolution
+        self.safety_margin = safety_margin
+        self.mapper = None
+        logging.info("Initialized AStarPathfinder")
+
+    def set_mapper(self, mapper):
+        self.mapper = mapper
+        logging.info("Mapper set")
 
     def heuristic(self, a, b):
-        """Calculate Manhattan distance."""
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def astar(self, start, goal):
@@ -96,6 +101,19 @@ class AStarPathfinder:
         """Calculate Euclidean distance."""
         return np.linalg.norm(np.array(a) - np.array(b))
 
+    def penalty(self, node):
+        """Calculates penalty for the given node near obstacles."""
+        x, y = node
+        penalty = 0
+        for dx in range(-self.safety_margin, self.safety_margin + 1):
+            for dy in range(-self.safety_margin, self.safety_margin + 1):
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < self.map_grid.shape[1] and 0 <= ny < self.map_grid.shape[0]:
+                    if self.map_grid[ny, nx] == 1:
+                        penalty += 10  # Adjust penalty value as needed
+        logging.debug(f"Penalty for node {node}: {penalty}")
+        return penalty
+
     def reconstruct_path(self, came_from, current):
         """Reconstructs the path from the end to the start."""
         path = [current]
@@ -103,7 +121,6 @@ class AStarPathfinder:
             current = came_from[current]
             path.append(current)
         return path[::-1]
-
 
     def world_to_grid(self, world_coords):
         """Converts world coordinates to grid coordinates considering Y-axis reflection and offset."""

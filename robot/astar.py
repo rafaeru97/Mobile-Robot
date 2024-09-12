@@ -195,6 +195,7 @@ class AStarPathfinder:
 
         if path:
             path = np.array(path)
+            path[:, 1] = 2 * self.mapper.grid_size[1] - path[:, 1]
             plt.plot(path[:, 0], path[:, 1], 'y-', lw=2, label='Original Path')
 
         # Sprawdź, czy simplified_path jest tablicą NumPy i nie jest pusta

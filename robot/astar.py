@@ -203,12 +203,12 @@ class AStarPathfinder:
             path[:, 1] = 2 * 100 - path[:, 1]  # Odbicie Y dla wizualizacji
             plt.plot(path[:, 0], path[:, 1], 'y-', lw=2, label='Original Path')
 
-        simplified_path = rdp(path, epsilon=20.0)
+        simplified_path = rdp(path, epsilon=5.0)
         if simplified_path:
             simplified_path = np.array(simplified_path)
             plt.plot(simplified_path[:, 0], simplified_path[:, 1], 'b--', lw=2, label='Simplified Path (RDP)')
 
-        interpolated_path = self.interpolate_path(simplified_path, max_step_size=40.0)
+        interpolated_path = self.interpolate_path(simplified_path, max_step_size=10.0)
         if interpolated_path:
             interpolated_path = np.array(interpolated_path)
             plt.plot(interpolated_path[:, 0], interpolated_path[:, 1], 'g:', lw=2, label='Interpolated Path')
@@ -252,8 +252,8 @@ class AStarPathfinder:
 
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=5,
                               final_position_tolerance=1):
-        path = rdp(path, epsilon=20.0)
-        path = self.interpolate_path(path, max_step_size=40.0)
+        path = rdp(path, epsilon=5.0)
+        path = self.interpolate_path(path, max_step_size=10.0)
         stdscr.clear()
         stdscr.addstr(0, 0, "Pathfinding...")
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)

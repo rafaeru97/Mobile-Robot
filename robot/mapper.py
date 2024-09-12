@@ -54,7 +54,6 @@ class EKF_SLAM:
     def get_map(self):
         return self.map_points
 
-
 class Mapper:
     def __init__(self, motor_controller, gyro, distance_sensor, grid_size=(200, 200)):
         self.motor_controller = motor_controller

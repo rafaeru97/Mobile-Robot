@@ -74,6 +74,7 @@ class AStarPathfinder:
         f_score = {start: self.heuristic(start, goal) + self.penalty(start)}
 
         open_set = set([start])
+        closed_list = set()  # Dodanie listy zamkniętych węzłów
 
         while open_list:
             current = heapq.heappop(open_list)[1]
@@ -81,12 +82,19 @@ class AStarPathfinder:
             self.stdscr.refresh()
             open_set.remove(current)
 
+            # Dodanie aktualnego węzła do closed_list
+            closed_list.add(current)
+
             if current == goal:
                 self.path_searching_time = time.time() - start_time
                 return self.reconstruct_path(came_from, current)
 
             for neighbor in self.get_neighbors(current):
                 if not self.is_valid(neighbor):
+                    continue
+
+                # Sprawdzamy, czy sąsiad nie został już odwiedzony
+                if neighbor in closed_list:
                     continue
 
                 tentative_g_score = g_score[current] + self.distance(current, neighbor) + self.penalty(neighbor)
@@ -100,7 +108,8 @@ class AStarPathfinder:
                         heapq.heappush(open_list, (f_score[neighbor], neighbor))
                         open_set.add(neighbor)
 
-            self.astar_visualization(self.map_grid, list(open_set), start, goal)
+            # Wizualizacja
+            self.astar_visualization(self.map_grid, list(open_set), list(closed_list), start, goal)
 
         return []
 
@@ -284,10 +293,11 @@ class AStarPathfinder:
                 self.stdscr.refresh()
                 self.mapper.create_map()
 
-    def astar_visualization(self, grid, open_list, start, goal, filename='path_visualization.png'):
+    def astar_visualization(self, grid, open_list, closed_list, start, goal, filename='path_visualization.png'):
         plt.figure(figsize=(10, 10))
         plt.imshow(grid, cmap='gray_r', interpolation='none')
         plt.scatter(*zip(*open_list), color='blue', label='Open List', marker='o')
+        plt.scatter(*zip(*closed_list), color='red', label='Closed List', marker='x')
         plt.scatter(*start, color='cyan', label='Start', marker='s')
         plt.scatter(*goal, color='magenta', label='Goal', marker='s')
         plt.legend()

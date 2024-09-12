@@ -56,7 +56,7 @@ class EKF_SLAM:
 
 
 class Mapper:
-    def __init__(self, motor_controller, gyro, distance_sensor):
+    def __init__(self, motor_controller, gyro, distance_sensor, grid_size=(200, 200)):
         self.motor_controller = motor_controller
         self.gyro = gyro
         self.distance_sensor = distance_sensor
@@ -68,12 +68,90 @@ class Mapper:
         self.last_encoder_distance = 0
         self.detected_points = []  # Inicjalizacja atrybutu
 
+        self.map_grid = None
+        self.grid_size = grid_size
+
+
     def get_pos(self):
         return self.x, self.y
 
-    def create_map_grid(self, grid_size=(200, 200), scale=1):
+    def save_detected_points(self, filename="mapa.json", format="json"):
+        """
+        Save detected points to a file in a specified format (e.g., JSON).
+        """
+        if format == "json":
+            # Konwersja numpy array do listy
+            detected_points_list = [list(point) for point in self.detected_points]
+
+            with open(filename, "w") as f:
+                json.dump(detected_points_list, f)
+
+    def process_saved_points(self, filename, format="json", output_filename="output_map.png", zoom_level=100):
+        """
+        Load points from a file, process them and generate a map.
+        :param filename: The name of the file where the points are stored.
+        :param format: Format of the file (default is JSON).
+        :param output_filename: The name of the output image file.
+        :param zoom_level: Zoom level for the map visualization.
+        """
+        if format == "json":
+            with open(filename, "r") as f:
+                loaded_points = json.load(f)
+
+        # Convert loaded points to a numpy array
+        loaded_points = np.array(loaded_points)
+
+        # Check if loaded points are valid
+        if len(loaded_points) == 0:
+            print("Brak wczytanych punktów do przetworzenia.")
+            return
+
+        # Save loaded points to detected_points for processing
+        self.detected_points = list(loaded_points)  # Convert array back to list if necessary
+
+        # Process the points and generate the map
+        self.process_detected_points(zoom_level=zoom_level, filename=output_filename)
+
+    def create_map(self, filename="robot_map.png", zoom_level=100):
+        self.create_map_grid()
+        positions = np.array(self.positions)
+        x_positions = positions[:, 0]
+        y_positions = positions[:, 1]
+
+        detected_points = np.array(self.slam.get_map())
+        if len(detected_points) > 0:
+            x_detected = detected_points[:, 0]
+            y_detected = detected_points[:, 1]
+
+        orientation_length = 10
+        angle_rad = math.radians(self.current_angle)
+        dx_arrow = orientation_length * math.cos(angle_rad)
+        dy_arrow = orientation_length * math.sin(angle_rad)
+
+        plt.figure(figsize=(8, 8))
+        plt.plot(x_positions, y_positions, marker="o", color="b", markersize=3)
+        plt.plot(x_positions[-1], y_positions[-1], marker="s", color="r", markersize=25, label="Current Position")
+        plt.arrow(x_positions[-1], y_positions[-1], dx_arrow, dy_arrow, head_width=2, head_length=2, fc='k', ec='k',
+                  label="Orientation")
+
+        if len(detected_points) > 0:
+            plt.scatter(x_detected, y_detected, color='g', label="Detected Points", s=30)
+
+        center_x, center_y = x_positions[-1], y_positions[-1]
+        plt.xlim(center_x - zoom_level, center_x + zoom_level)
+        plt.ylim(center_y - zoom_level, center_y + zoom_level)
+
+        plt.title("Robot Movement Path with Detected Points")
+        plt.xlabel("X position (cm)")
+        plt.ylabel("Y position (cm)")
+        plt.grid(True)
+        plt.legend()
+        plt.savefig(filename)
+        plt.close()
+
+    def create_map_grid(self):
         # Inicjalizuj mapę gridową jako wolną
-        map_grid = np.zeros(grid_size)
+        self.map_grid = np.zeros(self.grid_size)
 
         # Zbierz dane z wykrytych punktów
         detected_points = np.array(self.slam.get_map())
@@ -91,21 +169,21 @@ class Mapper:
 
         # Zaktualizuj grid na podstawie wykrytych punktów
         for x, y in zip(x_detected, y_detected):
-            x = int(round(x // scale))
-            y = int(round(y // scale))
+            x = int(round(x // 1))
+            y = int(round(y // 1))
 
-            if 0 <= x < grid_size[1] and 0 <= y < grid_size[0]:
-                map_grid[y, x] = 1
+            if 0 <= x < self.grid_size[1] and 0 <= y < self.grid_size[0]:
+                self.map_grid[y, x] = 1
 
         # Zaktualizuj grid na podstawie pozycji robota
         for x, y in zip(x_positions, y_positions):
-            x = int(round(x // scale))
-            y = int(round(y // scale))
+            x = int(round(x // 1))
+            y = int(round(y // 1))
 
-            if 0 <= x < grid_size[1] and 0 <= y < grid_size[0]:
-                map_grid[y, x] = 1
+            if 0 <= x < self.grid_size[1] and 0 <= y < self.grid_size[0]:
+                self.map_grid[y, x] = 1
 
-        return map_grid
+        return self.map_grid
 
     def update_position(self):
         # Aktualizacja pozycji robota
@@ -197,74 +275,12 @@ class Mapper:
         plt.savefig(filename)
         plt.show()
 
-    def generate_map_grid(self, resolution=1.0, dilation_radius=2, erosion_radius=1, min_width=200,
-                                    min_height=200,
-                                    center_x=100, center_y=100):
-        """
-        Generate a grid map compatible with the A* algorithm by applying the same transformations
-        as in the visualization.
-        :param resolution: The resolution of the grid in the same units as the detected points.
-        :param dilation_radius: The radius of the dilation operation.
-        :param erosion_radius: The radius of the erosion operation.
-        :param min_width: Minimum width of the grid (in cells).
-        :param min_height: Minimum height of the grid (in cells).
-        :param center_x: X-coordinate of the center of the grid.
-        :param center_y: Y-coordinate of the center of the grid.
-        :return: A numpy array representing the grid map ready for A*.
-        """
-        detected_points = np.array(self.slam.get_map())
+    def save_map_grid_to_file(self, filename="map_grid.txt"):
+        np.savetxt(filename, self.map_grid, fmt='%d', delimiter=' ')
 
-        if len(detected_points) == 0:
-            return np.zeros((min_height, min_width), dtype=bool)
-
-        points = detected_points[:, :2]
-
-        min_x, max_x = points[:, 0].min(), points[:, 0].max()
-        min_y, max_y = points[:, 1].min(), points[:, 1].max()
-
-        width = max(min_width, int(np.ceil((max_x - min_x) / resolution)))
-        height = max(min_height, int(np.ceil((max_y - min_y) / resolution)))
-
-        # Calculate the offset to center the grid around (center_x, center_y)
-        offset_x = center_x - (width / 2) * resolution
-        offset_y = center_y - (height / 2) * resolution
-
-        map_grid = np.zeros((height, width), dtype=bool)
-
-        for point in points:
-            grid_x = int((point[0] - offset_x) / resolution)
-            grid_y = int((point[1] - offset_y) / resolution)
-
-            # Adjust y-coordinate (reflection across the Y-axis)
-            grid_y = height - 1 - grid_y  # Przekształcenie tak jak w wizualizacji
-
-            if 0 <= grid_x < width and 0 <= grid_y < height:
-                map_grid[grid_y, grid_x] = True
-
-        # Dilation and erosion operations to clean up the map
-        dilate_elem = np.ones((2 * dilation_radius + 1, 2 * dilation_radius + 1), dtype=bool)
-        erode_elem = np.ones((2 * erosion_radius + 1, 2 * erosion_radius + 1), dtype=bool)
-
-        for _ in range(3):
-            map_grid = binary_dilation(map_grid, structure=dilate_elem).astype(map_grid.dtype)
-
-        map_grid = binary_erosion(map_grid, structure=erode_elem).astype(map_grid.dtype)
-
-        return map_grid
-
-    def save_map_grid_to_file(self, map_grid, filename="map_grid.txt"):
-        np.savetxt(filename, map_grid, fmt='%d', delimiter=' ')
-
-    def get_robot_grid_position(self, map_grid, resolution=1.0):
-        """
-        Calculate the robot's position on the grid map based on its current position and grid dimensions.
-        :param map_grid: The grid map array.
-        :param resolution: The resolution of the grid in the same units as the robot position.
-        :return: A tuple (grid_x, grid_y) representing the robot's position in grid coordinates.
-        """
-
+    def get_robot_grid_position(self):
         # Check the dimensions of the map grid
-        height, width = map_grid.shape
+        height, width = self.map_grid.shape
 
         # Assume the center of the map grid is (width/2, height/2)
         center_x = width / 2
@@ -274,8 +290,8 @@ class Mapper:
         robot_x, robot_y = self.get_pos()
 
         # Calculate the robot's position in grid coordinates
-        grid_x = int(center_x + (robot_x / resolution))
-        grid_y = int(center_y + (robot_y / resolution))
+        grid_x = int(center_x + (robot_x / 1))
+        grid_y = int(center_y + (robot_y / 1))
 
         # Adjust for the offset (subtract 100)
         grid_x -= 100

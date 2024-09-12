@@ -46,12 +46,13 @@ def rdp(points, epsilon):
     return rdp_recursive(points, epsilon)
 
 class AStarPathfinder:
-    def __init__(self, stdscr, mapper, safety_margin=15):
+    def __init__(self, stdscr, mapper, safety_margin=15, test_mode=False):
         self.stdscr = stdscr
         self.mapper = mapper
         self.map_grid = mapper.get_map_grid()
         self.safety_margin = safety_margin
         self.path_searching_time = 0
+        self.test_mode = test_mode
 
     def heuristic(self, a, b):
         """Calculate the Manhattan distance."""
@@ -108,8 +109,8 @@ class AStarPathfinder:
                         heapq.heappush(open_list, (f_score[neighbor], neighbor))
                         open_set.add(neighbor)
 
-            # Wizualizacja
-            self.astar_visualization(self.map_grid, list(open_set), list(closed_list), start, goal)
+            if self.test_mode:
+                self.astar_visualization(self.map_grid, list(open_set), list(closed_list), start, goal)
 
         return []
 

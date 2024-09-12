@@ -189,7 +189,7 @@ def main(stdscr):
         mapper = Mapper(motor_controller, gyro, sensor)
         motor_controller.setMapper(mapper)
         mapper.create_map()
-        pathfinder = AStarPathfinder(stdscr, mapper)
+        pathfinder = AStarPathfinder(stdscr, mapper, test_mode=True)
 
         # Tworzymy wątki dla różnych zadań
         sensor_t = threading.Thread(target=sensor_thread, args=(sensor,), name="DistanceSensorThread")

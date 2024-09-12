@@ -71,9 +71,9 @@ class Mapper:
         self.map_grid = None
         self.grid_size = grid_size
 
-
     def get_pos(self):
-        return self.x, self.y
+        gird_pos = self.get_grid_pos()
+        return self.x, self.y, gird_pos[0], gird_pos[1]
 
     def save_detected_points(self, filename="mapa.json", format="json"):
         """
@@ -278,7 +278,7 @@ class Mapper:
     def save_map_grid_to_file(self, filename="map_grid.txt"):
         np.savetxt(filename, self.map_grid, fmt='%d', delimiter=' ')
 
-    def get_robot_grid_position(self):
+    def get_grid_pos(self):
         # Check the dimensions of the map grid
         height, width = self.map_grid.shape
 

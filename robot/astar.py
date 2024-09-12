@@ -255,7 +255,7 @@ class AStarPathfinder:
 
         return angle, distance
 
-    def move_robot_along_path(self, motor_controller, path, gyro, angle_tolerance=1):
+    def move_robot_along_path(self, motor_controller, path, gyro):
         self.stdscr.clear()
         if self.path_searching_time > 0:
             self.stdscr.addstr(0, 0, f"Pathfinding... (Path found in {self.path_searching_time})")
@@ -275,24 +275,30 @@ class AStarPathfinder:
 
             target_position = tuple(map(int, target_position))
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
+
             self.stdscr.addstr(3, 0, f'Previous position: {current_position}')
             self.stdscr.addstr(4, 0, f'Target position: {target_position}')
+
             logging.debug(f"Previous position: {current_position} -> Target position: {target_position}")
+
             current_angle = gyro.get_angle_z()
             angle_difference = (target_angle - current_angle)
+
             logging.debug(f"[{i}] current_angle: {current_angle:.2f}°, angle_difference: {angle_difference:.2f}°, target_distance: {target_distance:.2f}cm")
             self.stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}° | angle_difference: {angle_difference:.2f}°")
             self.stdscr.refresh()
-            motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
-            time.sleep(0.2)
-            if abs(angle_difference) > abs(angle_tolerance):
-                self.stdscr.addstr(6, 0, f"Moving forward {target_distance:.2f} cm")
-                motor_controller.forward_with_encoders(target_distance * 0.01)
 
-                current_position = self.mapper.get_pos()
-                self.stdscr.addstr(9, 0, f"Updated position: ({current_position[0]:.2f}, {current_position[1]:.2f})")
-                self.stdscr.refresh()
-                self.mapper.create_map()
+            for j in range(3):
+                motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
+                time.sleep(0.1)
+
+            self.stdscr.addstr(6, 0, f"Moving forward {target_distance:.2f} cm")
+            motor_controller.forward_with_encoders(target_distance * 0.01)
+
+            current_position = self.mapper.get_pos()
+            self.stdscr.addstr(9, 0, f"Updated position: ({current_position[0]:.2f}, {current_position[1]:.2f})")
+            self.stdscr.refresh()
+            self.mapper.create_map()
 
     def astar_visualization(self, grid, open_list, closed_list, start, goal, filename='path_visualization.png'):
         plt.figure(figsize=(10, 10))

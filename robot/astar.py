@@ -247,7 +247,7 @@ class AStarPathfinder:
         path = self.interpolate_path(path, max_step_size=15.0)
         self.stdscr.clear()
         self.stdscr.addstr(0, 0, "Pathfinding...")
-        current_position = self.mapper.get_pos()
+        current_position = (int(self.mapper.get_pos()[0]), int(self.mapper.get_pos()[1]))
         self.stdscr.addstr(2, 0, f'Starting at position: {current_position}')
 
         for i, target_position in enumerate(path):

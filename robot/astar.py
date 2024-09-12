@@ -77,7 +77,7 @@ class AStarPathfinder:
 
         while open_list:
             current = heapq.heappop(open_list)[1]
-            self.stdscr.addstr(1, 0, f"Current: {current}")
+            self.stdscr.addstr(1, 0, f"Current: {current}  ")
             self.stdscr.refresh()
             open_set.remove(current)
 
@@ -187,8 +187,7 @@ class AStarPathfinder:
         plt.figure(figsize=(8, 8))
         plt.imshow(map_grid, cmap='gray', origin='lower')
 
-        robot_x, robot_y = robot_position
-        robot_position = self.robot_pos
+        robot_x, robot_y = self.robot_pos
         plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')
 
         # Rysuj ścieżkę na mapie

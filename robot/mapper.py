@@ -278,5 +278,5 @@ class Mapper:
         grid_y = self.grid_size[1]
         robot_y = grid_y - robot_y
 
-        return robot_x, robot_y
+        return int(robot_x), int(robot_y)
 

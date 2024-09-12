@@ -244,15 +244,16 @@ class AStarPathfinder:
         return angle, distance
 
     def move_robot_along_path(self, motor_controller, path, gyro, angle_tolerance=1):
+        self.stdscr.clear()
         if self.path_searching_time > 0:
+            self.stdscr.addstr(0, 0, f"Pathfinding... (Path found in {self.path_searching_time})")
             logging.debug(f"New Path! (Path found in {self.path_searching_time:.2f} seconds)")
         else:
+            self.stdscr.addstr(0, 0, f"New Path! (Path loaded from file)")
             logging.debug(f"New Path! (Path loaded from file)")
 
         path = rdp(path, epsilon=4.0)
         path = self.interpolate_path(path, max_step_size=15.0)
-        self.stdscr.clear()
-        self.stdscr.addstr(0, 0, f"Pathfinding... (Path found in {self.path_searching_time})")
         current_position = (int(self.mapper.get_pos()[0]), int(self.mapper.get_pos()[1]))
         self.stdscr.addstr(2, 0, f'Starting at position: {current_position}')
 

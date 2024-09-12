@@ -244,7 +244,7 @@ class MotorController:
             # Zatrzymaj robota
             self.stop()
 
-    def backward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=50, timeout=30):
+    def backward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=65, timeout=30):
         self.backward()
 
         start_time = time.time()

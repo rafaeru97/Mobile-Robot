@@ -249,12 +249,13 @@ def main(stdscr):
                     program_status = "saving map"
                     print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
                                    program_status, mapper.get_pos())
-                    mapper.save_detected_points(filename="mapa.json")
+                    mapper.save_map_to_text_file()
                 elif key == ord('l'):
                     program_status = "loading map"
                     print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
                                    program_status, mapper.get_pos())
-                    mapper.process_saved_points("mapa.json")
+                    grid = mapper.create_grid_from_text_file()
+                    mapper.save_map_grid_to_file(grid)
                 elif key == ord('q'):
                     break
 

@@ -1,6 +1,5 @@
 import smbus
 import time
-import math
 
 
 class Gyro:
@@ -71,15 +70,21 @@ class Gyro:
         gz = self._read_word_2c(self.GYRO_ZOUT_H)
         return gz
 
-    def _read_word_2c(self, addr):
-        # Odczytaj 16-bitowe słowo z dwóch rejestrów
-        high = self.bus.read_byte_data(self.address, addr)
-        low = self.bus.read_byte_data(self.address, addr + 1)
-        val = (high << 8) + low
-        # Konwersja na wartość ujemną
-        if val >= 0x8000:
-            val -= 0x10000
-        return val
+    def _read_word_2c(self, addr, retries=3, delay=0.1):
+        for _ in range(retries):
+            try:
+                # Odczytaj 16-bitowe słowo z dwóch rejestrów
+                high = self.bus.read_byte_data(self.address, addr)
+                low = self.bus.read_byte_data(self.address, addr + 1)
+                val = (high << 8) + low
+                # Konwersja na wartość ujemną
+                if val >= 0x8000:
+                    val -= 0x10000
+                return val
+            except OSError as e:
+                time.sleep(delay)
+
+        return None  # Lub inna wartość domyślna
 
     def update_angle(self):
         # Odczytaj prędkość kątową z żyroskopu

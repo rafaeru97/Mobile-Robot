@@ -58,10 +58,11 @@ class AStarPathfinder:
         logging.info("Mapper set")
 
     def heuristic(self, a, b):
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+        """Oblicza odległość Euklidesową pomiędzy dwoma punktami na siatce."""
+        return np.linalg.norm(np.array(a) - np.array(b))
 
     def astar(self, start, goal):
-        """Główna funkcja A* z optymalizacjami."""
+        """Główna funkcja A* z uwzględnieniem odbicia Y, offsetu i marginesu bezpieczeństwa."""
         logging.info(f"Starting A* algorithm from {start} to {goal}")
         start_grid = self.world_to_grid(start)
         goal_grid = self.world_to_grid(goal)
@@ -76,15 +77,14 @@ class AStarPathfinder:
         g_score = {start_grid: 0}
         f_score = {start_grid: self.heuristic(start_grid, goal_grid)}
 
-        open_set = set()
-        open_set.add(start_grid)
+        open_set = set([start_grid])
 
         while open_list:
             if time.time() - start_time > TIME_LIMIT:
                 logging.warning("Time limit exceeded")
                 return []
 
-            current = heapq.heappop(open_list)[1]
+            _, current = heapq.heappop(open_list)
             open_set.remove(current)
 
             if current == goal_grid:
@@ -131,16 +131,15 @@ class AStarPathfinder:
         return np.linalg.norm(np.array(a) - np.array(b))
 
     def penalty(self, node):
-        """Oblicza karność dla danego węzła w pobliżu przeszkód z mniejszym obszarem."""
+        """Oblicza karność dla danego węzła w pobliżu przeszkód."""
         x, y = node
         penalty = 0
         for dx in range(-self.safety_margin, self.safety_margin + 1):
             for dy in range(-self.safety_margin, self.safety_margin + 1):
-                if abs(dx) + abs(dy) <= self.safety_margin:  # Użyj mniejszego obszaru
-                    nx, ny = x + dx, y + dy
-                    if 0 <= nx < self.map_grid.shape[1] and 0 <= ny < self.map_grid.shape[0]:
-                        if self.map_grid[ny, nx] == 1:
-                            penalty += 10
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < self.map_grid.shape[1] and 0 <= ny < self.map_grid.shape[0]:
+                    if self.map_grid[ny, nx] == 1:
+                        penalty += 10  # Wartość karności można dostosować
         logging.debug(f"Penalty for node {node}: {penalty}")
         return penalty
 

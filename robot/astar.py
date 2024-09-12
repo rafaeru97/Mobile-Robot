@@ -100,22 +100,18 @@ class AStarPathfinder:
         return []
 
     def get_neighbors(self, node):
-        """Returns neighbors of the node, including diagonals, considering axis reflection."""
+        """Returns neighbors of the node, including diagonals."""
         x, y = node
         neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1),
                      (x + 1, y + 1), (x - 1, y - 1), (x + 1, y - 1), (x - 1, y + 1)]
-
-        # Apply reflection to neighbor coordinates
-        reflected_neighbors = [(n[0], 200 - n[1]) for n in neighbors]
-        return [n for n in reflected_neighbors if self.is_valid(n)]
+        return [n for n in neighbors if self.is_valid(n)]
 
     def is_valid(self, node):
-        """Checks if a node is within the grid and not an obstacle, considering axis reflection."""
+        """Checks if a node is within the grid and not an obstacle."""
         x, y = node
-        # Reflected Y-axis calculation
-        reflected_y = 200 - y
-        return 0 <= x < self.map_grid.shape[1] and 0 <= reflected_y < self.map_grid.shape[0] and self.map_grid[
-            reflected_y, x] == 0
+        if 0 <= x < self.map_grid.shape[1] and 0 <= y < self.map_grid.shape[0]:
+            return self.map_grid[y, x] == 0
+        return False
 
     def distance(self, a, b):
         """Calculate distance between two points."""
@@ -127,16 +123,15 @@ class AStarPathfinder:
             return 1.0  # Horizontal or vertical move
 
     def penalty(self, node):
-        """Calculates penalty for the given node near obstacles, considering axis reflection."""
+        """Calculates penalty for the given node near obstacles."""
         x, y = node
         penalty = 0
-        reflected_y = 200 - y
         for dx in range(-self.safety_margin, self.safety_margin + 1):
             for dy in range(-self.safety_margin, self.safety_margin + 1):
-                nx, ny = x + dx, reflected_y + dy
+                nx, ny = x + dx, y + dy
                 if 0 <= nx < self.map_grid.shape[1] and 0 <= ny < self.map_grid.shape[0]:
                     if self.map_grid[ny, nx] == 1:
-                        penalty += 1  # Można zmniejszyć wagę kary, jeśli jest za wysoka
+                        penalty += 1
         return penalty
 
     def reconstruct_path(self, came_from, current):

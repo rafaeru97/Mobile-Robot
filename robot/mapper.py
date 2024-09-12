@@ -144,6 +144,63 @@ class Mapper:
         plt.savefig(filename)
         plt.close()
 
+    def create_grid_from_text_file(self, filename="map_data.txt", grid_size=(200, 200), scale=1):
+        # Inicjalizuj mapę gridową jako wolną
+        map_grid = np.zeros(grid_size)
+
+        # Wczytaj dane z pliku tekstowego
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+
+        # Przetwórz dane
+        reading_positions = False
+        for line in lines:
+            line = line.strip()
+            if line == "Robot Positions:":
+                reading_positions = True
+                continue
+            if line == "Detected Points:":
+                reading_positions = False
+                continue
+
+            if line:
+                x, y = map(int, line.split(','))
+                # Przeskaluj wartości do mapy gridowej
+                x = int(x // scale)
+                y = int(y // scale)
+
+                if 0 <= x < grid_size[1] and 0 <= y < grid_size[0]:
+                    # Ustaw na 1, jeśli jest to punkt wykryty (przeszkoda)
+                    map_grid[y, x] = 1
+
+        return map_grid
+
+    def save_map_to_text_file(self, filename="map_data.txt"):
+        positions = np.array(self.positions)
+        x_positions = positions[:, 0]
+        y_positions = positions[:, 1]
+
+        detected_points = np.array(self.slam.get_map())
+        if len(detected_points) > 0:
+            x_detected = detected_points[:, 0]
+            y_detected = detected_points[:, 1]
+        else:
+            x_detected = np.array([])
+            y_detected = np.array([])
+
+        # Zapisz dane do pliku tekstowego
+        with open(filename, 'w') as f:
+            f.write("Robot Positions:\n")
+            for x, y in zip(x_positions, y_positions):
+                f.write(f"{x}, {y}\n")
+
+            f.write("\nDetected Points:\n")
+            for x, y in zip(x_detected, y_detected):
+                f.write(f"{x}, {y}\n")
+
+    # Wywołaj funkcję
+    save_map_to_text_file("map_data.txt")
+
     def update_position(self):
         # Aktualizacja pozycji robota
         self.current_angle = self.gyro.get_angle_z()

@@ -106,7 +106,7 @@ class AStarPathfinder:
 
     def is_valid(self, node):
         """Checks if a node is within the grid and not an obstacle."""
-        x, y = node
+        x, y = int(node[0]), int(node[1])  # Konwersja na liczby całkowite
         if 0 <= x < self.map_grid.shape[1] and 0 <= y < self.map_grid.shape[0]:
             return self.map_grid[y, x] == 0
         return False

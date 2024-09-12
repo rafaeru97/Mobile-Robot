@@ -46,19 +46,21 @@ def rdp(points, epsilon):
     return rdp_recursive(points, epsilon)
 
 class AStarPathfinder:
-    def __init__(self, stdscr, mapper, resolution=1.0, safety_margin=12):
+    def __init__(self, stdscr, mapper, resolution=1.0, safety_margin=15):
         self.stdscr = stdscr
         self.mapper = mapper
         self.map_grid = mapper.get_map_grid()
         self.robot_pos = (int(mapper.get_pos()[0]), int(mapper.get_pos()[1]))
         self.resolution = resolution
         self.safety_margin = safety_margin
+        self.path_searching_time = None
 
     def heuristic(self, a, b):
         """Calculate the Manhattan distance."""
         return np.linalg.norm(np.array(a) - np.array(b))
 
     def astar(self, goal):
+        start_time = time.time()
         self.stdscr.clear()
         actual_pos = self.mapper.get_pos()
         self.stdscr.addstr(0, 0, f"Looking for path from ({int(actual_pos[0])}, {int(actual_pos[1])}) to {goal}")
@@ -80,6 +82,7 @@ class AStarPathfinder:
             open_set.remove(current)
 
             if current == goal:
+                self.path_searching_time = time.time() - start_time
                 return self.reconstruct_path(came_from, current)
 
             for neighbor in self.get_neighbors(current):
@@ -242,11 +245,11 @@ class AStarPathfinder:
         return angle, distance
 
     def move_robot_along_path(self, motor_controller, path, gyro, angle_tolerance=1):
-        logging.debug("New Path!")
-        path = rdp(path, epsilon=8.0)
+        logging.debug(f"New Path! (Path found in {self.path_searching_time})")
+        path = rdp(path, epsilon=4.0)
         path = self.interpolate_path(path, max_step_size=15.0)
         self.stdscr.clear()
-        self.stdscr.addstr(0, 0, "Pathfinding...")
+        self.stdscr.addstr(0, 0, f"Pathfinding... (Path found in {self.path_searching_time})")
         current_position = (int(self.mapper.get_pos()[0]), int(self.mapper.get_pos()[1]))
         self.stdscr.addstr(2, 0, f'Starting at position: {current_position}')
 

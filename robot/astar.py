@@ -50,7 +50,7 @@ class AStarPathfinder:
         self.stdscr = stdscr
         self.mapper = mapper
         self.map_grid = mapper.get_map_grid()
-        self.robot_pos = (mapper.get_grid_pos()[0], mapper.get_grid_pos()[1])
+        self.robot_pos = mapper.get_grid_pos()
         self.resolution = resolution
         self.safety_margin = safety_margin
 

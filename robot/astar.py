@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-from sortedcontainers import SortedList
+import heapq
 import logging
 
 # Konfiguracja logowania
@@ -44,103 +44,66 @@ def rdp(points, epsilon):
 
     return rdp_recursive(points, epsilon)
 
+
 class AStarPathfinder:
-    def __init__(self, map_grid, resolution=1.0, safety_margin=12):
+    def __init__(self, map_grid, resolution=1.0):
         self.map_grid = map_grid
         self.resolution = resolution
-        self.safety_margin = safety_margin
-        self.mapper = None
-        logging.info("Initialized AStarPathfinder")
-
-    def set_mapper(self, mapper):
-        self.mapper = mapper
-        logging.info("Mapper set")
 
     def heuristic(self, a, b):
+        """Calculate Manhattan distance."""
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def astar(self, start, goal):
-        """Main A* function considering Y-axis reflection, offset, and safety margin."""
-        logging.info(f"Starting A* algorithm from {start} to {goal}")
-        start_grid = self.world_to_grid(start)
-        goal_grid = self.world_to_grid(goal)
+        """A* algorithm implementation."""
+        open_list = []
+        heapq.heappush(open_list, (0, start))
 
-        TIME_LIMIT = 60
-        start_time = time.time()
-
-        open_list = SortedList([(0, start_grid)], key=lambda x: x[0])
         came_from = {}
-        g_score = {start_grid: 0}
-        f_score = {start_grid: self.heuristic(start_grid, goal_grid)}
+        g_score = {start: 0}
+        f_score = {start: self.heuristic(start, goal)}
 
         while open_list:
-            if time.time() - start_time > TIME_LIMIT:
-                logging.warning("Time limit exceeded")
-                return []
+            current = heapq.heappop(open_list)[1]
 
-            current = open_list.pop(0)[1]  # Get the node with the smallest f_score
-
-            if current == goal_grid:
-                path = self.reconstruct_path(came_from, current)
-                logging.info(f"Path found: {path}")
-                return path
+            if current == goal:
+                return self.reconstruct_path(came_from, current)
 
             for neighbor in self.get_neighbors(current):
-                tentative_g_score = g_score[current] + self.distance(current, neighbor) + self.penalty(neighbor)
+                tentative_g_score = g_score[current] + self.distance(current, neighbor)
 
                 if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
                     came_from[neighbor] = current
                     g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal_grid)
+                    f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal)
+                    if neighbor not in [n for _, n in open_list]:
+                        heapq.heappush(open_list, (f_score[neighbor], neighbor))
 
-                    if neighbor not in [item[1] for item in open_list]:
-                        open_list.add((f_score[neighbor], neighbor))
-
-        logging.info("No path found")
         return []
 
     def get_neighbors(self, node):
-        """Finds neighbors of the given node, considering diagonal moves."""
+        """Returns neighbors of the node."""
         x, y = node
         neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
-        valid_neighbors = [n for n in neighbors if self.is_valid(n)]
-        logging.debug(f"Neighbors of {node}: {valid_neighbors}")
-        return valid_neighbors
+        return [n for n in neighbors if self.is_valid(n)]
 
     def is_valid(self, node):
-        """Checks if the given node is within map boundaries and not an obstacle."""
+        """Checks if a node is within the grid and not an obstacle."""
         x, y = node
-        is_valid = (0 <= x < self.map_grid.shape[1] and
-                    0 <= y < self.map_grid.shape[0] and
-                    self.map_grid[y, x] == 0)
-        if not is_valid:
-            logging.debug(f"Node {node} is invalid")
-        return is_valid
+        return 0 <= x < self.map_grid.shape[1] and 0 <= y < self.map_grid.shape[0] and self.map_grid[y, x] == 0
 
     def distance(self, a, b):
-        """Calculates Euclidean distance between two points."""
+        """Calculate Euclidean distance."""
         return np.linalg.norm(np.array(a) - np.array(b))
 
-    def penalty(self, node):
-        """Calculates penalty for the given node near obstacles."""
-        x, y = node
-        penalty = 0
-        for dx in range(-self.safety_margin, self.safety_margin + 1):
-            for dy in range(-self.safety_margin, self.safety_margin + 1):
-                nx, ny = x + dx, y + dy
-                if 0 <= nx < self.map_grid.shape[1] and 0 <= ny < self.map_grid.shape[0]:
-                    if self.map_grid[ny, nx] == 1:
-                        penalty += 10  # Adjust penalty value as needed
-        logging.debug(f"Penalty for node {node}: {penalty}")
-        return penalty
-
     def reconstruct_path(self, came_from, current):
-        """Reconstructs path based on visited nodes."""
+        """Reconstructs the path from the end to the start."""
         path = [current]
         while current in came_from:
             current = came_from[current]
             path.append(current)
-        return [self.grid_to_world(p) for p in path[::-1]]
+        return path[::-1]
+
 
     def world_to_grid(self, world_coords):
         """Converts world coordinates to grid coordinates considering Y-axis reflection and offset."""

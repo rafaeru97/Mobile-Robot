@@ -59,8 +59,10 @@ class AStarPathfinder:
 
     def astar(self, goal):
         start_time = time.time()
-        self.stdscr.clear()
+        self.mapper.create_map_grid()
         actual_pos = self.mapper.get_pos()
+
+        self.stdscr.clear()
         self.stdscr.addstr(0, 0, f"Looking for path from ({int(actual_pos[0])}, {int(actual_pos[1])}) to {goal}")
 
         start = (int(self.mapper.get_pos()[0]), int(self.mapper.get_pos()[1]))

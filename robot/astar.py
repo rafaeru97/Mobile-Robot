@@ -53,7 +53,7 @@ class AStarPathfinder:
         self.robot_pos = (int(mapper.get_pos()[0]), int(mapper.get_pos()[1]))
         self.resolution = resolution
         self.safety_margin = safety_margin
-        self.path_searching_time = None
+        self.path_searching_time = 0
 
     def heuristic(self, a, b):
         """Calculate the Manhattan distance."""

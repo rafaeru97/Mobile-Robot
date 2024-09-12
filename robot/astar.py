@@ -241,7 +241,7 @@ class AStarPathfinder:
 
         return angle, distance
 
-    def move_robot_along_path(self, motor_controller, path, gyro, angle_tolerance=5):
+    def move_robot_along_path(self, motor_controller, path, gyro, angle_tolerance=1):
         logging.debug("New Path!")
         path = rdp(path, epsilon=8.0)
         path = self.interpolate_path(path, max_step_size=15.0)
@@ -262,7 +262,7 @@ class AStarPathfinder:
             current_angle = gyro.get_angle_z()
             angle_difference = (target_angle - current_angle)
             logging.debug(f"[{i}] current_angle: {current_angle:.2f}°, angle_difference: {angle_difference:.2f}°, target_distance: {target_distance:.2f}cm")
-            if abs(angle_difference) > angle_tolerance:
+            if abs(angle_difference) > abs(angle_tolerance):
                 self.stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}° | angle_difference: {angle_difference:.2f}°")
                 self.stdscr.refresh()
                 motor_controller.rotate_to_angle(gyro, target_angle=target_angle)

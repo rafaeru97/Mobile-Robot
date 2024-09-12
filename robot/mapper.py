@@ -72,8 +72,7 @@ class Mapper:
         self.grid_size = grid_size
 
     def get_pos(self):
-        gird_pos = self.get_grid_pos()
-        return self.x, self.y, gird_pos[0], gird_pos[1]
+        return self.x, self.y
 
     def save_detected_points(self, filename="mapa.json", format="json"):
         """

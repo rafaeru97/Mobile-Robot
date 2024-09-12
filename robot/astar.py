@@ -57,8 +57,7 @@ class AStarPathfinder:
         logging.info("Mapper set")
 
     def heuristic(self, a, b):
-        """Calculate Euclidean distance between two points on the grid."""
-        return np.linalg.norm(np.array(a) - np.array(b))
+        return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def astar(self, start, goal):
         """Main A* function considering Y-axis reflection, offset, and safety margin."""
@@ -103,8 +102,7 @@ class AStarPathfinder:
     def get_neighbors(self, node):
         """Finds neighbors of the given node, considering diagonal moves."""
         x, y = node
-        neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1),
-                     (x + 1, y + 1), (x - 1, y - 1), (x + 1, y - 1), (x - 1, y + 1)]
+        neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
         valid_neighbors = [n for n in neighbors if self.is_valid(n)]
         logging.debug(f"Neighbors of {node}: {valid_neighbors}")
         return valid_neighbors

@@ -1,8 +1,7 @@
 import numpy as np
-import heapq
 import matplotlib.pyplot as plt
 import time
-from typing import List, Tuple
+from sortedcontainers import SortedList
 import logging
 
 # Konfiguracja logowania
@@ -45,12 +44,6 @@ def rdp(points, epsilon):
 
     return rdp_recursive(points, epsilon)
 
-import numpy as np
-import heapq
-import time
-import logging
-from queue import PriorityQueue
-
 class AStarPathfinder:
     def __init__(self, map_grid, resolution=1.0, safety_margin=12):
         self.map_grid = map_grid
@@ -64,11 +57,11 @@ class AStarPathfinder:
         logging.info("Mapper set")
 
     def heuristic(self, a, b):
-        """Oblicza odległość Manhattan pomiędzy dwoma punktami na siatce."""
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+        """Calculate Euclidean distance between two points on the grid."""
+        return np.linalg.norm(np.array(a) - np.array(b))
 
     def astar(self, start, goal):
-        """Główna funkcja A* z uwzględnieniem odbicia Y, offsetu i marginesu bezpieczeństwa."""
+        """Main A* function considering Y-axis reflection, offset, and safety margin."""
         logging.info(f"Starting A* algorithm from {start} to {goal}")
         start_grid = self.world_to_grid(start)
         goal_grid = self.world_to_grid(goal)
@@ -76,22 +69,17 @@ class AStarPathfinder:
         TIME_LIMIT = 60
         start_time = time.time()
 
-        open_list = PriorityQueue()
-        open_list.put((0, start_grid))
-
+        open_list = SortedList([(0, start_grid)], key=lambda x: x[0])
         came_from = {}
         g_score = {start_grid: 0}
         f_score = {start_grid: self.heuristic(start_grid, goal_grid)}
 
-        open_set = set([start_grid])
-
-        while not open_list.empty():
+        while open_list:
             if time.time() - start_time > TIME_LIMIT:
                 logging.warning("Time limit exceeded")
                 return []
 
-            _, current = open_list.get()
-            open_set.remove(current)
+            current = open_list.pop(0)[1]  # Get the node with the smallest f_score
 
             if current == goal_grid:
                 path = self.reconstruct_path(came_from, current)
@@ -106,15 +94,14 @@ class AStarPathfinder:
                     g_score[neighbor] = tentative_g_score
                     f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal_grid)
 
-                    if neighbor not in open_set:
-                        open_list.put((f_score[neighbor], neighbor))
-                        open_set.add(neighbor)
+                    if neighbor not in [item[1] for item in open_list]:
+                        open_list.add((f_score[neighbor], neighbor))
 
         logging.info("No path found")
         return []
 
     def get_neighbors(self, node):
-        """Znajduje sąsiadów danego węzła, uwzględniając ruchy po skosie."""
+        """Finds neighbors of the given node, considering diagonal moves."""
         x, y = node
         neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1),
                      (x + 1, y + 1), (x - 1, y - 1), (x + 1, y - 1), (x - 1, y + 1)]
@@ -123,7 +110,7 @@ class AStarPathfinder:
         return valid_neighbors
 
     def is_valid(self, node):
-        """Sprawdza, czy dany węzeł jest w granicach mapy i nie jest przeszkodą."""
+        """Checks if the given node is within map boundaries and not an obstacle."""
         x, y = node
         is_valid = (0 <= x < self.map_grid.shape[1] and
                     0 <= y < self.map_grid.shape[0] and
@@ -133,11 +120,11 @@ class AStarPathfinder:
         return is_valid
 
     def distance(self, a, b):
-        """Oblicza odległość Euklidesową pomiędzy dwoma punktami."""
+        """Calculates Euclidean distance between two points."""
         return np.linalg.norm(np.array(a) - np.array(b))
 
     def penalty(self, node):
-        """Oblicza karność dla danego węzła w pobliżu przeszkód."""
+        """Calculates penalty for the given node near obstacles."""
         x, y = node
         penalty = 0
         for dx in range(-self.safety_margin, self.safety_margin + 1):
@@ -145,12 +132,12 @@ class AStarPathfinder:
                 nx, ny = x + dx, y + dy
                 if 0 <= nx < self.map_grid.shape[1] and 0 <= ny < self.map_grid.shape[0]:
                     if self.map_grid[ny, nx] == 1:
-                        penalty += 10  # Wartość karności można dostosować
+                        penalty += 10  # Adjust penalty value as needed
         logging.debug(f"Penalty for node {node}: {penalty}")
         return penalty
 
     def reconstruct_path(self, came_from, current):
-        """Odtwarza ścieżkę na podstawie odwiedzonych węzłów."""
+        """Reconstructs path based on visited nodes."""
         path = [current]
         while current in came_from:
             current = came_from[current]
@@ -158,14 +145,14 @@ class AStarPathfinder:
         return [self.grid_to_world(p) for p in path[::-1]]
 
     def world_to_grid(self, world_coords):
-        """Konwertuje współrzędne świata na współrzędne siatki z uwzględnieniem odbicia Y i offsetu."""
+        """Converts world coordinates to grid coordinates considering Y-axis reflection and offset."""
         x, y = world_coords
-        x_grid = int(np.round(x))  # Offset X
-        y_grid = int(np.round(200 - y))  # Offset Y i odbicie (200 = 2 * 100)
+        x_grid = int(np.round(x))  # X-offset
+        y_grid = int(np.round(200 - y))  # Y-offset and reflection (200 = 2 * 100)
         return (x_grid, y_grid)
 
     def grid_to_world(self, point):
-        """Przekształca współrzędne siatki z powrotem na współrzędne świata."""
+        """Converts grid coordinates back to world coordinates."""
         grid_x, grid_y = point
         world_y = 200 - grid_y
         world_x = grid_x

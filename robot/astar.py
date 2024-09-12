@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-from sortedcontainers import SortedList
+import heapq
 import logging
 
 # Konfiguracja logowania

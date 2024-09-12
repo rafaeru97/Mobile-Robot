@@ -9,30 +9,6 @@ import logging
 logging.basicConfig(filename='pathfinding.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-
-def interpolate_path(self, path, max_step_size=10.0):
-    """Interpoluje ścieżkę, aby zmniejszyć liczbę punktów i uzyskać płynniejsze przejście."""
-    if len(path) < 2:
-        return path
-
-    interpolated_path = [path[0]]
-
-    for i in range(1, len(path)):
-        start = np.array(path[i - 1])
-        end = np.array(path[i])
-        distance = np.linalg.norm(end - start)
-
-        if distance > max_step_size:
-            num_steps = int(np.ceil(distance / max_step_size))
-            for j in range(1, num_steps):
-                step = start + (end - start) * (j / num_steps)
-                interpolated_path.append(tuple(np.round(step).astype(int)))
-
-        interpolated_path.append(path[i])
-
-    return interpolated_path
-
-
 def rdp(points, epsilon):
     """
     Ramer-Douglas-Peucker algorithm for path simplification.
@@ -82,11 +58,10 @@ class AStarPathfinder:
         logging.info("Mapper set")
 
     def heuristic(self, a, b):
-        """Oblicza odległość Euklidesową pomiędzy dwoma punktami na siatce."""
-        return np.linalg.norm(np.array(a) - np.array(b))
+        return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def astar(self, start, goal):
-        """Główna funkcja A* z uwzględnieniem odbicia Y, offsetu i marginesu bezpieczeństwa."""
+        """Główna funkcja A* z optymalizacjami."""
         logging.info(f"Starting A* algorithm from {start} to {goal}")
         start_grid = self.world_to_grid(start)
         goal_grid = self.world_to_grid(goal)
@@ -100,6 +75,7 @@ class AStarPathfinder:
         came_from = {}
         g_score = {start_grid: 0}
         f_score = {start_grid: self.heuristic(start_grid, goal_grid)}
+
         open_set = set()
         open_set.add(start_grid)
 
@@ -155,15 +131,16 @@ class AStarPathfinder:
         return np.linalg.norm(np.array(a) - np.array(b))
 
     def penalty(self, node):
-        """Oblicza karność dla danego węzła w pobliżu przeszkód."""
+        """Oblicza karność dla danego węzła w pobliżu przeszkód z mniejszym obszarem."""
         x, y = node
         penalty = 0
         for dx in range(-self.safety_margin, self.safety_margin + 1):
             for dy in range(-self.safety_margin, self.safety_margin + 1):
-                nx, ny = x + dx, y + dy
-                if 0 <= nx < self.map_grid.shape[1] and 0 <= ny < self.map_grid.shape[0]:
-                    if self.map_grid[ny, nx] == 1:
-                        penalty += 10  # Wartość karności można dostosować
+                if abs(dx) + abs(dy) <= self.safety_margin:  # Użyj mniejszego obszaru
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < self.map_grid.shape[1] and 0 <= ny < self.map_grid.shape[0]:
+                        if self.map_grid[ny, nx] == 1:
+                            penalty += 10
         logging.debug(f"Penalty for node {node}: {penalty}")
         return penalty
 
@@ -189,6 +166,28 @@ class AStarPathfinder:
         world_x = grid_x
         return world_x, world_y
 
+    def interpolate_path(self, path, max_step_size=10.0):
+        """Interpoluje ścieżkę, aby zmniejszyć liczbę punktów i uzyskać płynniejsze przejście."""
+        if len(path) < 2:
+            return path
+
+        interpolated_path = [path[0]]
+
+        for i in range(1, len(path)):
+            start = np.array(path[i - 1])
+            end = np.array(path[i])
+            distance = np.linalg.norm(end - start)
+
+            if distance > max_step_size:
+                num_steps = int(np.ceil(distance / max_step_size))
+                for j in range(1, num_steps):
+                    step = start + (end - start) * (j / num_steps)
+                    interpolated_path.append(tuple(np.round(step).astype(int)))
+
+            interpolated_path.append(path[i])
+
+        return interpolated_path
+
     def visualize_path(self, path, map_grid, robot_position=(100, 100), filename="path_visualization.png"):
         plt.figure(figsize=(8, 8))
         plt.imshow(map_grid, cmap='gray', origin='upper')
@@ -204,7 +203,7 @@ class AStarPathfinder:
             simplified_path[:, 1] = 2 * 100 - simplified_path[:, 1]
             plt.plot(simplified_path[:, 0], simplified_path[:, 1], 'b--', lw=2, label='Simplified Path (RDP)')
 
-        interpolated_path = interpolate_path(path, max_step_size=10.0)
+        interpolated_path = self.interpolate_path(path, max_step_size=10.0)
         if interpolated_path:
             interpolated_path = np.array(interpolated_path)
             interpolated_path[:, 1] = 2 * 100 - interpolated_path[:, 1]
@@ -249,7 +248,7 @@ class AStarPathfinder:
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=5,
                               final_position_tolerance=1):
         path = rdp(path, epsilon=5.0)
-        path = interpolate_path(path, max_step_size=10.0)
+        path = self.interpolate_path(path, max_step_size=10.0)
         stdscr.clear()
         stdscr.addstr(0, 0, "Pathfinding...")
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)

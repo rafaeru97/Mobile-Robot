@@ -124,7 +124,7 @@ def print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, e
         stdscr.addstr(height // 2 + 5, 2, f"Encoder Distance:  {encoder:.2f} meters")
 
         robot_pos = mapper.get_pos()
-        robot_grid_pos = mapper.get_grid_pos()
+        robot_grid_pos = mapper.get_grid_pos(robot_pos)
 
         stdscr.addstr(height // 2 + 7, 2, f"Robot Position:  ({robot_pos[0]:.2f}, {robot_pos[1]:.2f})")
         stdscr.addstr(height // 2 + 8, 2, f"Grid Position:  ({int(robot_grid_pos[0])}, {int(robot_grid_pos[1])})")

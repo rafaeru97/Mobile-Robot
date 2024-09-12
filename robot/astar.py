@@ -265,11 +265,11 @@ class AStarPathfinder:
                 motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
                 time.sleep(0.2)
 
-            self.stdscr.addstr(6, 0, f"Moving forward {target_distance:.2f} cm")
-            motor_controller.forward_with_encoders(target_distance * 0.01)
+                self.stdscr.addstr(6, 0, f"Moving forward {target_distance:.2f} cm")
+                motor_controller.forward_with_encoders(target_distance * 0.01)
 
-            current_position = self.mapper.get_pos()
-            self.stdscr.addstr(8, 0, f"Updated robot position: {self.mapper.get_pos()}")
-            self.stdscr.addstr(9, 0, f"Updated grid position: ({current_position[0]:.2f}, {current_position[1]:.2f})")
-            self.stdscr.refresh()
-            self.mapper.create_map()
+                current_position = self.mapper.get_pos()
+                self.stdscr.addstr(8, 0, f"Updated robot position: {self.mapper.get_pos()}")
+                self.stdscr.addstr(9, 0, f"Updated grid position: ({current_position[0]:.2f}, {current_position[1]:.2f})")
+                self.stdscr.refresh()
+                self.mapper.create_map()

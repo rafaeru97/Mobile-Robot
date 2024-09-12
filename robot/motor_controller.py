@@ -213,7 +213,7 @@ class MotorController:
         self.pwm_a.ChangeDutyCycle(left_speed)
         self.pwm_b.ChangeDutyCycle(right_speed)
 
-    def forward_with_encoders(self, target_distance, base_speed=50, timeout=30):
+    def forward_with_encoders(self, target_distance, base_speed=65, timeout=15):
         # Rozpocznij jazdę do przodu
         self.drive(base_speed)
 
@@ -244,7 +244,7 @@ class MotorController:
             # Zatrzymaj robota
             self.stop()
 
-    def backward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=65, timeout=30):
+    def backward_with_encoders(self, left_encoder, right_encoder, target_distance, base_speed=50, timeout=30):
         self.backward()
 
         start_time = time.time()

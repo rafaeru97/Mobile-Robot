@@ -271,4 +271,4 @@ class AStarPathfinder:
             self.stdscr.addstr(8, 0, f"Updated robot position: {self.mapper.get_pos()}")
             self.stdscr.addstr(9, 0, f"Updated grid position: {current_position}")
             self.stdscr.refresh()
-            self.mapper.update_position()
+            self.mapper.create_map()

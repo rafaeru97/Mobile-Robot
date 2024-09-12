@@ -181,20 +181,20 @@ class AStarPathfinder:
 
     def visualize_path(self, path, filename="path_visualization.png"):
         map_grid = self.map_grid
-        robot_position = self.robot_pos
+        plt.figure(figsize=(8, 8))
+        plt.imshow(map_grid, cmap='gray', origin='lower')
 
         robot_x, robot_y = robot_position
+        robot_position = self.robot_pos
         plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')
 
         # Rysuj ścieżkę na mapie
+        file_map_grid = map_grid
         for x, y in path:
-            if 0 <= x < map_grid.shape[1] and 0 <= y < map_grid.shape[0]:
-                map_grid[y, x] = 2  # Użyj wartości '2' jako wskaźnika ścieżki
+            if 0 <= x < file_map_grid.shape[1] and 0 <= y < file_map_grid.shape[0]:
+                file_map_grid[y, x] = 2
 
-        np.savetxt("map_grid.txt", map_grid, fmt='%d')
-
-        plt.figure(figsize=(8, 8))
-        plt.imshow(map_grid, cmap='gray', origin='lower')
+        np.savetxt("map_grid.txt", file_map_grid, fmt='%d')
 
         if path:
             path = np.array(path)

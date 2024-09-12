@@ -144,7 +144,7 @@ class Mapper:
         plt.savefig(filename)
         plt.close()
 
-    def create_grid_from_text_file(self, filename="map_data.txt", grid_size=(200, 200), scale=1):
+    def create_grid_from_text_file(filename="map_data.txt", grid_size=(200, 200), scale=1):
         # Inicjalizuj mapę gridową jako wolną
         map_grid = np.zeros(grid_size)
 
@@ -164,14 +164,17 @@ class Mapper:
                 continue
 
             if line:
-                x, y = map(int, line.split(','))
-                # Przeskaluj wartości do mapy gridowej
-                x = int(x // scale)
-                y = int(y // scale)
+                # Zamień wartości zmiennoprzecinkowe na całkowite
+                try:
+                    x, y = map(float, line.split(','))
+                    x = int(round(x // scale))
+                    y = int(round(y // scale))
 
-                if 0 <= x < grid_size[1] and 0 <= y < grid_size[0]:
-                    # Ustaw na 1, jeśli jest to punkt wykryty (przeszkoda)
-                    map_grid[y, x] = 1
+                    if 0 <= x < grid_size[1] and 0 <= y < grid_size[0]:
+                        # Ustaw na 1, jeśli jest to punkt wykryty (przeszkoda)
+                        map_grid[y, x] = 1
+                except ValueError as e:
+                    print(f"Error processing line: {line}. {e}")
 
         return map_grid
 

@@ -290,8 +290,9 @@ class AStarPathfinder:
                 self.stdscr.refresh()
                 target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
                 # Ponownie wykonaj ostatnią rotację i ruch
-                motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
-                time.sleep(0.1)
+                for j in range(3):
+                    motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
+                    time.sleep(0.1)
                 motor_controller.forward_with_encoders(target_distance * 0.01)
 
             self.mapper.create_map()

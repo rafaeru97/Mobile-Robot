@@ -29,6 +29,43 @@ def interpolate_path(path: List[Tuple[float, float]], max_step_size: float = 10.
     logging.debug(f"Interpolated path: {interpolated_path}")
     return interpolated_path
 
+
+def rdp(points, epsilon):
+    """
+    Ramer-Douglas-Peucker algorithm for path simplification.
+    :param points: List of points representing the path.
+    :param epsilon: The simplification factor. Smaller values result in less simplification.
+    :return: Simplified path.
+    """
+    if len(points) < 2:
+        return points
+
+    def distance(p1, p2):
+        return np.linalg.norm(np.array(p1) - np.array(p2))
+
+    def rdp_recursive(points, epsilon):
+        if len(points) < 2:
+            return points
+
+        start, end = points[0], points[-1]
+        dmax = 0
+        index = 0
+
+        for i in range(1, len(points) - 1):
+            d = distance(points[i], start) + distance(points[i], end) - distance(start, end)
+            if d > dmax:
+                dmax = d
+                index = i
+
+        if dmax > epsilon:
+            rec_results1 = rdp_recursive(points[:index + 1], epsilon)
+            rec_results2 = rdp_recursive(points[index:], epsilon)
+            return rec_results1[:-1] + rec_results2
+        else:
+            return [start, end]
+
+    return rdp_recursive(points, epsilon)
+
 class AStarPathfinder:
     def __init__(self, map_grid, resolution=1.0, safety_margin=12):
         self.map_grid = map_grid

@@ -9,24 +9,27 @@ import logging
 logging.basicConfig(filename='pathfinding.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-def interpolate_path(path: List[Tuple[float, float]], max_step_size: float = 10.0) -> List[Tuple[int, int]]:
-    logging.debug(f"Interpolating path with max_step_size: {max_step_size}")
+
+def interpolate_path(self, path, max_step_size=10.0):
+    """Interpoluje ścieżkę, aby zmniejszyć liczbę punktów i uzyskać płynniejsze przejście."""
     if len(path) < 2:
-        return path  # Zwraca ścieżkę bez zmian, jeśli ma mniej niż 2 punkty
+        return path
 
-    interpolated_path = []
-    for i in range(len(path) - 1):
-        start = np.array(path[i])
-        end = np.array(path[i + 1])
-        segment_distance = np.linalg.norm(end - start)
-        num_segments = int(np.ceil(segment_distance / max_step_size))
-        for j in range(num_segments):
-            ratio = j / num_segments
-            new_point = start + ratio * (end - start)
-            interpolated_path.append(tuple(np.round(new_point).astype(int)))  # Zaokrąglenie do najbliższej liczby całkowitej
-    interpolated_path.append(path[-1])  # Dodanie ostatniego punktu
+    interpolated_path = [path[0]]
 
-    logging.debug(f"Interpolated path: {interpolated_path}")
+    for i in range(1, len(path)):
+        start = np.array(path[i - 1])
+        end = np.array(path[i])
+        distance = np.linalg.norm(end - start)
+
+        if distance > max_step_size:
+            num_steps = int(np.ceil(distance / max_step_size))
+            for j in range(1, num_steps):
+                step = start + (end - start) * (j / num_steps)
+                interpolated_path.append(tuple(np.round(step).astype(int)))
+
+        interpolated_path.append(path[i])
+
     return interpolated_path
 
 
@@ -245,6 +248,8 @@ class AStarPathfinder:
 
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=5,
                               final_position_tolerance=1):
+        path = rdp(path, epsilon=5.0)
+        path = interpolate_path(path, max_step_size=10.0)
         stdscr.clear()
         stdscr.addstr(0, 0, "Pathfinding...")
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)

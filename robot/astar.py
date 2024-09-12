@@ -69,21 +69,29 @@ class AStarPathfinder:
         g_score = {start: 0}
         f_score = {start: self.heuristic(start, goal) + self.penalty(start)}
 
+        open_set = set([start])
+
         while open_list:
             current = heapq.heappop(open_list)[1]
+            open_set.remove(current)
 
             if current == goal:
                 return self.reconstruct_path(came_from, current)
 
             for neighbor in self.get_neighbors(current):
+                if not self.is_valid(neighbor):
+                    continue
+
                 tentative_g_score = g_score[current] + self.distance(current, neighbor) + self.penalty(neighbor)
 
                 if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
                     came_from[neighbor] = current
                     g_score[neighbor] = tentative_g_score
                     f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal)
-                    if neighbor not in [n for _, n in open_list]:
+
+                    if neighbor not in open_set:
                         heapq.heappush(open_list, (f_score[neighbor], neighbor))
+                        open_set.add(neighbor)
 
         return []
 

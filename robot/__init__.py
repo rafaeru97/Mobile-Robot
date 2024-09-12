@@ -5,4 +5,4 @@ from .gyro import Gyro
 from .distance_sensor import DistanceSensor
 from .mapper import Mapper
 from .astar import AStarPathfinder
-from .utils import calculate_new_position, angle_to_radians
+from .utils import save_path_to_file, load_path_from_file

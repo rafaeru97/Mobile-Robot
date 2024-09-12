@@ -1,4 +1,5 @@
 from robot import MotorController, Encoder, Gyro, DistanceSensor, Mapper, AStarPathfinder
+import robot.utils
 import time
 import RPi.GPIO as GPIO
 import sys
@@ -47,6 +48,8 @@ distance_reading = False
 orientation = 0
 encoder_distance = 0
 motor_status = ""
+
+path = None
 
 # Synchronizacja danych za pomocą Lock
 lock = threading.Lock()
@@ -176,7 +179,7 @@ def main(stdscr):
     try:
         run_server(stdscr)
 
-        global speed, rotate
+        global speed, rotate, path
         left_encoder = Encoder(pin_a=19, pin_b=26, wheel_diameter=0.08, ticks_per_revolution=960)
         right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
         motor_controller = MotorController()
@@ -247,16 +250,17 @@ def main(stdscr):
                                    mapper, program_status)
                     mapper.process_detected_points()
                 elif key == ord('s'):
-                    program_status = "saving map"
-                    print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
-                                   mapper, program_status)
-                    mapper.save_map_to_text_file()
+                    if path:
+                        program_status = "saving path"
+                        print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
+                                       mapper, program_status)
+                        robot.utils.save_path_to_file()
                 elif key == ord('l'):
-                    program_status = "loading map"
-                    print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
-                                   mapper, program_status)
-                    grid = mapper.create_grid_from_text_file()
-                    mapper.save_map_grid_to_file(grid)
+                    if path:
+                        program_status = "loading path"
+                        print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
+                                       mapper, program_status)
+                        robot.utils.load_path_from_file()
                 elif key == ord('q'):
                     break
 

@@ -195,16 +195,15 @@ class AStarPathfinder:
 
         if path:
             path = np.array(path)
-            path[:, 1] = self.mapper.grid_size[1] - path[:, 1]
             plt.plot(path[:, 0], path[:, 1], 'y-', lw=2, label='Original Path')
 
         # Sprawdź, czy simplified_path jest tablicą NumPy i nie jest pusta
-        simplified_path = rdp(path, epsilon=6.0)
+        simplified_path = rdp(path, epsilon=8.0)
         if isinstance(simplified_path, np.ndarray) and simplified_path.size > 0:
             plt.plot(simplified_path[:, 0], simplified_path[:, 1], 'b--', lw=2, label='Simplified Path (RDP)')
 
         # Sprawdź, czy interpolated_path jest tablicą NumPy i nie jest pusta
-        interpolated_path = self.interpolate_path(simplified_path, max_step_size=10.0)
+        interpolated_path = self.interpolate_path(simplified_path, max_step_size=15.0)
         if isinstance(interpolated_path, np.ndarray) and interpolated_path.size > 0:
             plt.plot(interpolated_path[:, 0], interpolated_path[:, 1], 'g:', lw=2, label='Interpolated Path')
 
@@ -246,8 +245,8 @@ class AStarPathfinder:
         return angle, distance
 
     def move_robot_along_path(self, motor_controller, path, gyro, angle_tolerance=5):
-        path = rdp(path, epsilon=6.0)
-        path = self.interpolate_path(path, max_step_size=10.0)
+        path = rdp(path, epsilon=8.0)
+        path = self.interpolate_path(path, max_step_size=15.0)
         self.stdscr.clear()
         self.stdscr.addstr(0, 0, "Pathfinding...")
         current_position = self.mapper.get_pos()

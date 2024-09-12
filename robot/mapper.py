@@ -193,10 +193,6 @@ class Mapper:
 
         # Zapisz dane do pliku tekstowego
         with open(filename, 'w') as f:
-            f.write("Robot Positions:\n")
-            for x, y in zip(x_positions, y_positions):
-                f.write(f"{x}, {y}\n")
-
             f.write("\nDetected Points:\n")
             for x, y in zip(x_detected, y_detected):
                 f.write(f"{x}, {y}\n")

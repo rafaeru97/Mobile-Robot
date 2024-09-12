@@ -120,7 +120,7 @@ class AStarPathfinder:
                 if 0 <= nx < self.map_grid.shape[1] and 0 <= ny < self.map_grid.shape[0]:
                     if self.map_grid[ny, nx] == 1:
                         # Dodaj mniejszą penalizację na każdy z sąsiadujących węzłów
-                        penalty += 5  # Można dostosować tę wartość w zależności od potrzeb
+                        penalty += 20  # Można dostosować tę wartość w zależności od potrzeb
         logging.debug(f"Penalty for node {node}: {penalty}")
         return penalty
 

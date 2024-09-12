@@ -249,14 +249,14 @@ class AStarPathfinder:
         path = self.interpolate_path(path, max_step_size=10.0)
         self.stdscr.clear()
         self.stdscr.addstr(0, 0, "Pathfinding...")
-        current_position = self.mapper.get_grid_pos(self.mapper.get_pos())
-        self.stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
+        current_position = self.mapper.get_pos()
+        self.stdscr.addstr(2, 0, f'Starting at position: {current_position}')
 
         for i, target_position in enumerate(path):
             target_position = tuple(map(int, target_position))
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
-            self.stdscr.addstr(3, 0, f'Previous grid position: {current_position}')
-            self.stdscr.addstr(4, 0, f'Target grid position: {target_position}')
+            self.stdscr.addstr(3, 0, f'Previous position: {current_position}')
+            self.stdscr.addstr(4, 0, f'Target position: {target_position}')
 
             current_angle = gyro.get_angle_z()
             angle_difference = (target_angle - current_angle + 360) % 360
@@ -269,7 +269,7 @@ class AStarPathfinder:
             self.stdscr.addstr(6, 0, f"Moving forward {target_distance:.2f} cm")
             motor_controller.forward_with_encoders(target_distance * 0.01)
 
-            current_position = self.mapper.get_grid_pos(self.mapper.get_pos())
+            current_position = self.mapper.get_pos()
             self.stdscr.addstr(8, 0, f"Updated robot position: {self.mapper.get_pos()}")
             self.stdscr.addstr(9, 0, f"Updated grid position: ({current_position[0]:.2f}, {current_position[1]:.2f})")
             self.stdscr.refresh()

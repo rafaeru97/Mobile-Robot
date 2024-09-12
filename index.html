@@ -71,7 +71,6 @@
             <button type="button" class="btn btn-primary" onclick="showMap(0)">Movement Map</button>
             <button type="button" class="btn btn-secondary" onclick="showMap(1)">Output Map</button>
             <button type="button" class="btn btn-success" onclick="showMap(2)">A* Path Map</button>
-            <button type="button" class="btn btn-success" onclick="showMap(3)">Path Visualization Map</button>
         </div>
     </div>
     <div class="map-container">
@@ -84,16 +83,13 @@
         <div id="map-frame3" class="map-frame">
             <img id="map3" src="path_visualization.png" alt="Path Visualization">
         </div>
-        <div id="map-frame4" class="map-frame">
-            <img id="map4" src="path_smoothed.png" alt="Path Visualization">
-        </div>
     </div>
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        const mapFrames = ['map-frame1', 'map-frame2', 'map-frame3', 'map-frame4'];
+        const mapFrames = ['map-frame1', 'map-frame2', 'map-frame3'];
         let currentMapIndex = 0;
 
         function updateMapVisibility() {

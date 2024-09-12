@@ -169,7 +169,7 @@ class Mapper:
                 self.detected_points.append((detected_x, detected_y, distance_from_sensor_cm))
                 self.slam.update((dx, dy, angle_rad), [(detected_x, detected_y, distance_from_sensor_cm)])
 
-    def process_detected_points(self, zoom_level=100, filename="output_map.png"):
+    def process_detected_points(self, filename="output_map.png"):
         """
         Process the detected points by filtering noise, estimating boundaries, and detecting objects.
         :param zoom_level: Zoom level for the map visualization.
@@ -234,7 +234,7 @@ class Mapper:
         plt.savefig(filename)
         plt.show()
 
-    def generate_map_grid(self, resolution=1.0, dilation_radius=1, erosion_radius=1, min_width=200,
+    def generate_map_grid(self, resolution=1.0, dilation_radius=2, erosion_radius=1, min_width=200,
                                     min_height=200,
                                     center_x=100, center_y=100):
         """

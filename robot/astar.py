@@ -97,6 +97,8 @@ class AStarPathfinder:
         came_from = {}
         g_score = {start_grid: 0}
         f_score = {start_grid: self.heuristic(start_grid, goal_grid)}
+        open_set = set()
+        open_set.add(start_grid)
 
         while open_list:
             if time.time() - start_time > TIME_LIMIT:
@@ -104,6 +106,7 @@ class AStarPathfinder:
                 return []
 
             current = heapq.heappop(open_list)[1]
+            open_set.remove(current)
 
             if current == goal_grid:
                 path = self.reconstruct_path(came_from, current)
@@ -118,8 +121,9 @@ class AStarPathfinder:
                     g_score[neighbor] = tentative_g_score
                     f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal_grid)
 
-                    if neighbor not in dict(open_list):
+                    if neighbor not in open_set:
                         heapq.heappush(open_list, (f_score[neighbor], neighbor))
+                        open_set.add(neighbor)
 
         logging.info("No path found")
         return []

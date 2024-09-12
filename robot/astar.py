@@ -283,6 +283,16 @@ class AStarPathfinder:
             current_position = self.mapper.get_pos()
             self.stdscr.addstr(9, 0, f"Updated position: ({current_position[0]:.2f}, {current_position[1]:.2f})")
             self.stdscr.refresh()
+
+            # Sprawdzamy, czy to jest ostatni krok ścieżki
+            if i == len(path) - 1:
+                self.stdscr.addstr(10, 0, "Executing last step again for better precision")
+                self.stdscr.refresh()
+                # Ponownie wykonaj ostatnią rotację i ruch
+                motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
+                time.sleep(0.1)
+                motor_controller.forward_with_encoders(target_distance * 0.01)
+
             self.mapper.create_map()
 
     def astar_visualization(self, grid, open_list, closed_list, start, goal, filename='path_visualization.png'):

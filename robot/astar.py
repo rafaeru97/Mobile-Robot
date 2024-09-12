@@ -61,7 +61,7 @@ class AStarPathfinder:
     def astar(self, goal):
         self.stdscr.clear()
         actual_pos = self.mapper.get_pos()
-        self.stdscr.addstr(0, 0, f"Looking for path from {actual_pos:.2f} to {goal}")
+        self.stdscr.addstr(0, 0, f"Looking for path from ({actual_pos[0]:.2f}, {actual_pos[1]:.2f}) to {goal}")
 
         start = self.robot_pos
         goal = self.mapper.get_grid_pos(goal)
@@ -272,6 +272,6 @@ class AStarPathfinder:
 
             current_position = self.mapper.get_grid_pos(self.mapper.get_pos())
             self.stdscr.addstr(8, 0, f"Updated robot position: {self.mapper.get_pos()}")
-            self.stdscr.addstr(9, 0, f"Updated grid position: {current_position:.2f}")
+            self.stdscr.addstr(9, 0, f"Updated grid position: ({current_position[0]:.2f}, {current_position[1]:.2f})")
             self.stdscr.refresh()
             self.mapper.create_map()

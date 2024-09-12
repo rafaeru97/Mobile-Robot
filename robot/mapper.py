@@ -198,9 +198,6 @@ class Mapper:
             for x, y in zip(x_detected, y_detected):
                 f.write(f"{x}, {y}\n")
 
-    # Wywołaj funkcję
-    save_map_to_text_file("map_data.txt")
-
     def update_position(self):
         # Aktualizacja pozycji robota
         self.current_angle = self.gyro.get_angle_z()

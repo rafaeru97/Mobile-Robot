@@ -60,7 +60,7 @@ class AStarPathfinder:
 
     def astar(self, goal):
         self.stdscr.clear()
-        self.stdscr.addstr(0, 0, f"Looking for path from {self.mapper.get_pos} to {goal}")
+        self.stdscr.addstr(0, 0, f"Looking for path from {self.mapper.get_pos()} to {goal}")
 
         start = self.robot_pos
         goal = self.mapper.get_grid_pos(goal)

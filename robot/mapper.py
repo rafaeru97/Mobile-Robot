@@ -278,27 +278,10 @@ class Mapper:
         np.savetxt(filename, self.map_grid, fmt='%d', delimiter=' ')
 
     def get_grid_pos(self):
-        # Check the dimensions of the map grid
-        height, width = self.map_grid.shape
-
-        # Assume the center of the map grid is (width/2, height/2)
-        center_x = width / 2
-        center_y = height / 2
-
-        # Get the robot's position
         robot_x, robot_y = self.get_pos()
 
-        # Calculate the robot's position in grid coordinates
-        grid_x = int(center_x + (robot_x / 1))
-        grid_y = int(center_y + (robot_y / 1))
+        grid_y = grid_size[1]
+        robot_y = grid_y - robot_y
 
-        # Adjust for the offset (subtract 100)
-        grid_x -= 100
-        grid_y -= 100
-
-        # Ensure coordinates are within the map bounds
-        grid_x = max(0, min(grid_x, width - 1))
-        grid_y = max(0, min(grid_y, height - 1))
-
-        return grid_x, grid_y
+        return robot_x, robot_y
 

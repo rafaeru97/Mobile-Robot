@@ -219,7 +219,6 @@ class AStarPathfinder:
                      fontsize=8, color='red')
 
         robot_x, robot_y = robot_position
-        robot_y = 2 * 100 - robot_y
         plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')
 
         plt.xlabel('X position')
@@ -274,4 +273,3 @@ class AStarPathfinder:
             self.stdscr.addstr(9, 0, f"Updated grid position: ({current_position[0]:.2f}, {current_position[1]:.2f})")
             self.stdscr.refresh()
             self.mapper.create_map()
-            time.sleep(0.5)

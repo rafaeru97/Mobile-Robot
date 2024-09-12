@@ -126,7 +126,7 @@ class AStarPathfinder:
         penalty = 0
         for dx in range(-self.safety_margin, self.safety_margin + 1):
             for dy in range(-self.safety_margin, self.safety_margin + 1):
-                nx, ny = x + dx, y + dy
+                nx, ny = int(x + dx), int(y + dy)  # Konwersja na liczby całkowite
                 if 0 <= nx < self.map_grid.shape[1] and 0 <= ny < self.map_grid.shape[0]:
                     if self.map_grid[ny, nx] == 1:
                         penalty += 1

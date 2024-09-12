@@ -179,7 +179,7 @@ class AStarPathfinder:
 
     def visualize_path(self, path, filename="path_visualization.png"):
         map_grid = self.map_grid
-        robot_position = self.robot_pos()
+        robot_position = self.robot_pos
 
         # Rysuj ścieżkę na mapie
         for x, y in path:

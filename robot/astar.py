@@ -205,16 +205,14 @@ class AStarPathfinder:
             path[:, 1] = 2 * 100 - path[:, 1]  # Odbicie Y dla wizualizacji
             plt.plot(path[:, 0], path[:, 1], 'y-', lw=2, label='Original Path')
 
-        # Sprawdź, czy simplified_path jest listą i nie jest pusta
+        # Sprawdź, czy simplified_path jest tablicą NumPy i nie jest pusta
         simplified_path = rdp(path, epsilon=6.0)
-        if simplified_path and len(simplified_path) > 0:
-            simplified_path = np.array(simplified_path)
+        if isinstance(simplified_path, np.ndarray) and simplified_path.size > 0:
             plt.plot(simplified_path[:, 0], simplified_path[:, 1], 'b--', lw=2, label='Simplified Path (RDP)')
 
-        # Sprawdź, czy interpolated_path jest listą i nie jest pusta
+        # Sprawdź, czy interpolated_path jest tablicą NumPy i nie jest pusta
         interpolated_path = self.interpolate_path(simplified_path, max_step_size=10.0)
-        if interpolated_path and len(interpolated_path) > 0:
-            interpolated_path = np.array(interpolated_path)
+        if isinstance(interpolated_path, np.ndarray) and interpolated_path.size > 0:
             plt.plot(interpolated_path[:, 0], interpolated_path[:, 1], 'g:', lw=2, label='Interpolated Path')
 
         for i in range(len(interpolated_path) - 1):

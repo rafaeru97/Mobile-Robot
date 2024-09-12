@@ -255,7 +255,6 @@ class AStarPathfinder:
 
         for i, target_position in enumerate(path):
             target_position = tuple(map(int, target_position))
-            target_position = self.mapper.get_grid_pos(target_position)
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
             self.stdscr.addstr(3, 0, f'Previous position: {current_position}')
             self.stdscr.addstr(4, 0, f'Target position: {target_position}')

@@ -63,7 +63,7 @@ class AStarPathfinder:
         actual_pos = self.mapper.get_pos()
         self.stdscr.addstr(0, 0, f"Looking for path from ({int(actual_pos[0])}, {int(actual_pos[1])}) to {goal}")
 
-        start = (int(mapper.get_pos()[0]), int(mapper.get_pos()[1]))
+        start = (int(self.mapper.get_pos()[0]), int(self.mapper.get_pos()[1]))
         open_list = []
         heapq.heappush(open_list, (0, start))
 
@@ -185,7 +185,7 @@ class AStarPathfinder:
         plt.figure(figsize=(8, 8))
         plt.imshow(map_grid, cmap='gray', origin='lower')
 
-        robot_x, robot_y = (int(mapper.get_pos()[0]), int(mapper.get_pos()[1]))
+        robot_x, robot_y = (int(self.mapper.get_pos()[0]), int(self.mapper.get_pos()[1]))
         plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')
 
         # Rysuj ścieżkę na mapie

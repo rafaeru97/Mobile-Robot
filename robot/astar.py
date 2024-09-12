@@ -205,7 +205,7 @@ class AStarPathfinder:
             plt.plot(simplified_path[:, 0], simplified_path[:, 1], 'b--', lw=2, label='Simplified Path (RDP)')
 
         # Sprawdź, czy interpolated_path jest tablicą NumPy i nie jest pusta
-        interpolated_path = self.interpolate_path(simplified_path, max_step_size=40.0)
+        interpolated_path = self.interpolate_path(simplified_path, max_step_size=100.0)
         if isinstance(interpolated_path, np.ndarray) and interpolated_path.size > 0:
             plt.plot(interpolated_path[:, 0], interpolated_path[:, 1], 'g:', lw=2, label='Interpolated Path')
 
@@ -250,7 +250,7 @@ class AStarPathfinder:
             logging.debug(f"New Path! (Path loaded from file)")
 
         path = rdp(path, epsilon=2.0)
-        path = self.interpolate_path(path, max_step_size=40.0)
+        path = self.interpolate_path(path, max_step_size=100.0)
         current_position = (int(self.mapper.get_pos()[0]), int(self.mapper.get_pos()[1]))
         self.stdscr.addstr(2, 0, f'Starting at position: {current_position}')
 

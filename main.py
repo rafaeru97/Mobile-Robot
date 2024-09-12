@@ -156,10 +156,6 @@ def get_coordinates(stdscr):
     y_str = stdscr.getstr(3, 0).decode('utf-8')
     curses.noecho()
 
-    stdscr.clear()
-    stdscr.addstr(0, 0, "Pathfinding...")
-    stdscr.refresh()
-
     stdscr.nodelay(1)
     stdscr.timeout(100)
 
@@ -167,9 +163,9 @@ def get_coordinates(stdscr):
         x = int(x_str)
         y = int(y_str)
     except ValueError:
-        stdscr.addstr(5, 0, "Invalid input. Please enter integers.")
+        stdscr.addstr(7, 0, "Invalid input. Please enter integers.")
         stdscr.refresh()
-        stdscr.getch()  # Wait for user to press a key to continue
+        time.sleep(1)
         return None
 
     return x, y

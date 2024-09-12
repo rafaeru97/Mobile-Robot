@@ -3,14 +3,14 @@ import heapq
 import matplotlib.pyplot as plt
 import time
 from typing import List, Tuple
+import logging
+
+# Konfiguracja logowania
+logging.basicConfig(filename='pathfinding.log', level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 def interpolate_path(path: List[Tuple[float, float]], max_step_size: float = 10.0) -> List[Tuple[int, int]]:
-    """
-    Interpoluje ścieżkę, dodając dodatkowe punkty wzdłuż ścieżki na podstawie maksymalnego rozmiaru kroku.
-    :param path: Lista punktów reprezentujących ścieżkę.
-    :param max_step_size: Maksymalny rozmiar kroku między punktami interpolowanymi.
-    :return: Lista punktów z interpolowaną ścieżką.
-    """
+    logging.debug(f"Interpolating path with max_step_size: {max_step_size}")
     if len(path) < 2:
         return path  # Zwraca ścieżkę bez zmian, jeśli ma mniej niż 2 punkty
 
@@ -26,50 +26,8 @@ def interpolate_path(path: List[Tuple[float, float]], max_step_size: float = 10.
             interpolated_path.append(tuple(np.round(new_point).astype(int)))  # Zaokrąglenie do najbliższej liczby całkowitej
     interpolated_path.append(path[-1])  # Dodanie ostatniego punktu
 
+    logging.debug(f"Interpolated path: {interpolated_path}")
     return interpolated_path
-
-
-
-def rdp(points: List[Tuple[float, float]], epsilon: float) -> List[Tuple[float, float]]:
-    """
-    Apply the Ramer-Douglas-Peucker algorithm to simplify a path.
-    :param points: List of points representing the path.
-    :param epsilon: The maximum distance between the original path and the simplified path.
-    :return: The simplified path.
-    """
-
-    def perpendicular_distance(point: Tuple[float, float], line_start: Tuple[float, float],
-                               line_end: Tuple[float, float]) -> float:
-        if line_start == line_end:
-            return np.linalg.norm(np.array(point) - np.array(line_start))
-        else:
-            line_vec = np.array(line_end) - np.array(line_start)
-            point_vec = np.array(point) - np.array(line_start)
-            line_len = np.linalg.norm(line_vec)
-            proj = np.dot(point_vec, line_vec) / line_len
-            proj = np.clip(proj, 0, line_len)
-            proj_vec = proj * (line_vec / line_len)
-            return np.linalg.norm(point_vec - proj_vec)
-
-    def rdp_rec(points: List[Tuple[float, float]], epsilon: float) -> List[Tuple[float, float]]:
-        if len(points) < 2:
-            return points
-
-        start, end = points[0], points[-1]
-
-        if len(points) == 2:
-            return [start, end]
-
-        distances = [perpendicular_distance(p, start, end) for p in points[1:-1]]
-        max_distance = max(distances, default=0)
-
-        if max_distance > epsilon:
-            index = distances.index(max_distance) + 1
-            return rdp_rec(points[:index + 1], epsilon)[:-1] + rdp_rec(points[index:], epsilon)
-        else:
-            return [start, end]
-
-    return rdp_rec(points, epsilon)
 
 class AStarPathfinder:
     def __init__(self, map_grid, resolution=1.0, safety_margin=12):
@@ -77,9 +35,11 @@ class AStarPathfinder:
         self.resolution = resolution
         self.safety_margin = safety_margin
         self.mapper = None
+        logging.info("Initialized AStarPathfinder")
 
     def set_mapper(self, mapper):
         self.mapper = mapper
+        logging.info("Mapper set")
 
     def heuristic(self, a, b):
         """Oblicza odległość Euklidesową pomiędzy dwoma punktami na siatce."""
@@ -87,16 +47,13 @@ class AStarPathfinder:
 
     def astar(self, start, goal):
         """Główna funkcja A* z uwzględnieniem odbicia Y, offsetu i marginesu bezpieczeństwa."""
+        logging.info(f"Starting A* algorithm from {start} to {goal}")
         start_grid = self.world_to_grid(start)
         goal_grid = self.world_to_grid(goal)
 
-        # Ustawienie limitu czasu w sekundach
         TIME_LIMIT = 60
-
-        # Rozpoczęcie pomiaru czasu
         start_time = time.time()
 
-        # Kolejka priorytetowa
         open_list = []
         heapq.heappush(open_list, (0, start_grid))
 
@@ -106,12 +63,15 @@ class AStarPathfinder:
 
         while open_list:
             if time.time() - start_time > TIME_LIMIT:
-                return []  # Nie znaleziono ścieżki
+                logging.warning("Time limit exceeded")
+                return []
 
             current = heapq.heappop(open_list)[1]
 
             if current == goal_grid:
-                return self.reconstruct_path(came_from, current)
+                path = self.reconstruct_path(came_from, current)
+                logging.info(f"Path found: {path}")
+                return path
 
             for neighbor in self.get_neighbors(current):
                 tentative_g_score = g_score[current] + self.distance(current, neighbor) + self.penalty(neighbor)
@@ -124,19 +84,27 @@ class AStarPathfinder:
                     if neighbor not in dict(open_list):
                         heapq.heappush(open_list, (f_score[neighbor], neighbor))
 
-        return []  # Nie znaleziono ścieżki
+        logging.info("No path found")
+        return []
 
     def get_neighbors(self, node):
         """Znajduje sąsiadów danego węzła, uwzględniając ruch po skosie."""
         x, y = node
         neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1),
                      (x + 1, y + 1), (x - 1, y - 1), (x + 1, y - 1), (x - 1, y + 1)]  # Ruchy po skosie
-        return [n for n in neighbors if self.is_valid(n)]
+        valid_neighbors = [n for n in neighbors if self.is_valid(n)]
+        logging.debug(f"Neighbors of {node}: {valid_neighbors}")
+        return valid_neighbors
 
     def is_valid(self, node):
         """Sprawdza, czy dany węzeł jest w granicach mapy i nie jest przeszkodą."""
         x, y = node
-        return 0 <= x < self.map_grid.shape[1] and 0 <= y < self.map_grid.shape[0] and self.map_grid[y, x] == 0
+        is_valid = (0 <= x < self.map_grid.shape[1] and
+                    0 <= y < self.map_grid.shape[0] and
+                    self.map_grid[y, x] == 0)
+        if not is_valid:
+            logging.debug(f"Node {node} is invalid")
+        return is_valid
 
     def distance(self, a, b):
         """Oblicza odległość Euklidesową pomiędzy dwoma punktami."""
@@ -152,6 +120,7 @@ class AStarPathfinder:
                 if 0 <= nx < self.map_grid.shape[1] and 0 <= ny < self.map_grid.shape[0]:
                     if self.map_grid[ny, nx] == 1:
                         penalty += 10  # Wartość karności można dostosować
+        logging.debug(f"Penalty for node {node}: {penalty}")
         return penalty
 
     def reconstruct_path(self, came_from, current):
@@ -172,50 +141,41 @@ class AStarPathfinder:
     def grid_to_world(self, point):
         """Przekształca współrzędne siatki z powrotem na współrzędne świata."""
         grid_x, grid_y = point
-
-        # Odbicie w osi Y
         world_y = 200 - grid_y
         world_x = grid_x
-
         return world_x, world_y
 
     def visualize_path(self, path, map_grid, robot_position=(100, 100), filename="path_visualization.png"):
         plt.figure(figsize=(8, 8))
         plt.imshow(map_grid, cmap='gray', origin='upper')
 
-        # Wizualizacja oryginalnej ścieżki
         if path:
             path = np.array(path)
             path[:, 1] = 2 * 100 - path[:, 1]  # Odbicie Y dla wizualizacji
             plt.plot(path[:, 0], path[:, 1], 'y-', lw=2, label='Original Path')
 
-        # Ramer-Douglas-Peucker (RDP) simplification
         simplified_path = rdp(path, epsilon=5.0)
         if simplified_path:
             simplified_path = np.array(simplified_path)
             simplified_path[:, 1] = 2 * 100 - simplified_path[:, 1]
             plt.plot(simplified_path[:, 0], simplified_path[:, 1], 'b--', lw=2, label='Simplified Path (RDP)')
 
-        # Interpolacja ścieżki
         interpolated_path = interpolate_path(path, max_step_size=10.0)
         if interpolated_path:
             interpolated_path = np.array(interpolated_path)
             interpolated_path[:, 1] = 2 * 100 - interpolated_path[:, 1]
             plt.plot(interpolated_path[:, 0], interpolated_path[:, 1], 'g:', lw=2, label='Interpolated Path')
 
-        # Wyznaczanie kątów obrotu i odległości
         for i in range(len(path) - 1):
             current_position = path[i]
             next_position = path[i + 1]
             angle, distance = self.calculate_angle_and_distance(current_position, next_position)
 
-            # Oznaczenie kąta i odległości na wykresie
             plt.text((current_position[0] + next_position[0]) / 2,
                      (current_position[1] + next_position[1]) / 2,
                      f'{distance:.1f}cm, {angle:.1f}°',
                      fontsize=8, color='red')
 
-        # Pozycja robota
         robot_x, robot_y = robot_position
         robot_y = 2 * 100 - robot_y
         plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')
@@ -230,16 +190,16 @@ class AStarPathfinder:
 
     def calculate_angle_and_distance(self, current_position, target_position):
         if current_position is None or target_position is None:
+            logging.error("Current or target position is None")
             return None, None
 
         dx = target_position[0] - current_position[0]
         dy = target_position[1] - current_position[1]
         distance = np.sqrt(dx ** 2 + dy ** 2)
         angle = np.degrees(np.arctan2(dy, dx))
-
-        # Normalize angle to [0, 360) degrees
         angle = (angle + 360) % 360
 
+        logging.debug(f"Angle: {angle:.2f}°, Distance: {distance:.2f}cm")
         return angle, distance
 
     def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=5,
@@ -250,8 +210,7 @@ class AStarPathfinder:
         stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
 
         for i, target_position in enumerate(path):
-            target_position = tuple(
-                map(int, target_position))  # Upewnij się, że target_position to tuple z liczbami całkowitymi
+            target_position = tuple(map(int, target_position))
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
             stdscr.addstr(3, 0, f'Previous grid position: {current_position}')
             stdscr.addstr(4, 0, f'Target grid position: {target_position}')
@@ -271,7 +230,6 @@ class AStarPathfinder:
             stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
             stdscr.refresh()
 
-            # Jeśli to ostatni punkt w ścieżce, zastosuj mniejszą tolerancję
             if i == len(path) - 1:
                 final_distance = np.linalg.norm(np.array(target_position) - np.array(current_position))
                 if final_distance > final_position_tolerance:

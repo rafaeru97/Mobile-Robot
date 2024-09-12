@@ -7,6 +7,7 @@ import logging
 # Konfiguracja logowania
 logging.basicConfig(filename='pathfinding.log', level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
 def rdp(points, epsilon):
     """

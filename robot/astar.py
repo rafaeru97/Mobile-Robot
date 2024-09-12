@@ -157,21 +157,6 @@ class AStarPathfinder:
             path.append(current)
         return path[::-1]
 
-    def world_to_grid(self, world_coords):
-        """Converts world coordinates to grid coordinates considering Y-axis reflection and offset."""
-        x, y = world_coords
-        x_grid = int(np.round(x))  # X-offset
-        y_grid = int(np.round(200 - y))  # Y-offset and reflection (200 = 2 * 100)
-        return (x_grid, y_grid)
-
-    def grid_to_world(self, point):
-        """Converts grid coordinates back to world coordinates."""
-        grid_x, grid_y = point
-        world_y = 200 - grid_y
-        world_x = grid_x
-        return world_x, world_y
-
-
     def interpolate_path(self, path, max_step_size=10.0):
         """Interpoluje ścieżkę, aby zmniejszyć liczbę punktów i uzyskać płynniejsze przejście."""
         if len(path) < 2:
@@ -264,8 +249,8 @@ class AStarPathfinder:
             self.stdscr.addstr(0, 0, f"New Path! (Path loaded from file)")
             logging.debug(f"New Path! (Path loaded from file)")
 
-        path = rdp(path, epsilon=4.0)
-        path = self.interpolate_path(path, max_step_size=15.0)
+        path = rdp(path, epsilon=20.0)
+        path = self.interpolate_path(path, max_step_size=20.0)
         current_position = (int(self.mapper.get_pos()[0]), int(self.mapper.get_pos()[1]))
         self.stdscr.addstr(2, 0, f'Starting at position: {current_position}')
 

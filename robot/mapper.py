@@ -164,11 +164,6 @@ class Mapper:
             x_detected = np.array([])
             y_detected = np.array([])
 
-        # Zbierz dane z pozycji robota
-        positions = np.array(self.positions)
-        x_positions = positions[:, 0]
-        y_positions = positions[:, 1]
-
         # Zaktualizuj grid na podstawie wykrytych punktów
         for x, y in zip(x_detected, y_detected):
             x = int(round(x // 1))
@@ -176,6 +171,12 @@ class Mapper:
 
             if 0 <= x < self.grid_size[1] and 0 <= y < self.grid_size[0]:
                 self.map_grid[y, x] = 1
+
+        # Dylatacja (powiększenie obszarów przeszkód)
+        self.map_grid = binary_dilation(self.map_grid, iterations=2)
+
+        # Erozja (zmniejszenie obszarów przeszkód)
+        self.map_grid = binary_erosion(self.map_grid, iterations=1)
 
         return self.map_grid
 

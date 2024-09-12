@@ -178,6 +178,16 @@ class AStarPathfinder:
         return interpolated_path
 
     def visualize_path(self, path, map_grid, robot_position=(100, 100), filename="path_visualization.png"):
+
+        map_grid = np.loadtxt("map_grid.txt", dtype=int)
+
+        # Rysuj ścieżkę na mapie
+        for x, y in path:
+            if 0 <= x < map_grid.shape[1] and 0 <= y < map_grid.shape[0]:
+                map_grid[y, x] = 2  # Użyj wartości '2' jako wskaźnika ścieżki
+
+        np.savetxt("map_grid.txt", map_grid, fmt='%d')
+
         plt.figure(figsize=(8, 8))
         plt.imshow(map_grid, cmap='gray', origin='upper')
 

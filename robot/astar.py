@@ -288,6 +288,7 @@ class AStarPathfinder:
             if i == len(path) - 1:
                 self.stdscr.addstr(10, 0, "Executing last step again for better precision")
                 self.stdscr.refresh()
+                target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
                 # Ponownie wykonaj ostatnią rotację i ruch
                 motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
                 time.sleep(0.1)

@@ -177,14 +177,6 @@ class Mapper:
             if 0 <= x < self.grid_size[1] and 0 <= y < self.grid_size[0]:
                 self.map_grid[y, x] = 1
 
-        # Zaktualizuj grid na podstawie pozycji robota
-        for x, y in zip(x_positions, y_positions):
-            x = int(round(x // 1))
-            y = int(round(y // 1))
-
-            if 0 <= x < self.grid_size[1] and 0 <= y < self.grid_size[0]:
-                self.map_grid[y, x] = 1
-
         return self.map_grid
 
     def update_position(self):

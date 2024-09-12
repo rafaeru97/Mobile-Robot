@@ -62,6 +62,7 @@ class AStarPathfinder:
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def astar(self, start, goal):
+        logging.info(f"Looking for path from {start} to {goal}")
         """A* algorithm implementation with diagonal movement and obstacle penalties."""
         open_list = []
         heapq.heappush(open_list, (0, start))

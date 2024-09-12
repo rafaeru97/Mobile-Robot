@@ -46,24 +46,22 @@ def rdp(points, epsilon):
     return rdp_recursive(points, epsilon)
 
 class AStarPathfinder:
-    def __init__(self, map_grid, resolution=1.0, safety_margin=12):
-        self.map_grid = map_grid
+    def __init__(self, stdscr, mapper, resolution=1.0, safety_margin=12):
+        self.stdscr = stdscr
+        self.mapper = mapper
+        self.map_grid = mapper.get_map_grid()
+        self.robot_pos = mapper.get_grid_pos()
         self.resolution = resolution
         self.safety_margin = safety_margin
-        self.mapper = None
-        logging.info("Initialized AStarPathfinder")
-
-    def set_mapper(self, mapper):
-        self.mapper = mapper
-        logging.info("Mapper set")
 
     def heuristic(self, a, b):
         """Calculate the Manhattan distance."""
         return np.linalg.norm(np.array(a) - np.array(b))
 
-    def astar(self, stdscr, start, goal):
-        stdscr.clear()
-        stdscr.addstr(0, 0, f"Looking for path from {start} to {goal}")
+    def astar(self, goal):
+        start = self.robot_pos
+        self.stdscr.clear()
+        self.stdscr.addstr(0, 0, f"Looking for path from {start} to {goal}")
         open_list = []
         heapq.heappush(open_list, (0, start))
 
@@ -75,8 +73,8 @@ class AStarPathfinder:
 
         while open_list:
             current = heapq.heappop(open_list)[1]
-            stdscr.addstr(1, 0, f"Current: {current}")
-            stdscr.refresh()
+            self.stdscr.addstr(1, 0, f"Current: {current}")
+            self.stdscr.refresh()
             open_set.remove(current)
 
             if current == goal:
@@ -179,9 +177,9 @@ class AStarPathfinder:
 
         return interpolated_path
 
-    def visualize_path(self, path, map_grid, robot_position=(100, 100), filename="path_visualization.png"):
-
-        map_grid = np.loadtxt("map_grid.txt", dtype=int)
+    def visualize_path(self, path, filename="path_visualization.png"):
+        map_grid = self.map_grid
+        robot_position = self.robot_pos()
 
         # Rysuj ścieżkę na mapie
         for x, y in path:
@@ -245,40 +243,40 @@ class AStarPathfinder:
         logging.debug(f"Angle: {angle:.2f}°, Distance: {distance:.2f}cm")
         return angle, distance
 
-    def move_robot_along_path(self, stdscr, motor_controller, path, gyro, resolution=1.0, angle_tolerance=5,
+    def move_robot_along_path(self, motor_controller, path, gyro, resolution=1.0, angle_tolerance=5,
                               final_position_tolerance=1):
         path = rdp(path, epsilon=6.0)
         path = self.interpolate_path(path, max_step_size=10.0)
-        stdscr.clear()
-        stdscr.addstr(0, 0, "Pathfinding...")
+        self.stdscr.clear()
+        self.stdscr.addstr(0, 0, "Pathfinding...")
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
-        stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
+        self.stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
 
         for i, target_position in enumerate(path):
             target_position = tuple(map(int, target_position))
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
-            stdscr.addstr(3, 0, f'Previous grid position: {current_position}')
-            stdscr.addstr(4, 0, f'Target grid position: {target_position}')
+            self.stdscr.addstr(3, 0, f'Previous grid position: {current_position}')
+            self.stdscr.addstr(4, 0, f'Target grid position: {target_position}')
 
             current_angle = gyro.get_angle_z()
             angle_difference = (target_angle - current_angle + 360) % 360
             if abs(angle_difference) > angle_tolerance:
-                stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}°")
-                stdscr.refresh()
+                self.stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}°")
+                self.stdscr.refresh()
                 motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
                 time.sleep(0.2)
 
-            stdscr.addstr(6, 0, f"Moving forward {target_distance:.2f} cm")
+            self.stdscr.addstr(6, 0, f"Moving forward {target_distance:.2f} cm")
             motor_controller.forward_with_encoders(target_distance * 0.01)
 
             current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
-            stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
-            stdscr.refresh()
+            self.stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
+            self.stdscr.refresh()
 
             if i == len(path) - 1:
                 final_distance = np.linalg.norm(np.array(target_position) - np.array(current_position))
                 if final_distance > final_position_tolerance:
-                    stdscr.addstr(9, 0, f"Compensating for final distance: {final_distance:.2f} cm")
+                    self.stdscr.addstr(9, 0, f"Compensating for final distance: {final_distance:.2f} cm")
                     motor_controller.forward_with_encoders(final_distance * 0.01)
-                    stdscr.refresh()
+                    self.stdscr.refresh()
                     time.sleep(0.2)

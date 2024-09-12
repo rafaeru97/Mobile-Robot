@@ -74,6 +74,9 @@ class Mapper:
     def get_pos(self):
         return self.x, self.y
 
+    def get_map_grid(self):
+        return self.map_grid
+
     def save_detected_points(self, filename="mapa.json", format="json"):
         """
         Save detected points to a file in a specified format (e.g., JSON).

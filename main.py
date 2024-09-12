@@ -224,14 +224,10 @@ def main(stdscr):
                     motor_controller.stop()
                     cords = get_coordinates(stdscr)
                     if cords:
-                        map_grid = mapper.generate_map_grid()
-                        robot_position = mapper.get_robot_grid_position(map_grid)
-                        mapper.save_map_grid_to_file(map_grid)
-                        pathfinder = AStarPathfinder(map_grid)
-                        pathfinder.set_mapper(mapper)
-                        path = pathfinder.astar(stdscr, robot_position, cords)
-                        pathfinder.visualize_path(path, map_grid, robot_position)
-                        pathfinder.move_robot_along_path(stdscr, motor_controller, path, gyro)
+                        pathfinder = AStarPathfinder(stdscr, mapper)
+                        path = pathfinder.astar(cords)
+                        pathfinder.visualize_path(path)
+                        pathfinder.move_robot_along_path(motor_controller, path, gyro)
                         mapper.create_map()
                 elif key == ord('w'):
                     motor_controller.forward_with_encoders(0.1)
@@ -244,6 +240,7 @@ def main(stdscr):
                     print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
                                    mapper, program_status)
                     mapper.create_map()
+                    mapper.save_map_grid_to_file()
                 elif key == ord('o'):
                     program_status = "post processing map"
                     print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,

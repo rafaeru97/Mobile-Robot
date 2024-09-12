@@ -175,11 +175,11 @@ class Mapper:
         # Filtrowanie szumów (otwarcie morfologiczne)
         self.map_grid = binary_opening(self.map_grid, iterations=1)
 
-        # Dylatacja (powiększenie obszarów przeszkód)
-        self.map_grid = binary_dilation(self.map_grid, iterations=2)
-
         # Erozja (zmniejszenie obszarów przeszkód)
         self.map_grid = binary_erosion(self.map_grid, iterations=1)
+
+        # Dylatacja (powiększenie obszarów przeszkód)
+        self.map_grid = binary_dilation(self.map_grid, iterations=2)
 
         return self.map_grid
 

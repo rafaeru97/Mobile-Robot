@@ -98,6 +98,8 @@ class AStarPathfinder:
                         heapq.heappush(open_list, (f_score[neighbor], neighbor))
                         open_set.add(neighbor)
 
+            self.astar_visualization(self.grid, list(open_set), start, goal)
+
         return []
 
     def get_neighbors(self, node):
@@ -279,3 +281,17 @@ class AStarPathfinder:
                 self.stdscr.addstr(9, 0, f"Updated position: ({current_position[0]:.2f}, {current_position[1]:.2f})")
                 self.stdscr.refresh()
                 self.mapper.create_map()
+
+    def astar_visualization(self, grid, open_list, start, goal, filename='path_visualization.png'):
+        plt.figure(figsize=(10, 10))
+        plt.imshow(grid, cmap='gray_r', interpolation='none')
+        if open_list:
+            plt.scatter(*zip(*open_list), color='blue', label='Open List', marker='o')
+        if path:
+            plt.scatter(*zip(*path), color='green', label='Path', marker='.')
+        plt.scatter(*start, color='cyan', label='Start', marker='s')
+        plt.scatter(*goal, color='magenta', label='Goal', marker='s')
+        plt.legend()
+        plt.title('A* Algorithm Visualization')
+        plt.savefig(filename)
+        plt.close()

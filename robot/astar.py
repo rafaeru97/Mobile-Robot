@@ -200,13 +200,11 @@ class AStarPathfinder:
         simplified_path = rdp(path, epsilon=20.0)
         if simplified_path:
             simplified_path = np.array(simplified_path)
-            simplified_path[:, 1] = 2 * 100 - simplified_path[:, 1]
             plt.plot(simplified_path[:, 0], simplified_path[:, 1], 'b--', lw=2, label='Simplified Path (RDP)')
 
         interpolated_path = self.interpolate_path(simplified_path, max_step_size=40.0)
         if interpolated_path:
             interpolated_path = np.array(interpolated_path)
-            interpolated_path[:, 1] = 2 * 100 - interpolated_path[:, 1]
             plt.plot(interpolated_path[:, 0], interpolated_path[:, 1], 'g:', lw=2, label='Interpolated Path')
 
         for i in range(len(interpolated_path) - 1):

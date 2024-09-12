@@ -61,13 +61,13 @@ class AStarPathfinder:
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def astar(self, start, goal):
-        """A* algorithm implementation with diagonal movement."""
+        """A* algorithm implementation with diagonal movement and obstacle penalties."""
         open_list = []
         heapq.heappush(open_list, (0, start))
 
         came_from = {}
         g_score = {start: 0}
-        f_score = {start: self.heuristic(start, goal)}
+        f_score = {start: self.heuristic(start, goal) + self.penalty(start)}
 
         while open_list:
             current = heapq.heappop(open_list)[1]
@@ -76,8 +76,7 @@ class AStarPathfinder:
                 return self.reconstruct_path(came_from, current)
 
             for neighbor in self.get_neighbors(current):
-                # Calculate the cost of moving to the neighbor
-                tentative_g_score = g_score[current] + self.distance(current, neighbor)
+                tentative_g_score = g_score[current] + self.distance(current, neighbor) + self.penalty(neighbor)
 
                 if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
                     came_from[neighbor] = current

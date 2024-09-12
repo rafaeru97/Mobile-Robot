@@ -262,12 +262,11 @@ class AStarPathfinder:
             current_angle = gyro.get_angle_z()
             angle_difference = (target_angle - current_angle)
             logging.debug(f"[{i}] current_angle: {current_angle:.2f}°, angle_difference: {angle_difference:.2f}°, target_distance: {target_distance:.2f}cm")
+            self.stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}° | angle_difference: {angle_difference:.2f}°")
+            self.stdscr.refresh()
+            motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
+            time.sleep(0.2)
             if abs(angle_difference) > abs(angle_tolerance):
-                self.stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}° | angle_difference: {angle_difference:.2f}°")
-                self.stdscr.refresh()
-                motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
-                time.sleep(0.2)
-
                 self.stdscr.addstr(6, 0, f"Moving forward {target_distance:.2f} cm")
                 motor_controller.forward_with_encoders(target_distance * 0.01)
 

@@ -277,7 +277,7 @@ class Mapper:
         pos_x, pos_y = pos
 
         grid_y = self.grid_size[1]
-        pos_x = grid_y - pos_y
+        pos_y = grid_y - pos_y
 
         return int(pos_x), int(pos_y)
 

@@ -254,7 +254,7 @@ def main(stdscr):
                         program_status = "saving path"
                         print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
                                        mapper, program_status)
-                        robot.utils.save_path_to_file()
+                        robot.utils.save_path_to_file(path)
                 elif key == ord('l'):
                     if path:
                         program_status = "loading path"

@@ -189,11 +189,10 @@ class AStarPathfinder:
         np.savetxt("map_grid.txt", map_grid, fmt='%d')
 
         plt.figure(figsize=(8, 8))
-        plt.imshow(map_grid, cmap='gray', origin='upper')
+        plt.imshow(map_grid, cmap='gray', origin='lower')
 
         if path:
             path = np.array(path)
-            path[:, 1] = 2 * 100 - path[:, 1]  # Odbicie Y dla wizualizacji
             plt.plot(path[:, 0], path[:, 1], 'y-', lw=2, label='Original Path')
 
         # Sprawdź, czy simplified_path jest tablicą NumPy i nie jest pusta

@@ -251,6 +251,9 @@ class AStarPathfinder:
         self.stdscr.addstr(2, 0, f'Starting at position: {current_position}')
 
         for i, target_position in enumerate(path):
+            if i == 0:
+                continue
+
             target_position = tuple(map(int, target_position))
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
             self.stdscr.addstr(3, 0, f'Previous position: {current_position}')

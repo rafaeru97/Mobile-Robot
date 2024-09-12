@@ -249,7 +249,7 @@ class AStarPathfinder:
         path = self.interpolate_path(path, max_step_size=10.0)
         self.stdscr.clear()
         self.stdscr.addstr(0, 0, "Pathfinding...")
-        current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
+        current_position = self.mapper.get_grid_pos()
         self.stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
 
         for i, target_position in enumerate(path):
@@ -269,7 +269,7 @@ class AStarPathfinder:
             self.stdscr.addstr(6, 0, f"Moving forward {target_distance:.2f} cm")
             motor_controller.forward_with_encoders(target_distance * 0.01)
 
-            current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
+            current_position = self.mapper.get_grid_pos()
             self.stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
             self.stdscr.refresh()
 

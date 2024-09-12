@@ -255,7 +255,7 @@ class AStarPathfinder:
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
             self.stdscr.addstr(3, 0, f'Previous position: {current_position}')
             self.stdscr.addstr(4, 0, f'Target position: {target_position}')
-
+            logging.debug(f"Previous position: {current_position} -> Target position: {target_position}")
             current_angle = gyro.get_angle_z()
             angle_difference = (target_angle - current_angle)
             logging.debug(f"[{i}] current_angle: {current_angle:.2f}°, angle_difference: {angle_difference:.2f}°, target_distance: {target_distance:.2f}cm")

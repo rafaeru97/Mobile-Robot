@@ -200,12 +200,12 @@ class AStarPathfinder:
             plt.plot(path[:, 0], path[:, 1], 'y-', lw=2, label='Original Path')
 
         # Sprawdź, czy simplified_path jest tablicą NumPy i nie jest pusta
-        simplified_path = rdp(path, epsilon=8.0)
+        simplified_path = rdp(path, epsilon=2.0)
         if isinstance(simplified_path, np.ndarray) and simplified_path.size > 0:
             plt.plot(simplified_path[:, 0], simplified_path[:, 1], 'b--', lw=2, label='Simplified Path (RDP)')
 
         # Sprawdź, czy interpolated_path jest tablicą NumPy i nie jest pusta
-        interpolated_path = self.interpolate_path(simplified_path, max_step_size=15.0)
+        interpolated_path = self.interpolate_path(simplified_path, max_step_size=20.0)
         if isinstance(interpolated_path, np.ndarray) and interpolated_path.size > 0:
             plt.plot(interpolated_path[:, 0], interpolated_path[:, 1], 'g:', lw=2, label='Interpolated Path')
 

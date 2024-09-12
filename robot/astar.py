@@ -249,7 +249,7 @@ class AStarPathfinder:
             self.stdscr.addstr(0, 0, f"New Path! (Path loaded from file)")
             logging.debug(f"New Path! (Path loaded from file)")
 
-        path = rdp(path, epsilon=20.0)
+        path = rdp(path, epsilon=2.0)
         path = self.interpolate_path(path, max_step_size=20.0)
         current_position = (int(self.mapper.get_pos()[0]), int(self.mapper.get_pos()[1]))
         self.stdscr.addstr(2, 0, f'Starting at position: {current_position}')

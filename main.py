@@ -225,7 +225,7 @@ def main(stdscr):
                         mapper.save_map_grid_to_file(map_grid)
                         pathfinder = AStarPathfinder(map_grid)
                         pathfinder.set_mapper(mapper)
-                        path = pathfinder.astar(robot_position, cords)
+                        path = pathfinder.astar(stdscr, robot_position, cords)
                         pathfinder.visualize_path(path, map_grid, robot_position)
                         pathfinder.move_robot_along_path(stdscr, motor_controller, path, gyro)
                         mapper.create_map()

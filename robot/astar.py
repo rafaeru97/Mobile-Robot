@@ -61,8 +61,10 @@ class AStarPathfinder:
         """Calculate the Manhattan distance."""
         return np.linalg.norm(np.array(a) - np.array(b))
 
-    def astar(self, start, goal):
+    def astar(self, stdscr, start, goal):
         logging.info(f"Looking for path from {start} to {goal}")
+        stdscr.clear()
+        stdscr.addstr(0, 0, f"Looking for path from {start} to {goal}")
         """A* algorithm implementation with diagonal movement and obstacle penalties."""
         open_list = []
         heapq.heappush(open_list, (0, start))
@@ -75,6 +77,8 @@ class AStarPathfinder:
 
         while open_list:
             current = heapq.heappop(open_list)[1]
+            stdscr.addstr(0, 0, f"Current: {current}")
+            stdscr.refresh()
             open_set.remove(current)
 
             if current == goal:

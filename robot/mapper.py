@@ -71,118 +71,11 @@ class Mapper:
     def get_pos(self):
         return self.x, self.y
 
-    def save_detected_points(self, filename="mapa.json", format="json"):
-        """
-        Save detected points to a file in a specified format (e.g., JSON).
-        """
-        if format == "json":
-            # Konwersja numpy array do listy
-            detected_points_list = [list(point) for point in self.detected_points]
-
-            with open(filename, "w") as f:
-                json.dump(detected_points_list, f)
-
-    def process_saved_points(self, filename, format="json", output_filename="output_map.png", zoom_level=100):
-        """
-        Load points from a file, process them and generate a map.
-        :param filename: The name of the file where the points are stored.
-        :param format: Format of the file (default is JSON).
-        :param output_filename: The name of the output image file.
-        :param zoom_level: Zoom level for the map visualization.
-        """
-        if format == "json":
-            with open(filename, "r") as f:
-                loaded_points = json.load(f)
-
-        # Convert loaded points to a numpy array
-        loaded_points = np.array(loaded_points)
-
-        # Check if loaded points are valid
-        if len(loaded_points) == 0:
-            print("Brak wczytanych punktów do przetworzenia.")
-            return
-
-        # Save loaded points to detected_points for processing
-        self.detected_points = list(loaded_points)  # Convert array back to list if necessary
-
-        # Process the points and generate the map
-        self.process_detected_points(zoom_level=zoom_level, filename=output_filename)
-
-    def create_map(self, filename="robot_map.png", zoom_level=100):
-        positions = np.array(self.positions)
-        x_positions = positions[:, 0]
-        y_positions = positions[:, 1]
-
-        detected_points = np.array(self.slam.get_map())
-        if len(detected_points) > 0:
-            x_detected = detected_points[:, 0]
-            y_detected = detected_points[:, 1]
-
-        orientation_length = 10
-        angle_rad = math.radians(self.current_angle)
-        dx_arrow = orientation_length * math.cos(angle_rad)
-        dy_arrow = orientation_length * math.sin(angle_rad)
-
-        plt.figure(figsize=(8, 8))
-        plt.plot(x_positions, y_positions, marker="o", color="b", markersize=3)
-        plt.plot(x_positions[-1], y_positions[-1], marker="s", color="r", markersize=25, label="Current Position")
-        plt.arrow(x_positions[-1], y_positions[-1], dx_arrow, dy_arrow, head_width=2, head_length=2, fc='k', ec='k',
-                  label="Orientation")
-
-        if len(detected_points) > 0:
-            plt.scatter(x_detected, y_detected, color='g', label="Detected Points", s=30)
-
-        center_x, center_y = x_positions[-1], y_positions[-1]
-        plt.xlim(center_x - zoom_level, center_x + zoom_level)
-        plt.ylim(center_y - zoom_level, center_y + zoom_level)
-
-        plt.title("Robot Movement Path with Detected Points")
-        plt.xlabel("X position (cm)")
-        plt.ylabel("Y position (cm)")
-        plt.grid(True)
-        plt.legend()
-        plt.savefig(filename)
-        plt.close()
-
-    def create_grid_from_text_file(self, filename="map_data.txt", grid_size=(200, 200), scale=1):
+    def create_map_grid(self, grid_size=(200, 200), scale=1):
         # Inicjalizuj mapę gridową jako wolną
         map_grid = np.zeros(grid_size)
 
-        # Wczytaj dane z pliku tekstowego
-        with open(filename, 'r') as f:
-            lines = f.readlines()
-
-        # Przetwórz dane
-        reading_positions = False
-        for line in lines:
-            line = line.strip()
-            if line == "Robot Positions:":
-                reading_positions = True
-                continue
-            if line == "Detected Points:":
-                reading_positions = False
-                continue
-
-            if line:
-                # Zamień wartości zmiennoprzecinkowe na całkowite
-                try:
-                    x, y = map(float, line.split(','))
-                    x = int(round(x // scale))
-                    y = int(round(y // scale))
-
-                    if 0 <= x < grid_size[1] and 0 <= y < grid_size[0]:
-                        # Ustaw na 1, jeśli jest to punkt wykryty (przeszkoda)
-                        map_grid[y, x] = 1
-                except ValueError as e:
-                    print(f"Error processing line: {line}. {e}")
-
-        return map_grid
-
-    def save_map_to_text_file(self, filename="map_data.txt"):
-        positions = np.array(self.positions)
-        x_positions = positions[:, 0]
-        y_positions = positions[:, 1]
-
+        # Zbierz dane z wykrytych punktów
         detected_points = np.array(self.slam.get_map())
         if len(detected_points) > 0:
             x_detected = detected_points[:, 0]
@@ -191,11 +84,28 @@ class Mapper:
             x_detected = np.array([])
             y_detected = np.array([])
 
-        # Zapisz dane do pliku tekstowego
-        with open(filename, 'w') as f:
-            f.write("\nDetected Points:\n")
-            for x, y in zip(x_detected, y_detected):
-                f.write(f"{x}, {y}\n")
+        # Zbierz dane z pozycji robota
+        positions = np.array(self.positions)
+        x_positions = positions[:, 0]
+        y_positions = positions[:, 1]
+
+        # Zaktualizuj grid na podstawie wykrytych punktów
+        for x, y in zip(x_detected, y_detected):
+            x = int(round(x // scale))
+            y = int(round(y // scale))
+
+            if 0 <= x < grid_size[1] and 0 <= y < grid_size[0]:
+                map_grid[y, x] = 1
+
+        # Zaktualizuj grid na podstawie pozycji robota
+        for x, y in zip(x_positions, y_positions):
+            x = int(round(x // scale))
+            y = int(round(y // scale))
+
+            if 0 <= x < grid_size[1] and 0 <= y < grid_size[0]:
+                map_grid[y, x] = 1
+
+        return map_grid
 
     def update_position(self):
         # Aktualizacja pozycji robota
@@ -343,12 +253,6 @@ class Mapper:
         return map_grid
 
     def save_map_grid_to_file(self, map_grid, filename="map_grid.txt"):
-        """
-        Save the map grid to a text file.
-        :param map_grid: The grid map array to save.
-        :param filename: The name of the output text file.
-        :return: None
-        """
         np.savetxt(filename, map_grid, fmt='%d', delimiter=' ')
 
     def get_robot_grid_position(self, map_grid, resolution=1.0):

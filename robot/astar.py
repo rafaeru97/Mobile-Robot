@@ -260,7 +260,7 @@ class AStarPathfinder:
             current_angle = gyro.get_angle_z()
             angle_difference = (target_angle - current_angle + 360) % 360
             if abs(angle_difference) > angle_tolerance:
-                self.stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}°")
+                self.stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}° | angle_difference: {angle_difference:.2f}°")
                 self.stdscr.refresh()
                 motor_controller.rotate_to_angle(gyro, target_angle=target_angle)
                 time.sleep(0.2)
@@ -271,11 +271,3 @@ class AStarPathfinder:
             current_position = self.mapper.get_grid_pos()
             self.stdscr.addstr(8, 0, f"Updated grid position: {current_position}")
             self.stdscr.refresh()
-
-            if i == len(path) - 1:
-                final_distance = np.linalg.norm(np.array(target_position) - np.array(current_position))
-                if final_distance > final_position_tolerance:
-                    self.stdscr.addstr(9, 0, f"Compensating for final distance: {final_distance:.2f} cm")
-                    motor_controller.forward_with_encoders(final_distance * 0.01)
-                    self.stdscr.refresh()
-                    time.sleep(0.2)

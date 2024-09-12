@@ -144,7 +144,7 @@ class Mapper:
         plt.savefig(filename)
         plt.close()
 
-    def create_grid_from_text_file(filename="map_data.txt", grid_size=(200, 200), scale=1):
+    def create_grid_from_text_file(self, filename="map_data.txt", grid_size=(200, 200), scale=1):
         # Inicjalizuj mapę gridową jako wolną
         map_grid = np.zeros(grid_size)
 

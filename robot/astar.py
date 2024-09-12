@@ -183,6 +183,9 @@ class AStarPathfinder:
         map_grid = self.map_grid
         robot_position = self.robot_pos
 
+        robot_x, robot_y = robot_position
+        plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')
+
         # Rysuj ścieżkę na mapie
         for x, y in path:
             if 0 <= x < map_grid.shape[1] and 0 <= y < map_grid.shape[0]:
@@ -217,9 +220,6 @@ class AStarPathfinder:
                      (current_position[1] + next_position[1]) / 2,
                      f'{distance:.1f}cm, {angle:.1f}°',
                      fontsize=8, color='red')
-
-        robot_x, robot_y = robot_position
-        plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')
 
         plt.xlabel('X position')
         plt.ylabel('Y position')

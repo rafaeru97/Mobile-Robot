@@ -280,7 +280,7 @@ class Mapper:
     def get_grid_pos(self):
         robot_x, robot_y = self.get_pos()
 
-        grid_y = grid_size[1]
+        grid_y = self.grid_size[1]
         robot_y = grid_y - robot_y
 
         return robot_x, robot_y

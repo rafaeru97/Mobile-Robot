@@ -219,6 +219,18 @@ class AStarPathfinder:
                      f'{distance:.1f}cm, {angle:.1f}°',
                      fontsize=8, color='red')
 
+        # Dodaj punkty w miejscach, gdzie następuje zmiana kąta
+        for i in range(1, len(interpolated_path) - 1):
+            prev_position = interpolated_path[i - 1]
+            current_position = interpolated_path[i]
+            next_position = interpolated_path[i + 1]
+
+            prev_angle = self.calculate_angle_and_distance(prev_position, current_position)[0]
+            current_angle = self.calculate_angle_and_distance(current_position, next_position)[0]
+
+            if abs(prev_angle - current_angle) > 10:  # Progu zmiany kąta (np. 10°)
+                plt.plot(current_position[0], current_position[1], 'o', color='magenta', markersize=6)
+
         robot_x, robot_y = robot_position
         robot_y = 2 * 100 - robot_y
         plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')

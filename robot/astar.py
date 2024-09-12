@@ -113,12 +113,14 @@ class AStarPathfinder:
         """Calculates penalty for the given node near obstacles."""
         x, y = node
         penalty = 0
+        # Sprawdź otoczenie punktu, aby obliczyć penalizację
         for dx in range(-self.safety_margin, self.safety_margin + 1):
             for dy in range(-self.safety_margin, self.safety_margin + 1):
                 nx, ny = x + dx, y + dy
                 if 0 <= nx < self.map_grid.shape[1] and 0 <= ny < self.map_grid.shape[0]:
                     if self.map_grid[ny, nx] == 1:
-                        penalty += 10  # Adjust penalty value as needed
+                        # Dodaj mniejszą penalizację na każdy z sąsiadujących węzłów
+                        penalty += 1  # Można dostosować tę wartość w zależności od potrzeb
         logging.debug(f"Penalty for node {node}: {penalty}")
         return penalty
 

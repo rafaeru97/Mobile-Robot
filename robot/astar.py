@@ -231,7 +231,6 @@ class AStarPathfinder:
 
     def calculate_angle_and_distance(self, current_position, target_position):
         if current_position is None or target_position is None:
-            logging.error("Current or target position is None")
             return None, None
 
         dx = target_position[0] - current_position[0]
@@ -240,10 +239,10 @@ class AStarPathfinder:
         angle = np.degrees(np.arctan2(dy, dx))
         angle = (angle + 360) % 360
 
-        logging.debug(f"Angle: {angle:.2f}°, Distance: {distance:.2f}cm")
         return angle, distance
 
     def move_robot_along_path(self, motor_controller, path, gyro, angle_tolerance=5):
+        logging.debug("New Path!")
         path = rdp(path, epsilon=8.0)
         path = self.interpolate_path(path, max_step_size=15.0)
         self.stdscr.clear()
@@ -258,7 +257,8 @@ class AStarPathfinder:
             self.stdscr.addstr(4, 0, f'Target position: {target_position}')
 
             current_angle = gyro.get_angle_z()
-            angle_difference = (target_angle - current_angle + 360) % 360
+            angle_difference = (target_angle - current_angle)
+            logging.debug(f"[{i}] current_angle: {current_angle:.2f}°, angle_difference: {angle_difference:.2f}°, target_distance: {target_distance:.2f}cm")
             if abs(angle_difference) > angle_tolerance:
                 self.stdscr.addstr(5, 0, f"Rotating to {target_angle:.2f}° | angle_difference: {angle_difference:.2f}°")
                 self.stdscr.refresh()

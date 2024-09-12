@@ -59,7 +59,7 @@ class AStarPathfinder:
 
     def astar(self, goal):
         start_time = time.time()
-        self.mapper.create_map_grid()
+        self.map_grid = self.mapper.get_map_grid()
         actual_pos = self.mapper.get_pos()
 
         self.stdscr.clear()

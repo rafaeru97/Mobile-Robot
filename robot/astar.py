@@ -82,8 +82,8 @@ class AStarPathfinder:
         self.mapper = mapper
 
     def heuristic(self, a, b):
-        """Oblicza odległość Manhattan pomiędzy dwoma punktami na siatce."""
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+        """Oblicza odległość Euklidesową pomiędzy dwoma punktami na siatce."""
+        return np.linalg.norm(np.array(a) - np.array(b))
 
     def astar(self, start, goal):
         """Główna funkcja A* z uwzględnieniem odbicia Y, offsetu i marginesu bezpieczeństwa."""
@@ -181,20 +181,48 @@ class AStarPathfinder:
 
     def visualize_path(self, path, map_grid, robot_position=(100, 100), filename="path_visualization.png"):
         plt.figure(figsize=(8, 8))
-        plt.imshow(map_grid, cmap='gray', origin='upper')  # Origin is 'lower' to match (0,0) at bottom-left
+        plt.imshow(map_grid, cmap='gray', origin='upper')
 
+        # Wizualizacja oryginalnej ścieżki
         if path:
             path = np.array(path)
-            path[:, 1] = 2 * 100 - path[:, 1]  # Odbicie względem osi Y
-            plt.plot(path[:, 0], path[:, 1], 'y-', lw=2, label='Path')
+            path[:, 1] = 2 * 100 - path[:, 1]  # Odbicie Y dla wizualizacji
+            plt.plot(path[:, 0], path[:, 1], 'y-', lw=2, label='Original Path')
 
+        # Ramer-Douglas-Peucker (RDP) simplification
+        simplified_path = rdp(path, epsilon=5.0)
+        if simplified_path:
+            simplified_path = np.array(simplified_path)
+            simplified_path[:, 1] = 2 * 100 - simplified_path[:, 1]
+            plt.plot(simplified_path[:, 0], simplified_path[:, 1], 'b--', lw=2, label='Simplified Path (RDP)')
+
+        # Interpolacja ścieżki
+        interpolated_path = interpolate_path(path, max_step_size=10.0)
+        if interpolated_path:
+            interpolated_path = np.array(interpolated_path)
+            interpolated_path[:, 1] = 2 * 100 - interpolated_path[:, 1]
+            plt.plot(interpolated_path[:, 0], interpolated_path[:, 1], 'g:', lw=2, label='Interpolated Path')
+
+        # Wyznaczanie kątów obrotu i odległości
+        for i in range(len(path) - 1):
+            current_position = path[i]
+            next_position = path[i + 1]
+            angle, distance = self.calculate_angle_and_distance(current_position, next_position)
+
+            # Oznaczenie kąta i odległości na wykresie
+            plt.text((current_position[0] + next_position[0]) / 2,
+                     (current_position[1] + next_position[1]) / 2,
+                     f'{distance:.1f}cm, {angle:.1f}°',
+                     fontsize=8, color='red')
+
+        # Pozycja robota
         robot_x, robot_y = robot_position
         robot_y = 2 * 100 - robot_y
         plt.plot(robot_x, robot_y, marker="s", color="r", markersize=25, label='Current Position')
 
         plt.xlabel('X position')
         plt.ylabel('Y position')
-        plt.title('A* Path Visualization')
+        plt.title('Path Visualization with RDP and Interpolation')
         plt.legend()
         plt.grid(True)
         plt.savefig(filename)
@@ -221,11 +249,7 @@ class AStarPathfinder:
         current_position = self.mapper.get_robot_grid_position(self.map_grid, resolution)
         stdscr.addstr(2, 0, f'Starting at grid position: {current_position}')
 
-        # Wygładź i interpoluj ścieżkę
-        simplified_path = rdp(path, epsilon=6.0)
-        smoothed_path = interpolate_path(simplified_path, max_step_size=20.0)
-
-        for i, target_position in enumerate(smoothed_path):
+        for i, target_position in enumerate(path):
             target_position = tuple(
                 map(int, target_position))  # Upewnij się, że target_position to tuple z liczbami całkowitymi
             target_angle, target_distance = self.calculate_angle_and_distance(current_position, target_position)
@@ -248,7 +272,7 @@ class AStarPathfinder:
             stdscr.refresh()
 
             # Jeśli to ostatni punkt w ścieżce, zastosuj mniejszą tolerancję
-            if i == len(smoothed_path) - 1:
+            if i == len(path) - 1:
                 final_distance = np.linalg.norm(np.array(target_position) - np.array(current_position))
                 if final_distance > final_position_tolerance:
                     stdscr.addstr(9, 0, f"Compensating for final distance: {final_distance:.2f} cm")

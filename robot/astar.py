@@ -46,7 +46,7 @@ def rdp(points, epsilon):
     return rdp_recursive(points, epsilon)
 
 class AStarPathfinder:
-    def __init__(self, stdscr, mapper, safety_margin=15, test_mode=False):
+    def __init__(self, stdscr, mapper, safety_margin=25, test_mode=False):
         self.stdscr = stdscr
         self.mapper = mapper
         self.map_grid = mapper.get_map_grid()

@@ -180,7 +180,7 @@ class Mapper:
             return center
 
         # Używamy filtra do przetwarzania mapy
-        self.map_grid = generic_filter(self.map_grid, count_neighbors, size=8)
+        self.map_grid = generic_filter(self.map_grid, count_neighbors, size=10)
 
         # Dylatacja (powiększenie obszarów przeszkód)
         self.map_grid = binary_dilation(self.map_grid, iterations=2)

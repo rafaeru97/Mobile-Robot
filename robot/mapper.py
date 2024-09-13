@@ -171,7 +171,7 @@ class Mapper:
             if 0 <= x < self.grid_size[1] and 0 <= y < self.grid_size[0]:
                 self.map_grid[y, x] = 1
 
-        distance_threshold = 8
+        distance_threshold = 3
         def count_neighbors(values):
             center = values[len(values) // 2]  # wartość centralna
             neighbors = np.sum(values) - center  # suma sąsiadów (bez środka)
@@ -180,7 +180,7 @@ class Mapper:
             return center
 
         # Używamy filtra do przetwarzania mapy
-        self.map_grid = generic_filter(self.map_grid, count_neighbors, size=3)
+        self.map_grid = generic_filter(self.map_grid, count_neighbors, size=5)
 
         # Dylatacja (powiększenie obszarów przeszkód)
         self.map_grid = binary_dilation(self.map_grid, iterations=2)

@@ -172,7 +172,7 @@ class Mapper:
                 self.map_grid[y, x] = 1
 
         # Erozja (zmniejszenie obszarów przeszkód)
-        # self.map_grid = binary_erosion(self.map_grid, iterations=1)
+        self.map_grid = binary_erosion(self.map_grid, iterations=1)
 
         # Dylatacja (powiększenie obszarów przeszkód)
         self.map_grid = binary_dilation(self.map_grid, iterations=2)

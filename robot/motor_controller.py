@@ -21,23 +21,6 @@ class PID:
         self.previous_error = error
         return self.kp * error + self.ki * self.integral + self.kd * derivative
 
-class RotatePID:
-    def __init__(self, kp, ki, kd, setpoint):
-        self.kp = kp
-        self.ki = ki
-        self.kd = kd
-        self.setpoint = setpoint
-        self.prev_error = 0
-        self.integral = 0
-
-    def compute(self, current_value, dt):
-        error = self.setpoint - current_value
-        self.integral += error * dt
-        derivative = (error - self.prev_error) / dt
-        output = self.kp * error + self.ki * self.integral + self.kd * derivative
-        self.prev_error = error
-        return output
-
 class MotorController:
     def __init__(self, en_a=13, in1=20, in2=21, en_b=12, in3=6, in4=5):
         # Inicjalizacja pinów GPIO

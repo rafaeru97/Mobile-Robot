@@ -180,7 +180,7 @@ def main(stdscr):
         right_encoder = Encoder(pin_a=16, pin_b=1, wheel_diameter=0.08, ticks_per_revolution=960)
         motor_controller = MotorController()
         motor_controller.setEncoders(left_encoder, right_encoder)
-        gyro = Gyro(calib_value=-250)
+        gyro = Gyro()
         sensor = DistanceSensor(trigger_pin=23, echo_pin=24)
         mapper = Mapper(motor_controller, gyro, sensor)
         motor_controller.setMapper(mapper)

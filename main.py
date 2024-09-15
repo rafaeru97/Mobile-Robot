@@ -233,7 +233,11 @@ def main(stdscr):
                 elif key == ord('e'):
                     motor_controller.rotate_to_angle(gyro, 180)
                 elif key == ord('c'):
+                    program_status = "clearing map"
+                    print_gui_data(stdscr, speed, distance, orientation, rotate, motor_status, encoder_distance,
+                                   mapper, program_status)
                     mapper.clear_robot_path()
+                    mapper.create_map()
                 elif key == ord('d'):
                     toggle_distance_reading(sensor)
                 elif key == ord('m'):

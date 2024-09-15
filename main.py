@@ -232,6 +232,8 @@ def main(stdscr):
                     motor_controller.forward_with_encoders(0.1)
                 elif key == ord('e'):
                     motor_controller.rotate_to_angle(gyro, 180)
+                elif key == ord('c'):
+                    mapper.clear_robot_path()
                 elif key == ord('d'):
                     toggle_distance_reading(sensor)
                 elif key == ord('m'):

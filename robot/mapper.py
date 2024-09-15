@@ -70,6 +70,9 @@ class Mapper:
         self.map_grid = None
         self.grid_size = grid_size
 
+    def clear_robot_path(self):
+        self.positions = [(self.x, self.y)]
+
     def get_pos(self):
         return self.x, self.y
 

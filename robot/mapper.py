@@ -260,23 +260,35 @@ class Mapper:
         alpha = 0.05  # Adjust this value to control the level of detail
         alpha_shape = alphashape.alphashape(filtered_points, alpha)
 
-        # Convert Alpha Shape to coordinates for plotting
-        if alpha_shape.geom_type == 'Polygon':
-            boundary = np.array(alpha_shape.exterior.coords)
-        elif alpha_shape.geom_type == 'MultiPolygon':
-            boundary = np.concatenate([np.array(p.exterior.coords) for p in alpha_shape.geoms], axis=0)
-        else:
-            boundary = np.array([])
-
-        # Plotting the results
+        # Prepare plotting
         plt.figure(figsize=(8, 8))
         plt.plot(filtered_points[:, 0], filtered_points[:, 1], 'o', label='Filtered Points')
-        if boundary.size > 0:
+
+        # Convert Alpha Shape to coordinates for plotting
+        if alpha_shape.geom_type == 'Polygon':
+            # Plot outer boundary
+            boundary = np.array(alpha_shape.exterior.coords)
             plt.plot(boundary[:, 0], boundary[:, 1], 'r--', lw=2, label='Alpha Shape')
+
+            # Plot internal holes, if any
+            for interior in alpha_shape.interiors:
+                hole = np.array(interior.coords)
+                plt.plot(hole[:, 0], hole[:, 1], 'g--', lw=2, label='Internal Boundary')
+
+        elif alpha_shape.geom_type == 'MultiPolygon':
+            # Plot each polygon separately
+            for polygon in alpha_shape.geoms:
+                boundary = np.array(polygon.exterior.coords)
+                plt.plot(boundary[:, 0], boundary[:, 1], 'r--', lw=2, label='Alpha Shape')
+
+                # Plot internal holes for each polygon
+                for interior in polygon.interiors:
+                    hole = np.array(interior.coords)
+                    plt.plot(hole[:, 0], hole[:, 1], 'g--', lw=2, label='Internal Boundary')
 
         plt.xlabel('X position (cm)')
         plt.ylabel('Y position (cm)')
-        plt.title('Map with Alpha Shape')
+        plt.title('Map with Alpha Shape and Internal Boundaries')
         plt.legend()
         plt.grid()
         plt.savefig(filename)

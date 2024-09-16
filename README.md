@@ -1,29 +1,31 @@
-## Mobile Robot
+## Mobile Robot Navigation System
+This master's thesis presents a complete mobile robot navigation system, utilizing the A* algorithm for path planning and SLAM techniques for building a map of the environment. The system is based on the Raspberry Pi platform, which coordinates the operation of sensors such as the MPU-6050 gyroscope, motor encoders, and a distance sensor. Real-time data processing enables the robot to effectively avoid obstacles and navigate in dynamic environments.
 
-This project involves a mobile robot that uses a distance sensor to create a map of its surroundings. As the robot moves through the environment, it collects distance measurements from obstacles around it. These measurements are then used to generate a map that represents the layout of objects and structures in the area.
+The system offers flexibility and easy scalability. The Python-based program allows for the integration of additional features, while the grid map structure and A* algorithm ensure high precision in determining optimal routes. Moreover, the system supports communication via a graphical interface accessible through a web browser, simplifying interaction with the robot and enabling real-time monitoring of its status.
 
-Key Features:
-- Map Creation: The robot, equipped with a distance sensor, records distance measurements while moving. This data is used to create an initial map of the area the robot has explored.
+While the system functions as intended, there is potential for further optimization, particularly in terms of computational performance. Certain computations could be migrated to C++ to speed up the program's execution.
 
-- Point Detection: Based on the collected data, the robot identifies key points in the space, which are then used to define the boundaries of the area.
+Verification tests conducted in real-world conditions confirmed the system's accuracy, with results indicating the possibility for further development towards more advanced robotic applications.
 
-- Border Drawing: In the post-processing phase, the point data is analyzed to draw the borders of the surrounding environment on the map. Statistical filtering and boundary estimation algorithms are used to accurately outline the area, providing a visual representation of the room or terrain.
+## Project Gallery
+Here are some images showcasing the mobile robot navigation system in action:
 
-This project combines advanced robotics technology and data processing to create an accurate depiction of the space, useful for applications such as autonomous robot navigation, spatial analysis, and environmental automation.
-
-## Screens:
 <p align="center">
-  <img src="https://i.imgur.com/nckHcsO.png">
+  <img src="https://i.imgur.com/LvPiTOh.png">
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/D9xJnPV.jpeg">
+  <img src="https://i.imgur.com/qOoyDM9.png">
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/XPbsGqV.png">
+  <img src="https://i.imgur.com/4T1sIJb.png">
 </p>
 
 <p align="center">
-  <img src="https://i.imgur.com/8yfMM2d.png">
+  <img src="https://i.imgur.com/l3zMYjI.png">
+</p>
+
+<p align="center">
+  <img src="https://i.imgur.com/TS9tR7P.png">
 </p>

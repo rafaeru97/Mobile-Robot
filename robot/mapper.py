@@ -262,7 +262,6 @@ class Mapper:
 
         # Prepare plotting
         plt.figure(figsize=(8, 8))
-        plt.plot(filtered_points[:, 0], filtered_points[:, 1], 'o', label='Filtered Points')
 
         # Convert Alpha Shape to coordinates for plotting
         if alpha_shape.geom_type == 'Polygon':
@@ -289,7 +288,6 @@ class Mapper:
         plt.xlabel('X position (cm)')
         plt.ylabel('Y position (cm)')
         plt.title('Map with Alpha Shape and Internal Boundaries')
-        plt.legend()
         plt.grid()
         plt.savefig(filename)
         plt.show()

@@ -256,9 +256,19 @@ class Mapper:
         if len(filtered_points) < 3:
             return
 
+        # Oblicz centroid punktów
+        centroid = np.mean(filtered_points, axis=0)
+
+        # Oblicz odległości punktów od centroidu
+        distances = np.linalg.norm(filtered_points - centroid, axis=1)
+
+        # Zachowaj tylko punkty, które są wewnętrzne (np. w dolnym percentylu odległości)
+        threshold_distance = np.percentile(distances, 50)  # Zachowaj tylko 50% najbliższych punktów
+        inner_points = filtered_points[distances <= threshold_distance]
+
         # Generate Alpha Shape
-        alpha = 0.005  # Adjust this value to control the level of detail
-        alpha_shape = alphashape.alphashape(filtered_points, alpha)
+        alpha = 0.05  # Adjust this value to control the level of detail
+        alpha_shape = alphashape.alphashape(inner_points, alpha)
 
         # Prepare plotting
         plt.figure(figsize=(8, 8))

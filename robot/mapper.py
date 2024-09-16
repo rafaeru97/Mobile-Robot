@@ -272,7 +272,7 @@ class Mapper:
 
         # Prepare plotting
         plt.figure(figsize=(8, 8))
-        plt.plot(filtered_points[:, 0], filtered_points[:, 1], 'o', label='Filtered Points')
+        plt.plot(inner_points[:, 0], inner_points[:, 1], 'o', label='Filtered Points')
 
         # Convert Alpha Shape to coordinates for plotting
         if alpha_shape.geom_type == 'Polygon':

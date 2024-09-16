@@ -267,7 +267,7 @@ class Mapper:
         inner_points = filtered_points[distances <= threshold_distance]
 
         # Generate Alpha Shape
-        alpha = 0.05  # Adjust this value to control the level of detail
+        alpha = 0.01  # Adjust this value to control the level of detail
         alpha_shape = alphashape.alphashape(inner_points, alpha)
 
         # Prepare plotting
